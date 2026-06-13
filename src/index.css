@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-chesto-cream text-chesto-dark font-body antialiased;
+  }
+
+  ::selection {
+    @apply bg-chesto-gold text-chesto-dark;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-chesto-gold/40 rounded-full; }
+}
+
+@layer components {
+  .nav-link {
+    @apply text-sm font-body font-medium tracking-widest uppercase text-chesto-charcoal/70
+           hover:text-chesto-dark transition-colors duration-200 relative;
+  }
+  .nav-link::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 w-0 h-px bg-chesto-gold transition-all duration-300;
+  }
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply w-full;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-chesto-dark text-chesto-cream
+           font-body font-medium text-sm tracking-wider uppercase
+           hover:bg-chesto-charcoal transition-colors duration-200;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-6 py-3 border border-chesto-dark/30 text-chesto-dark
+           font-body font-medium text-sm tracking-wider uppercase
+           hover:border-chesto-dark hover:bg-chesto-dark hover:text-chesto-cream transition-all duration-200;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-chesto-gold text-chesto-dark
+           font-body font-medium text-sm tracking-wider uppercase
+           hover:bg-chesto-gold-light transition-colors duration-200;
+  }
+
+  .section-label {
+    @apply text-xs font-body font-medium tracking-[0.2em] uppercase text-chesto-gold;
+  }
+
+  .display-heading {
+    @apply font-display font-semibold text-chesto-dark;
+  }
+
+  /* Photo card hover */
+  .photo-card {
+    @apply relative overflow-hidden cursor-pointer;
+  }
+  .photo-card img {
+    @apply w-full h-full object-cover transition-transform duration-700 ease-out;
+  }
+  .photo-card:hover img {
+    @apply scale-105;
+  }
+  .photo-card-overlay {
+    @apply absolute inset-0 bg-chesto-dark/0 hover:bg-chesto-dark/30 transition-all duration-400
+           flex items-end p-5;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    @apply fixed inset-0 z-50 bg-chesto-dark/95 flex items-center justify-center;
+  }
+
+  /* Admin sidebar */
+  .admin-nav-item {
+    @apply flex items-center gap-3 px-4 py-3 text-sm font-body font-medium
+           text-chesto-cream/60 hover:text-chesto-cream hover:bg-white/5
+           transition-all duration-200 rounded-lg;
+  }
+  .admin-nav-item.active {
+    @apply text-chesto-cream bg-white/10;
+  }
+
+  /* Form fields */
+  .field-label {
+    @apply block text-xs font-medium tracking-wider uppercase text-chesto-charcoal/70 mb-1.5;
+  }
+  .field-input {
+    @apply w-full px-4 py-3 bg-white border border-chesto-charcoal/20 text-chesto-dark
+           font-body text-sm placeholder-chesto-charcoal/30
+           focus:outline-none focus:border-chesto-gold transition-colors duration-200;
+  }
+  .field-textarea {
+    @apply field-input resize-none;
+  }
+}
+
+/* Page transition */
+.page-enter {
+  animation: fadeUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Masonry overrides */
+.masonry-grid {
+  display: flex;
+  margin-left: -12px;
+  width: auto;
+}
+.masonry-grid-column {
+  padding-left: 12px;
+  background-clip: padding-box;
+}
+.masonry-grid-column > div {
+  margin-bottom: 12px;
+}
