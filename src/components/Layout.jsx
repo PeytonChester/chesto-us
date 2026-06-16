@@ -18,7 +18,7 @@ export default function Layout() {
         scrolled ? 'bg-chesto-cream/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
       }`}>
         <nav className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
-          <Link to="/" className="font-display font-semibold text-xl text-chesto-dark tracking-tight">
+          <Link to="/" className={`font-display font-semibold text-xl tracking-tight transition-colors duration-400 ${scrolled ? 'text-chesto-dark' : 'text-chesto-cream'}`}>
             Chesto<span className="text-chesto-gold">.</span>us
           </Link>
 
@@ -34,7 +34,11 @@ export default function Layout() {
                 <NavLink
                   to={to}
                   end={to === '/'}
-                  className={({ isActive }) => `nav-link ${isActive ? 'active text-chesto-dark' : ''}`}
+                  className={({ isActive }) => `nav-link transition-colors duration-400 ${
+                    scrolled
+                      ? `text-chesto-charcoal/70 hover:text-chesto-dark ${isActive ? 'active text-chesto-dark' : ''}`
+                      : `text-chesto-cream/90 hover:text-white ${isActive ? 'active text-white' : ''}`
+                  }`}
                 >
                   {label}
                 </NavLink>
@@ -48,9 +52,9 @@ export default function Layout() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            <span className={`block w-6 h-px bg-chesto-dark transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-            <span className={`block w-6 h-px bg-chesto-dark transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
-            <span className={`block w-6 h-px bg-chesto-dark transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </nav>
 
