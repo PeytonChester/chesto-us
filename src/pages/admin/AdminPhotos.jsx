@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage'
-import { collection, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 
@@ -54,6 +54,16 @@ export default function AdminPhotos() {
       await deleteDoc(doc(db, 'photos', photo.id))
     } catch (err) {
       alert('Delete failed: ' + err.message)
+    }
+  }
+
+  const setCover = async (photo) => {
+    try {
+      await setDoc(doc(db, 'settings', 'photography'), {
+        [`covers.${photo.category}`]: photo.url,
+      }, { merge: true })
+    } catch (err) {
+      alert('Failed to set cover: ' + err.message)
     }
   }
 
@@ -130,7 +140,13 @@ export default function AdminPhotos() {
               {catPhotos.map(photo => (
                 <div key={photo.id} className="relative group aspect-square">
                   <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-chesto-dark/0 group-hover:bg-chesto-dark/60 transition-all duration-200 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-chesto-dark/0 group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
+                    <button
+                      onClick={() => setCover(photo)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
+                    >
+                      Set Cover
+                    </button>
                     <button
                       onClick={() => deletePhoto(photo)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white text-xs px-3 py-1.5 font-body"

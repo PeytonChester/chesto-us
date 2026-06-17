@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 
 const CATEGORIES = [
   { slug: 'wildlife',     label: 'Wildlife',      description: 'Animals in their element' },
@@ -10,6 +13,15 @@ const CATEGORIES = [
 ]
 
 export default function Photography() {
+  const [covers, setCovers] = useState({})
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'photography'), snap => {
+      if (snap.exists()) setCovers(snap.data().covers || {})
+    })
+    return unsub
+  }, [])
+
   return (
     <div className="pt-16">
       {/* Header */}
@@ -31,12 +43,15 @@ export default function Photography() {
               className={`photo-card group ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
               style={{ aspectRatio: i === 0 ? '16/9' : '3/2' }}
             >
-              {/* Placeholder gradient — replaced once photos are in Firestore */}
-              <div className={`w-full h-full ${
-                ['bg-stone-800','bg-stone-700','bg-stone-600','bg-stone-700','bg-stone-800','bg-stone-600'][i]
-              } flex items-center justify-center`}>
-                <span className="text-white/20 text-xs tracking-widest uppercase">{cat.label}</span>
-              </div>
+              {covers[cat.slug] ? (
+                <img src={covers[cat.slug]} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              ) : (
+                <div className={`w-full h-full ${
+                  ['bg-stone-800','bg-stone-700','bg-stone-600','bg-stone-700','bg-stone-800','bg-stone-600'][i]
+                } flex items-center justify-center`}>
+                  <span className="text-white/20 text-xs tracking-widest uppercase">{cat.label}</span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-chesto-dark/40 hover:bg-chesto-dark/20 transition-all duration-400 flex flex-col justify-end p-6 md:p-8">
                 <p className="section-label text-chesto-gold mb-1">{cat.label}</p>
                 <p className="text-chesto-cream/70 text-sm font-body">{cat.description}</p>
