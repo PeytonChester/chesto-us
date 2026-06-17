@@ -1,24 +1,28 @@
-import { Outlet, NavLink, Link } from 'react-router-dom'
+import { Outlet, NavLink, Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 export default function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const { pathname } = useLocation()
+  const isHome = pathname === '/'
+  const solid = !isHome || scrolled
 
   useEffect(() => {
+    if (!isHome) return
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [isHome])
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* Nav */}
       <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-400 ${
-        scrolled ? 'bg-chesto-cream/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
+        solid ? 'bg-chesto-cream/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
       }`}>
         <nav className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
-          <Link to="/" className={`font-display font-semibold text-xl tracking-tight transition-colors duration-400 ${scrolled ? 'text-chesto-dark' : 'text-chesto-cream'}`}>
+          <Link to="/" className={`font-display font-semibold text-xl tracking-tight transition-colors duration-400 ${solid ? 'text-chesto-dark' : 'text-chesto-cream'}`}>
             Chesto<span className="text-chesto-gold">.</span>us
           </Link>
 
@@ -35,7 +39,7 @@ export default function Layout() {
                   to={to}
                   end={to === '/'}
                   className={({ isActive }) => `nav-link transition-colors duration-400 ${
-                    scrolled
+                    solid
                       ? `text-chesto-charcoal/70 hover:text-chesto-dark ${isActive ? 'active text-chesto-dark' : ''}`
                       : `text-chesto-cream/90 hover:text-white ${isActive ? 'active text-white' : ''}`
                   }`}
@@ -52,9 +56,9 @@ export default function Layout() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-            <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? 'opacity-0' : ''}`} />
-            <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            <span className={`block w-6 h-px transition-all duration-300 ${solid ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-px transition-all duration-300 ${solid ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-px transition-all duration-300 ${solid ? 'bg-chesto-dark' : 'bg-white'} ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </nav>
 
