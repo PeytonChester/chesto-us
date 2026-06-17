@@ -1,26 +1,8 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { doc, onSnapshot } from 'firebase/firestore'
-import { db } from '../firebase'
-
-const CATEGORIES = [
-  { slug: 'wildlife',     label: 'Wildlife',      description: 'Animals in their element' },
-  { slug: 'macro',        label: 'Macro',          description: 'The world up close' },
-  { slug: 'street',       label: 'Street',         description: 'City life and candid moments' },
-  { slug: 'architecture', label: 'Architecture',   description: 'Form, light, and structure' },
-  { slug: 'sports',       label: 'Sports',         description: 'Motion and energy' },
-  { slug: 'nature',       label: 'Nature',         description: 'Landscapes and the outdoors' },
-]
+import { usePhotographySettings } from '../hooks/usePhotographySettings'
 
 export default function Photography() {
-  const [covers, setCovers] = useState({})
-
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'photography'), snap => {
-      if (snap.exists()) setCovers(snap.data().covers || {})
-    })
-    return unsub
-  }, [])
+  const { categories, covers } = usePhotographySettings()
 
   return (
     <div className="pt-16">

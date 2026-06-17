@@ -3,13 +3,19 @@ import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebas
 import { collection, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
+import { usePhotographySettings } from '../../hooks/usePhotographySettings'
 
-const CATEGORIES = ['wildlife', 'macro', 'street', 'architecture', 'sports', 'nature']
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
 
 export default function AdminPhotos() {
   const { docs: photos } = useCollection('photos', 'createdAt', 'desc')
-  const [uploads, setUploads] = useState([]) // { file, progress, category, title, done, error }
-  const [category, setCategory] = useState('wildlife')
+  const { categories, covers } = usePhotographySettings()
+  const [uploads, setUploads] = useState([])
+  const [category, setCategory] = useState('')
+  const [newLabel, setNewLabel] = useState('')
+  const [newDesc, setNewDesc] = useState('')
   const fileRef = useRef()
 
   const handleFiles = (files) => {
@@ -60,11 +66,28 @@ export default function AdminPhotos() {
   const setCover = async (photo) => {
     try {
       await setDoc(doc(db, 'settings', 'photography'), {
-        [`covers.${photo.category}`]: photo.url,
+        covers: { ...covers, [photo.category]: photo.url },
       }, { merge: true })
     } catch (err) {
       alert('Failed to set cover: ' + err.message)
     }
+  }
+
+  const addCategory = async (e) => {
+    e.preventDefault()
+    if (!newLabel.trim()) return
+    const slug = slugify(newLabel)
+    if (categories.find(c => c.slug === slug)) return alert('Category already exists.')
+    const updated = [...categories, { slug, label: newLabel.trim(), description: newDesc.trim() }]
+    await setDoc(doc(db, 'settings', 'photography'), { categories: updated }, { merge: true })
+    setNewLabel('')
+    setNewDesc('')
+  }
+
+  const removeCategory = async (slug) => {
+    if (!window.confirm('Remove this category? Photos already uploaded will not be deleted.')) return
+    const updated = categories.filter(c => c.slug !== slug)
+    await setDoc(doc(db, 'settings', 'photography'), { categories: updated }, { merge: true })
   }
 
   return (
@@ -86,7 +109,7 @@ export default function AdminPhotos() {
               onChange={e => setCategory(e.target.value)}
               className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream"
             >
-              {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+              {categories.map(c => <option key={c.slug} value={c.slug}>{c.label}</option>)}
             </select>
           </div>
         </div>
@@ -127,14 +150,51 @@ export default function AdminPhotos() {
         </div>
       )}
 
+      {/* Category manager */}
+      <div className="mb-12">
+        <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">Manage Categories</h2>
+        <div className="space-y-2 mb-4">
+          {categories.map(cat => (
+            <div key={cat.slug} className="flex items-center justify-between bg-chesto-charcoal/30 px-4 py-2.5">
+              <div>
+                <span className="text-chesto-cream text-sm font-medium">{cat.label}</span>
+                {cat.description && <span className="text-chesto-cream/30 text-xs ml-3">{cat.description}</span>}
+              </div>
+              <button onClick={() => removeCategory(cat.slug)} className="text-red-400/60 hover:text-red-400 text-xs transition-colors">Remove</button>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={addCategory} className="flex gap-3 items-end">
+          <div>
+            <label className="field-label text-chesto-cream/50">Label</label>
+            <input
+              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-36"
+              placeholder="e.g. Portraits"
+              value={newLabel}
+              onChange={e => setNewLabel(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="field-label text-chesto-cream/50">Description</label>
+            <input
+              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-56"
+              placeholder="Short description"
+              value={newDesc}
+              onChange={e => setNewDesc(e.target.value)}
+            />
+          </div>
+          <button type="submit" className="btn-gold">Add Category</button>
+        </form>
+      </div>
+
       {/* Photo grid by category */}
-      {CATEGORIES.map(cat => {
-        const catPhotos = photos.filter(p => p.category === cat)
+      {categories.map(cat => {
+        const catPhotos = photos.filter(p => p.category === cat.slug)
         if (catPhotos.length === 0) return null
         return (
-          <div key={cat} className="mb-12">
+          <div key={cat.slug} className="mb-12">
             <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">
-              {cat.charAt(0).toUpperCase() + cat.slice(1)} · {catPhotos.length}
+              {cat.label} · {catPhotos.length}
             </h2>
             <div className="grid grid-cols-4 gap-2">
               {catPhotos.map(photo => (
