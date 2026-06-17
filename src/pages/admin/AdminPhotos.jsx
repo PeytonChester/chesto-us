@@ -16,7 +16,13 @@ export default function AdminPhotos() {
   const [category, setCategory] = useState('')
   const [newLabel, setNewLabel] = useState('')
   const [newDesc, setNewDesc] = useState('')
+  const [toast, setToast] = useState(null) // { message, type: 'success'|'error' }
   const fileRef = useRef()
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   const handleFiles = (files) => {
     const items = Array.from(files).map(file => ({
@@ -68,8 +74,9 @@ export default function AdminPhotos() {
       await setDoc(doc(db, 'settings', 'photography'), {
         covers: { ...covers, [photo.category]: photo.url },
       }, { merge: true })
+      showToast('Cover photo updated.')
     } catch (err) {
-      alert('Failed to set cover: ' + err.message)
+      showToast('Failed to set cover: ' + err.message, 'error')
     }
   }
 
@@ -92,6 +99,15 @@ export default function AdminPhotos() {
 
   return (
     <div>
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 text-sm font-body shadow-lg transition-all ${
+          toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-chesto-gold text-chesto-dark'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display font-semibold text-3xl text-chesto-cream mb-1">Photos</h1>
@@ -200,6 +216,11 @@ export default function AdminPhotos() {
               {catPhotos.map(photo => (
                 <div key={photo.id} className="relative group aspect-square">
                   <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+                  {covers[photo.category] === photo.url && (
+                    <div className="absolute top-2 left-2 bg-chesto-gold text-chesto-dark text-xs font-medium px-2 py-0.5">
+                      Cover
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-chesto-dark/0 group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
                     <button
                       onClick={() => setCover(photo)}
