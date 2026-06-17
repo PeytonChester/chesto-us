@@ -174,6 +174,11 @@ export default function AdminRecipeEditor() {
             <h2 className="text-chesto-cream font-body font-medium">Ingredients</h2>
             <button type="button" onClick={addIngredient} className="text-xs text-chesto-gold hover:text-chesto-gold-light">+ Add</button>
           </div>
+          <div className="flex gap-2 mb-1 text-xs font-medium tracking-wider uppercase text-chesto-cream/30 ml-0">
+            <span className="w-20">Amount</span>
+            <span className="w-20">Unit</span>
+            <span className="flex-1">Ingredient</span>
+          </div>
           <div className="space-y-2">
             {form.ingredients.map((ing, i) => (
               <div key={i} className="flex gap-2 items-center">
