@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../../firebase'
+import RichTextEditor from '../../components/RichTextEditor'
 
 const CATEGORIES = ['Photography', 'Cooking', 'Travel', 'Life', 'Gear', 'Other']
 
@@ -30,7 +31,7 @@ export default function AdminBlogEditor() {
       if (snap.exists()) {
         const data = snap.data()
         // Join body array to string for editing
-        setForm({ ...data, body: Array.isArray(data.body) ? data.body.join('\n\n') : data.body || '' })
+        setForm({ ...data, body: Array.isArray(data.body) ? data.body.map(p => `<p>${p}</p>`).join('') : data.body || '' })
       }
       setLoading(false)
     })
@@ -60,9 +61,7 @@ export default function AdminBlogEditor() {
     setSaving(true)
     try {
       const imageUrl = await uploadImage()
-      // Store body as array of paragraphs
-      const body = form.body.split('\n\n').map(p => p.trim()).filter(Boolean)
-      const data = { ...form, imageUrl, body, updatedAt: serverTimestamp() }
+      const data = { ...form, imageUrl, updatedAt: serverTimestamp() }
       if (isEdit) {
         await updateDoc(doc(db, 'posts', id), data)
       } else {
@@ -114,13 +113,7 @@ export default function AdminBlogEditor() {
 
         <div>
           <label className="field-label text-chesto-cream/50">Body</label>
-          <p className="text-chesto-cream/30 text-xs mb-2">Separate paragraphs with a blank line.</p>
-          <textarea
-            className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream h-80 font-body text-sm leading-relaxed"
-            value={form.body}
-            onChange={e => set('body', e.target.value)}
-            placeholder="Write your post here…&#10;&#10;Add a blank line to start a new paragraph."
-          />
+          <RichTextEditor value={form.body} onChange={val => set('body', val)} />
         </div>
 
         <div className="flex gap-4 pt-2">

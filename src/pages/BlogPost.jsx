@@ -53,17 +53,14 @@ export default function BlogPost() {
           {post.createdAt?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
 
-        {/* Body — stored as plain text paragraphs array or single string */}
-        <div className="prose-chesto">
-          {Array.isArray(post.body)
-            ? post.body.map((para, i) => (
-                <p key={i} className="font-body text-base md:text-lg leading-relaxed text-chesto-charcoal/80 mb-6">{para}</p>
-              ))
-            : post.body?.split('\n\n').map((para, i) => (
-                <p key={i} className="font-body text-base md:text-lg leading-relaxed text-chesto-charcoal/80 mb-6">{para}</p>
-              ))
-          }
-        </div>
+        <div
+          className="prose-chesto"
+          dangerouslySetInnerHTML={{
+            __html: Array.isArray(post.body)
+              ? post.body.map(p => `<p>${p}</p>`).join('')
+              : post.body || ''
+          }}
+        />
       </div>
     </article>
   )
