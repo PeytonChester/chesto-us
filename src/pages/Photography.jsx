@@ -18,7 +18,7 @@ export default function Photography() {
       {/* Category grid */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {CATEGORIES.map((cat, i) => (
+          {categories.map((cat, i) => (
             <Link
               key={cat.slug}
               to={`/photography/${cat.slug}`}
