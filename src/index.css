@@ -137,6 +137,10 @@
 .tiptap strong { @apply font-semibold; }
 .tiptap a { @apply text-chesto-gold underline; }
 
+/* Hide scrollbar */
+.scrollbar-hide { scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
 /* Masonry overrides */
 .masonry-grid {
   display: flex;

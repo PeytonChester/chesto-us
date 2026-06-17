@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams, Link } from 'react-router-dom'
 import Masonry from 'react-masonry-css'
 import { useCollection } from '../hooks/useCollection'
@@ -8,21 +9,34 @@ const BREAKPOINTS = { default: 3, 1100: 2, 640: 1 }
 export default function PhotoCategory() {
   const { category } = useParams()
   const { docs: allPhotos, loading } = useCollection('photos', 'createdAt', 'desc')
-  const [lightbox, setLightbox] = useState(null) // index or null
+  const [lightbox, setLightbox] = useState(null)
+  const [visibleCount, setVisibleCount] = useState(10)
+  const thumbStripRef = useRef(null)
+  const activeThumbRef = useRef(null)
+
+  useEffect(() => {
+    if (lightbox !== null && activeThumbRef.current && thumbStripRef.current) {
+      activeThumbRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
+  }, [lightbox])
 
   const photos = allPhotos.filter(p => p.category === category)
+  const visiblePhotos = photos.slice(0, visibleCount)
   const label = category.charAt(0).toUpperCase() + category.slice(1)
 
-  // Keyboard nav for lightbox
-  const handleKey = (e) => {
-    if (lightbox === null) return
-    if (e.key === 'ArrowRight') setLightbox(i => Math.min(i + 1, photos.length - 1))
-    if (e.key === 'ArrowLeft')  setLightbox(i => Math.max(i - 1, 0))
-    if (e.key === 'Escape')     setLightbox(null)
-  }
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (lightbox === null) return
+      if (e.key === 'ArrowRight') setLightbox(i => Math.min(i + 1, photos.length - 1))
+      if (e.key === 'ArrowLeft')  setLightbox(i => Math.max(i - 1, 0))
+      if (e.key === 'Escape')     setLightbox(null)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [lightbox, photos.length])
 
   return (
-    <div className="pt-16" onKeyDown={handleKey} tabIndex={-1}>
+    <div className="pt-16">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16">
         <Link to="/photography" className="section-label text-chesto-charcoal/50 hover:text-chesto-gold transition-colors mb-4 inline-block">
@@ -47,7 +61,7 @@ export default function PhotoCategory() {
           </div>
         ) : (
           <Masonry breakpointCols={BREAKPOINTS} className="masonry-grid" columnClassName="masonry-grid-column">
-            {photos.map((photo, i) => (
+            {visiblePhotos.map((photo, i) => (
               <div
                 key={photo.id}
                 className="photo-card cursor-zoom-in"
@@ -67,11 +81,22 @@ export default function PhotoCategory() {
               </div>
             ))}
           </Masonry>
+
+          {visibleCount < photos.length && (
+            <div className="flex justify-center mt-12">
+              <button
+                onClick={() => setVisibleCount(c => c + 10)}
+                className="btn-ghost"
+              >
+                Load More
+              </button>
+            </div>
+          )}
         )}
       </div>
 
       {/* Lightbox */}
-      {lightbox !== null && photos[lightbox] && (
+      {lightbox !== null && photos[lightbox] && createPortal(
         <div
           className="lightbox"
           onClick={() => setLightbox(null)}
@@ -108,17 +133,33 @@ export default function PhotoCategory() {
             >›</button>
           )}
 
-          {/* Caption */}
-          {photos[lightbox].title && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
-              <p className="text-chesto-cream/70 text-sm font-body">{photos[lightbox].title}</p>
+          {/* Bottom bar: caption + thumbnails */}
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-chesto-dark to-transparent pt-12 pb-4 px-4" onClick={e => e.stopPropagation()}>
+            {photos[lightbox].title && (
+              <p className="text-chesto-cream/70 text-sm font-body text-center mb-3">{photos[lightbox].title}</p>
+            )}
+            <div ref={thumbStripRef} className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide justify-start px-2">
+              {photos.map((photo, i) => (
+                <button
+                  key={photo.id}
+                  ref={i === lightbox ? activeThumbRef : null}
+                  onClick={() => setLightbox(i)}
+                  className={`flex-shrink-0 w-14 h-14 overflow-hidden transition-all duration-200 ${
+                    i === lightbox
+                      ? 'ring-2 ring-chesto-gold opacity-100'
+                      : 'opacity-40 hover:opacity-70'
+                  }`}
+                >
+                  <img src={photo.url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
-          )}
-
-          <p className="absolute bottom-6 right-6 text-chesto-cream/30 text-xs font-mono">
-            {lightbox + 1} / {photos.length}
-          </p>
-        </div>
+            <p className="text-chesto-cream/30 text-xs font-mono text-right mt-2 pr-2">
+              {lightbox + 1} / {photos.length}
+            </p>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   )
