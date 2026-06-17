@@ -4,9 +4,11 @@ import { useCollection } from '../hooks/useCollection'
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
   const { docs: recentPhotos } = useCollection('photos', 'createdAt', 'desc')
+  const { docs: recentPosts } = useCollection('posts', 'createdAt', 'desc')
 
   const featuredRecipes = recentRecipes.slice(0, 3)
   const featuredPhotos = recentPhotos.slice(0, 6)
+  const featuredPosts = recentPosts.slice(0, 3)
 
   return (
     <div>
@@ -113,6 +115,43 @@ export default function Home() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* Blog preview */}
+      <section className="max-w-7xl mx-auto px-6 md:px-10 py-24">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="section-label mb-2">Latest writing</p>
+            <h2 className="display-heading text-4xl">From the Blog</h2>
+          </div>
+          <Link to="/blog" className="btn-ghost hidden md:inline-flex">View All</Link>
+        </div>
+
+        {featuredPosts.length > 0 ? (
+          <div className="grid md:grid-cols-3 gap-8">
+            {featuredPosts.map(post => (
+              <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                {post.imageUrl && (
+                  <div className="aspect-photo overflow-hidden mb-5">
+                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  </div>
+                )}
+                <p className="section-label mb-1.5">{post.category}</p>
+                <h3 className="font-display font-semibold text-xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{post.title}</h3>
+                <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-2">{post.excerpt}</p>
+                <p className="text-xs font-mono text-chesto-charcoal/30 mt-3">
+                  {post.createdAt?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="h-48 flex items-center justify-center border border-chesto-charcoal/10 text-chesto-charcoal/30 text-sm tracking-wider">
+            Posts will appear here once added via the admin panel
+          </div>
+        )}
+
+        <Link to="/blog" className="btn-ghost mt-8 md:hidden">View All Posts</Link>
       </section>
     </div>
   )
