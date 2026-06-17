@@ -20,7 +20,7 @@ export default function AdminRecipeEditor() {
     title: '', slug: '', excerpt: '', category: 'Dinner',
     prepTime: '', cookTime: '', servings: 4, difficulty: 'Medium',
     ingredients: [{ amount: '', unit: '', name: '' }],
-    instructions: [''],
+    instructions: [{ text: '', substeps: [] }],
     notes: '', imageUrl: '',
   })
   const [imageFile, setImageFile] = useState(null)
@@ -51,13 +51,30 @@ export default function AdminRecipeEditor() {
   })
   const removeIngredient = (i) => setForm(f => ({ ...f, ingredients: f.ingredients.filter((_, idx) => idx !== i) }))
 
-  const addInstruction = () => setForm(f => ({ ...f, instructions: [...f.instructions, ''] }))
+  const addInstruction = () => setForm(f => ({ ...f, instructions: [...f.instructions, { text: '', substeps: [] }] }))
   const setInstruction = (i, val) => setForm(f => {
     const next = [...f.instructions]
-    next[i] = val
+    next[i] = { ...next[i], text: val }
     return { ...f, instructions: next }
   })
   const removeInstruction = (i) => setForm(f => ({ ...f, instructions: f.instructions.filter((_, idx) => idx !== i) }))
+  const addSubstep = (i) => setForm(f => {
+    const next = [...f.instructions]
+    next[i] = { ...next[i], substeps: [...(next[i].substeps || []), ''] }
+    return { ...f, instructions: next }
+  })
+  const setSubstep = (i, j, val) => setForm(f => {
+    const next = [...f.instructions]
+    const subs = [...(next[i].substeps || [])]
+    subs[j] = val
+    next[i] = { ...next[i], substeps: subs }
+    return { ...f, instructions: next }
+  })
+  const removeSubstep = (i, j) => setForm(f => {
+    const next = [...f.instructions]
+    next[i] = { ...next[i], substeps: next[i].substeps.filter((_, idx) => idx !== j) }
+    return { ...f, instructions: next }
+  })
 
   const uploadImage = () => new Promise((resolve, reject) => {
     if (!imageFile) return resolve(form.imageUrl)
@@ -175,17 +192,34 @@ export default function AdminRecipeEditor() {
             <h2 className="text-chesto-cream font-body font-medium">Instructions</h2>
             <button type="button" onClick={addInstruction} className="text-xs text-chesto-gold hover:text-chesto-gold-light">+ Add Step</button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-5">
             {form.instructions.map((step, i) => (
-              <div key={i} className="flex gap-3 items-start">
-                <span className="text-chesto-gold/40 font-display font-semibold text-xl leading-none mt-3 w-6 flex-shrink-0">{i + 1}</span>
-                <textarea
-                  className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream flex-1 h-20 text-sm"
-                  placeholder={`Step ${i + 1}…`}
-                  value={step}
-                  onChange={e => setInstruction(i, e.target.value)}
-                />
-                <button type="button" onClick={() => removeInstruction(i)} className="text-red-400 text-lg leading-none px-1 mt-3">×</button>
+              <div key={i} className="space-y-2">
+                <div className="flex gap-3 items-start">
+                  <span className="text-chesto-gold/40 font-display font-semibold text-xl leading-none mt-3 w-6 flex-shrink-0">{i + 1}</span>
+                  <textarea
+                    className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream flex-1 h-20 text-sm"
+                    placeholder={`Step ${i + 1}…`}
+                    value={step.text}
+                    onChange={e => setInstruction(i, e.target.value)}
+                  />
+                  <div className="flex flex-col gap-1 mt-2">
+                    <button type="button" onClick={() => addSubstep(i)} className="text-xs text-chesto-gold/60 hover:text-chesto-gold whitespace-nowrap">+ sub</button>
+                    <button type="button" onClick={() => removeInstruction(i)} className="text-red-400 text-lg leading-none px-1">×</button>
+                  </div>
+                </div>
+                {(step.substeps || []).map((sub, j) => (
+                  <div key={j} className="flex gap-3 items-start ml-9">
+                    <span className="text-chesto-gold/30 font-mono text-xs leading-none mt-3 w-6 flex-shrink-0">{i + 1}{String.fromCharCode(97 + j)}</span>
+                    <textarea
+                      className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream/80 flex-1 h-14 text-sm"
+                      placeholder={`Sub-step ${i + 1}${String.fromCharCode(97 + j)}…`}
+                      value={sub}
+                      onChange={e => setSubstep(i, j, e.target.value)}
+                    />
+                    <button type="button" onClick={() => removeSubstep(i, j)} className="text-red-400 text-lg leading-none px-1 mt-2">×</button>
+                  </div>
+                ))}
               </div>
             ))}
           </div>

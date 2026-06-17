@@ -113,14 +113,32 @@ export default function RecipeDetail() {
           <section className="mb-12">
             <h2 className="display-heading text-2xl mb-6">Instructions</h2>
             <ol className="space-y-8">
-              {recipe.instructions.map((step, i) => (
-                <li key={i} className="flex gap-6">
-                  <span className="font-display font-semibold text-3xl text-chesto-gold/40 leading-none mt-1 flex-shrink-0 w-8">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <p className="font-body text-base leading-relaxed text-chesto-charcoal/80 pt-1">{step}</p>
-                </li>
-              ))}
+              {recipe.instructions.map((step, i) => {
+                const text = typeof step === 'string' ? step : step.text
+                const substeps = typeof step === 'string' ? [] : (step.substeps || [])
+                return (
+                  <li key={i}>
+                    <div className="flex gap-6">
+                      <span className="font-display font-semibold text-3xl text-chesto-gold/40 leading-none mt-1 flex-shrink-0 w-8">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <p className="font-body text-base leading-relaxed text-chesto-charcoal/80 pt-1">{text}</p>
+                    </div>
+                    {substeps.length > 0 && (
+                      <ol className="mt-4 ml-14 space-y-3">
+                        {substeps.map((sub, j) => (
+                          <li key={j} className="flex gap-4">
+                            <span className="font-mono text-xs text-chesto-gold/40 leading-none mt-1 flex-shrink-0 w-6">
+                              {i + 1}{String.fromCharCode(97 + j)}
+                            </span>
+                            <p className="font-body text-sm leading-relaxed text-chesto-charcoal/60">{sub}</p>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </li>
+                )
+              })}
             </ol>
           </section>
         )}
