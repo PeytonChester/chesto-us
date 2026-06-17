@@ -34,7 +34,7 @@ export default function Photography() {
                   <span className="text-white/20 text-xs tracking-widest uppercase">{cat.label}</span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-chesto-dark/40 hover:bg-chesto-dark/20 transition-all duration-400 flex flex-col justify-end p-6 md:p-8">
+              <div className="absolute inset-0 bg-chesto-dark/60 hover:bg-chesto-dark/40 transition-all duration-400 flex flex-col justify-end p-6 md:p-8">
                 <p className="section-label text-chesto-gold mb-1">{cat.label}</p>
                 <p className="text-chesto-cream/70 text-sm font-body">{cat.description}</p>
                 <span className="mt-4 text-xs text-chesto-cream/50 tracking-widest uppercase group-hover:text-chesto-gold transition-colors duration-200">
