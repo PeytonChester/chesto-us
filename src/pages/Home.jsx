@@ -4,6 +4,7 @@ import { usePhotographySettings } from '../hooks/usePhotographySettings'
 import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
+import PageMeta from '../components/PageMeta'
 
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
@@ -30,6 +31,10 @@ export default function Home() {
 
   return (
     <div>
+      <PageMeta
+        description="Photography, recipes, and stories by Peyton Chester."
+        image={heroSettings.heroImageUrl || undefined}
+      />
       {/* Hero */}
       <section className="relative min-h-screen flex items-end pb-20 overflow-hidden">
         {/* Background — replace src with your hero image URL in Firestore or hardcode */}

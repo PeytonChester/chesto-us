@@ -1,11 +1,16 @@
 import { Link } from 'react-router-dom'
 import { usePhotographySettings } from '../hooks/usePhotographySettings'
+import PageMeta from '../components/PageMeta'
 
 export default function Photography() {
   const { categories, covers } = usePhotographySettings()
 
   return (
     <div className="pt-16">
+      <PageMeta
+        title="Photography"
+        description="From wide landscapes to tight macro details — a collection of moments worth keeping."
+      />
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
         <p className="section-label mb-3">Visual work</p>

@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
+import PageMeta from '../components/PageMeta'
 
 export default function Blog() {
   const { docs: posts, loading } = useCollection('posts', 'createdAt', 'desc')
 
   return (
     <div className="pt-16">
+      <PageMeta title="Blog" description="Writing on photography, food, and life." />
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
         <p className="section-label mb-3">Writing</p>
         <h1 className="display-heading text-5xl md:text-7xl mb-16">Blog</h1>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
+import PageMeta from '../components/PageMeta'
 
 const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink']
 
@@ -12,6 +13,7 @@ export default function Recipes() {
 
   return (
     <div className="pt-16">
+      <PageMeta title="Recipes" description="Recipes from the kitchen — breakfasts, dinners, desserts, and more." />
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
         <p className="section-label mb-3">From the kitchen</p>
         <h1 className="display-heading text-5xl md:text-7xl mb-10">Recipes</h1>

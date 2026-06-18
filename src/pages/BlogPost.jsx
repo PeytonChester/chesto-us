@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from '../firebase'
+import PageMeta from '../components/PageMeta'
 
 export default function BlogPost() {
   const { slug } = useParams()
@@ -35,6 +36,7 @@ export default function BlogPost() {
 
   return (
     <article className="pt-16">
+      <PageMeta title={post.title} description={post.excerpt} image={post.imageUrl} />
       {post.imageUrl && (
         <div className="w-full h-[45vh] md:h-[60vh] overflow-hidden">
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />

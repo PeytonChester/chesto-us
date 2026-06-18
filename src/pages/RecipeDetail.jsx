@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from '../firebase'
+import PageMeta from '../components/PageMeta'
 
 export default function RecipeDetail() {
   const { slug } = useParams()
@@ -48,6 +49,7 @@ export default function RecipeDetail() {
 
   return (
     <article className="pt-16">
+      <PageMeta title={recipe.title} description={recipe.excerpt} image={recipe.imageUrl} />
       {/* Hero image */}
       {recipe.imageUrl && (
         <div className="w-full h-[50vh] md:h-[65vh] overflow-hidden">

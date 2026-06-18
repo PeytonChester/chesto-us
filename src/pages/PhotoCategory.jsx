@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useParams, Link } from 'react-router-dom'
 import Masonry from 'react-masonry-css'
 import { useCollection } from '../hooks/useCollection'
+import PageMeta from '../components/PageMeta'
 
 const BREAKPOINTS = { default: 3, 1100: 2, 640: 1 }
 
@@ -37,6 +38,10 @@ export default function PhotoCategory() {
 
   return (
     <div className="pt-16">
+      <PageMeta
+        title={`${label} Photography`}
+        description={`Browse ${label.toLowerCase()} photography on Chesto.us.`}
+      />
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16">
         <Link to="/photography" className="section-label text-chesto-charcoal/50 hover:text-chesto-gold transition-colors mb-4 inline-block">
