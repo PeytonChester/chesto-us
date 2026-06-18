@@ -98,6 +98,8 @@ export default function Layout() {
           </span>
           <p className="text-xs text-chesto-charcoal/40 tracking-wider">
             © {new Date().getFullYear()} Chesto.us · Photography &amp; Food
+            {' · '}
+            <a href="/sitemap.xml" className="hover:text-chesto-charcoal/70 transition-colors">Sitemap</a>
           </p>
           <Link to="/admin" className="text-xs text-chesto-charcoal/30 hover:text-chesto-charcoal/60 transition-colors tracking-widest uppercase">
             Admin
