@@ -47,6 +47,9 @@ export default function RecipeDetail() {
     </div>
   )
 
+  const rawNotes = recipe.notes
+  const filledNotes = (Array.isArray(rawNotes) ? rawNotes : (rawNotes ? [rawNotes] : [])).filter(Boolean)
+
   return (
     <article className="pt-16">
       <PageMeta title={recipe.title} description={recipe.excerpt} image={recipe.imageUrl} />
@@ -85,30 +88,46 @@ export default function RecipeDetail() {
           </div>
         )}
 
-        {/* Ingredients */}
-        {recipe.ingredients?.length > 0 && (
-          <section className="mb-12">
-            <h2 className="display-heading text-2xl mb-6">Ingredients</h2>
-            <ul className="space-y-3">
-              {recipe.ingredients.map((ing, i) => {
-                const key = `ing-${i}`
-                return (
-                  <li
-                    key={key}
-                    onClick={() => toggle(key)}
-                    className={`flex items-start gap-3 cursor-pointer group transition-opacity duration-200 ${checked[key] ? 'opacity-40' : ''}`}
-                  >
-                    <span className={`mt-1 w-4 h-4 flex-shrink-0 border transition-colors duration-200 ${checked[key] ? 'bg-chesto-gold border-chesto-gold' : 'border-chesto-charcoal/30 group-hover:border-chesto-dark'}`} />
-                    <span className={`font-body text-base ${checked[key] ? 'line-through' : ''}`}>
-                      {ing.amount && <strong className="font-medium">{scale(ing.amount)}{ing.unit ? ` ${ing.unit}` : ''} </strong>}
-                      {ing.name}
-                    </span>
+        {/* Ingredients + Notes */}
+        <div className="grid md:grid-cols-12 gap-10 mb-12">
+          {recipe.ingredients?.length > 0 && (
+            <section className={filledNotes.length ? 'md:col-span-8' : 'md:col-span-12'}>
+              <h2 className="display-heading text-2xl mb-6">Ingredients</h2>
+              <ul className="space-y-3">
+                {recipe.ingredients.map((ing, i) => {
+                  const key = `ing-${i}`
+                  return (
+                    <li
+                      key={key}
+                      onClick={() => toggle(key)}
+                      className={`flex items-start gap-3 cursor-pointer group transition-opacity duration-200 ${checked[key] ? 'opacity-40' : ''}`}
+                    >
+                      <span className={`mt-1 w-4 h-4 flex-shrink-0 border transition-colors duration-200 ${checked[key] ? 'bg-chesto-gold border-chesto-gold' : 'border-chesto-charcoal/30 group-hover:border-chesto-dark'}`} />
+                      <span className={`font-body text-base ${checked[key] ? 'line-through' : ''}`}>
+                        {ing.amount && <strong className="font-medium">{scale(ing.amount)}{ing.unit ? ` ${ing.unit}` : ''} </strong>}
+                        {ing.name}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          )}
+
+          {filledNotes.length > 0 && (
+            <section className="md:col-span-4 border-l-2 border-chesto-gold pl-6 py-2">
+              <h3 className="section-label mb-4">Notes</h3>
+              <ul className="space-y-3">
+                {filledNotes.map((note, i) => (
+                  <li key={i} className="flex gap-3 font-body text-sm text-chesto-charcoal/70 leading-relaxed">
+                    <span className="text-chesto-gold flex-shrink-0">—</span>
+                    {note}
                   </li>
-                )
-              })}
-            </ul>
-          </section>
-        )}
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
 
         {/* Instructions */}
         {recipe.instructions?.length > 0 && (
@@ -145,26 +164,6 @@ export default function RecipeDetail() {
           </section>
         )}
 
-        {/* Notes */}
-        {(() => {
-          const raw = recipe.notes
-          const notes = Array.isArray(raw) ? raw : (raw ? [raw] : [])
-          const filled = notes.filter(Boolean)
-          if (!filled.length) return null
-          return (
-            <section className="border-l-2 border-chesto-gold pl-6 py-2">
-              <h3 className="section-label mb-4">Notes</h3>
-              <ul className="space-y-3">
-                {filled.map((note, i) => (
-                  <li key={i} className="flex gap-3 font-body text-chesto-charcoal/70 leading-relaxed">
-                    <span className="text-chesto-gold flex-shrink-0">—</span>
-                    {note}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )
-        })()}
       </div>
     </article>
   )
