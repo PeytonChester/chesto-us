@@ -46,7 +46,7 @@ export default function Blog() {
                   </h2>
                   <p className="text-chesto-charcoal/60 font-body text-sm leading-relaxed line-clamp-2 mb-4">{post.excerpt}</p>
                   <span className="text-xs font-mono text-chesto-charcoal/40">
-                    {post.createdAt?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 </div>
               </Link>

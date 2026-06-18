@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../../firebase'
 import RichTextEditor from '../../components/RichTextEditor'
@@ -19,6 +19,7 @@ export default function AdminBlogEditor() {
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', category: 'Photography',
     body: '', imageUrl: '',
+    publishedAt: new Date().toISOString().split('T')[0],
   })
   const [imageFile, setImageFile] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -30,8 +31,9 @@ export default function AdminBlogEditor() {
     getDoc(doc(db, 'posts', id)).then(snap => {
       if (snap.exists()) {
         const data = snap.data()
-        // Join body array to string for editing
-        setForm({ ...data, body: Array.isArray(data.body) ? data.body.map(p => `<p>${p}</p>`).join('') : data.body || '' })
+        const ts = data.publishedAt ?? data.createdAt
+        const publishedAt = ts?.toDate?.()?.toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0]
+        setForm({ ...data, publishedAt, body: Array.isArray(data.body) ? data.body.map(p => `<p>${p}</p>`).join('') : data.body || '' })
       }
       setLoading(false)
     })
@@ -61,7 +63,8 @@ export default function AdminBlogEditor() {
     setSaving(true)
     try {
       const imageUrl = await uploadImage()
-      const data = { ...form, imageUrl, updatedAt: serverTimestamp() }
+      const publishedAt = Timestamp.fromDate(new Date(form.publishedAt + 'T12:00:00'))
+      const data = { ...form, imageUrl, publishedAt, updatedAt: serverTimestamp() }
       if (isEdit) {
         await updateDoc(doc(db, 'posts', id), data)
       } else {
@@ -98,6 +101,15 @@ export default function AdminBlogEditor() {
           <select className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream" value={form.category} onChange={e => set('category', e.target.value)}>
             {CATEGORIES.map(c => <option key={c}>{c}</option>)}
           </select>
+        </div>
+        <div>
+          <label className="field-label text-chesto-cream/50">Publish Date</label>
+          <input
+            type="date"
+            className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream font-mono text-sm [&::-webkit-calendar-picker-indicator]:invert"
+            value={form.publishedAt}
+            onChange={e => set('publishedAt', e.target.value)}
+          />
         </div>
         <div>
           <label className="field-label text-chesto-cream/50">Excerpt</label>

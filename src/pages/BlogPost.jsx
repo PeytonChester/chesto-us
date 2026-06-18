@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
+import { Helmet } from 'react-helmet-async'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
 
@@ -34,9 +35,17 @@ export default function BlogPost() {
     </div>
   )
 
+  const publishedDate = (post.publishedAt ?? post.createdAt)?.toDate?.()
+  const modifiedDate = post.updatedAt?.toDate?.()
+
   return (
     <article className="pt-16">
       <PageMeta title={post.title} description={post.excerpt} image={post.imageUrl} />
+      <Helmet>
+        <meta property="og:type" content="article" />
+        {publishedDate && <meta property="article:published_time" content={publishedDate.toISOString()} />}
+        {modifiedDate && <meta property="article:modified_time" content={modifiedDate.toISOString()} />}
+      </Helmet>
       {post.imageUrl && (
         <div className="w-full h-[45vh] md:h-[60vh] overflow-hidden">
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
@@ -52,7 +61,7 @@ export default function BlogPost() {
         <h1 className="display-heading text-4xl md:text-5xl mb-4 leading-tight">{post.title}</h1>
 
         <p className="text-xs font-mono text-chesto-charcoal/40 mb-10">
-          {post.createdAt?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {publishedDate?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
 
         <div

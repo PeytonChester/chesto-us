@@ -183,7 +183,7 @@ export default function Home() {
                 <h3 className="font-display font-semibold text-xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{post.title}</h3>
                 <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-2">{post.excerpt}</p>
                 <p className="text-xs font-mono text-chesto-charcoal/30 mt-3">
-                  {post.createdAt?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </p>
               </Link>
             ))}
