@@ -1,10 +1,21 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
+import { useEffect, useState } from 'react'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
   const { docs: recentPhotos } = useCollection('photos', 'createdAt', 'desc')
   const { docs: recentPosts } = useCollection('posts', 'createdAt', 'desc')
+  const [heroSettings, setHeroSettings] = useState({ heroTagline: 'Welcome to the party', heroHeading: 'Photography.\nFood. Life.', heroImageUrl: '' })
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'home'), snap => {
+      if (snap.exists()) setHeroSettings(snap.data())
+    })
+    return unsub
+  }, [])
 
   const featuredRecipes = recentRecipes.slice(0, 3)
   const featuredPhotos = recentPhotos.slice(0, 6)
@@ -16,18 +27,24 @@ export default function Home() {
       <section className="relative min-h-screen flex items-end pb-20 overflow-hidden">
         {/* Background — replace src with your hero image URL in Firestore or hardcode */}
         <div className="absolute inset-0 bg-chesto-dark">
-          <img
-            src="https://chesto.us/wp-content/uploads/2025/07/GPTempDownload-edited-scaled.jpeg"
-            alt="Hero"
-            className="w-full h-full object-cover opacity-60"
-          />
+          {heroSettings.heroImageUrl && (
+            <img
+              src={heroSettings.heroImageUrl}
+              alt="Hero"
+              className="w-full h-full object-cover opacity-60"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/20 to-transparent" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 md:px-10 w-full">
-          <p className="section-label text-chesto-gold/80 mb-4">Welcome to the party</p>
+          {heroSettings.heroTagline && (
+            <p className="section-label text-chesto-gold/80 mb-4">{heroSettings.heroTagline}</p>
+          )}
           <h1 className="font-display font-semibold text-5xl md:text-7xl text-chesto-cream leading-[1.05] mb-8 max-w-2xl">
-            Photography.<br />Food. Life.
+            {heroSettings.heroHeading?.split('\n').map((line, i, arr) => (
+              <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+            ))}
           </h1>
           <div className="flex flex-wrap gap-4">
             <Link to="/photography" className="btn-gold">View Photography</Link>

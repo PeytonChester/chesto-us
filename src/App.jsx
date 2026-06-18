@@ -15,6 +15,7 @@ import BlogPost from './pages/BlogPost'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminHome from './pages/admin/AdminHome'
 import AdminPhotos from './pages/admin/AdminPhotos'
 import AdminRecipes from './pages/admin/AdminRecipes'
 import AdminRecipeEditor from './pages/admin/AdminRecipeEditor'
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="admin/login" element={<AdminLogin />} />
         <Route path="admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
+          <Route path="home" element={<AdminHome />} />
           <Route path="photos" element={<AdminPhotos />} />
           <Route path="recipes" element={<AdminRecipes />} />
           <Route path="recipes/new" element={<AdminRecipeEditor />} />

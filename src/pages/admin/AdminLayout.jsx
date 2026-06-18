@@ -4,6 +4,7 @@ import { auth } from '../../firebase'
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', icon: '⬡', end: true },
+  { to: '/admin/home', label: 'Home Page', icon: '◈' },
   { to: '/admin/photos', label: 'Photos', icon: '◻' },
   { to: '/admin/recipes', label: 'Recipes', icon: '◇' },
   { to: '/admin/blog', label: 'Blog', icon: '○' },
