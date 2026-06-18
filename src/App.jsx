@@ -10,6 +10,7 @@ import Recipes from './pages/Recipes'
 import RecipeDetail from './pages/RecipeDetail'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
+import NotFound from './pages/NotFound'
 
 // Admin
 import AdminLayout from './pages/admin/AdminLayout'
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="recipes/:slug" element={<RecipeDetail />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<BlogPost />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* Admin */}
