@@ -104,7 +104,7 @@ export default function PhotoCategory() {
           onClick={() => setLightbox(null)}
         >
           <button
-            className="absolute top-5 right-5 text-chesto-cream/60 hover:text-chesto-cream text-3xl leading-none z-10"
+            className="absolute top-5 right-5 text-chesto-cream/60 hover:text-chesto-cream text-3xl leading-none z-10 p-3"
             onClick={() => setLightbox(null)}
             aria-label="Close"
           >×</button>
@@ -146,7 +146,7 @@ export default function PhotoCategory() {
                   key={photo.id}
                   ref={i === lightbox ? activeThumbRef : null}
                   onClick={() => setLightbox(i)}
-                  className={`flex-shrink-0 w-14 h-14 overflow-hidden transition-all duration-200 ${
+                  className={`flex-shrink-0 w-10 h-10 md:w-14 md:h-14 overflow-hidden transition-all duration-200 ${
                     i === lightbox
                       ? 'ring-2 ring-chesto-gold opacity-100'
                       : 'opacity-40 hover:opacity-70'

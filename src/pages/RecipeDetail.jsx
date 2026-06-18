@@ -125,7 +125,7 @@ export default function RecipeDetail() {
                       <p className="font-body text-base leading-relaxed text-chesto-charcoal/80 pt-1">{text}</p>
                     </div>
                     {substeps.length > 0 && (
-                      <ol className="mt-4 ml-14 space-y-3">
+                      <ol className="mt-4 ml-8 md:ml-14 space-y-3">
                         {substeps.map((sub, j) => (
                           <li key={j} className="flex gap-4">
                             <span className="font-mono text-xs text-chesto-gold/40 leading-none mt-1 flex-shrink-0 w-6">

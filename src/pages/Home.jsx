@@ -148,6 +148,10 @@ export default function Home() {
               Recipes will appear here once added via the admin panel
             </div>
           )}
+
+          <Link to="/recipes" className="inline-flex items-center gap-2 px-6 py-3 border border-chesto-cream/30 text-chesto-cream font-body font-medium text-sm tracking-wider uppercase hover:border-chesto-cream transition-all duration-200 mt-8 md:hidden">
+            View All Recipes
+          </Link>
         </div>
       </section>
 
