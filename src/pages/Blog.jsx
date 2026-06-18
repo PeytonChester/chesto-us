@@ -3,7 +3,7 @@ import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
 
 export default function Blog() {
-  const { docs: posts, loading } = useCollection('posts', 'createdAt', 'desc')
+  const { docs: posts, loading } = useCollection('posts', 'publishedAt', 'desc')
 
   return (
     <div className="pt-16">

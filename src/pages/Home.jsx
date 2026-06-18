@@ -9,7 +9,7 @@ import PageMeta from '../components/PageMeta'
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
   const { docs: recentPhotos } = useCollection('photos', 'createdAt', 'desc')
-  const { docs: recentPosts } = useCollection('posts', 'createdAt', 'desc')
+  const { docs: recentPosts } = useCollection('posts', 'publishedAt', 'desc')
   const [heroSettings, setHeroSettings] = useState({ heroTagline: 'Welcome to the party', heroHeading: 'Photography.\nFood. Life.', heroImageUrl: '' })
 
   useEffect(() => {

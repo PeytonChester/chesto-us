@@ -4,7 +4,7 @@ import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 
 export default function AdminBlog() {
-  const { docs: posts, loading } = useCollection('posts', 'createdAt', 'desc')
+  const { docs: posts, loading } = useCollection('posts', 'publishedAt', 'desc')
 
   const handleDelete = async (post) => {
     if (!window.confirm(`Delete "${post.title}"?`)) return
@@ -42,7 +42,7 @@ export default function AdminBlog() {
               <div className="flex-1 min-w-0">
                 <p className="text-chesto-cream font-body font-medium truncate">{post.title}</p>
                 <p className="text-chesto-cream/40 text-xs">
-                  {post.category} · {post.createdAt?.toDate?.()?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {post.category} · {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
