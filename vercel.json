@@ -1,6 +1,10 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/sitemap.xml",             "destination": "/api/sitemap" },
+    { "source": "/sitemap-pages.xml",       "destination": "/api/sitemap-pages" },
+    { "source": "/sitemap-photography.xml", "destination": "/api/sitemap-photography" },
+    { "source": "/sitemap-recipes.xml",     "destination": "/api/sitemap-recipes" },
+    { "source": "/sitemap-posts.xml",       "destination": "/api/sitemap-posts" },
+    { "source": "/(.*)",                    "destination": "/index.html" }
   ]
 }
