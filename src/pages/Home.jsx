@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
+import { usePhotographySettings } from '../hooks/usePhotographySettings'
 import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -17,9 +18,15 @@ export default function Home() {
     return unsub
   }, [])
 
+  const { categories, covers } = usePhotographySettings()
+
   const featuredRecipes = recentRecipes.slice(0, 3)
-  const featuredPhotos = recentPhotos.slice(0, 6)
   const featuredPosts = recentPosts.slice(0, 3)
+
+  const topCategories = categories
+    .map(cat => ({ ...cat, count: recentPhotos.filter(p => p.category === cat.slug).length }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
 
   return (
     <div>
@@ -65,18 +72,28 @@ export default function Home() {
           <Link to="/photography" className="btn-ghost hidden md:inline-flex">View All</Link>
         </div>
 
-        {featuredPhotos.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {featuredPhotos.map((photo, i) => (
+        {topCategories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {topCategories.map(cat => (
               <Link
-                key={photo.id}
-                to={`/photography/${photo.category}`}
-                className={`photo-card ${i === 0 ? 'row-span-2' : ''}`}
-                style={{ aspectRatio: i === 0 ? '3/4' : '3/2' }}
+                key={cat.slug}
+                to={`/photography/${cat.slug}`}
+                className="photo-card group"
+                style={{ aspectRatio: '3/2' }}
               >
-                <img src={photo.url} alt={photo.title || photo.category} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                <div className="photo-card-overlay">
-                  <span className="text-xs text-chesto-cream font-body tracking-widest uppercase opacity-0 group-hover:opacity-100">{photo.category}</span>
+                {covers[cat.slug] ? (
+                  <img src={covers[cat.slug]} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                ) : (
+                  <div className="w-full h-full bg-stone-800 flex items-center justify-center">
+                    <span className="text-white/20 text-xs tracking-widest uppercase">{cat.label}</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-chesto-dark/60 hover:bg-chesto-dark/40 transition-all duration-400 flex flex-col justify-end p-6">
+                  <p className="section-label text-chesto-gold mb-1">{cat.label}</p>
+                  <p className="text-chesto-cream/70 text-sm font-body">{cat.description}</p>
+                  <span className="mt-3 text-xs text-chesto-cream/50 tracking-widest uppercase group-hover:text-chesto-gold transition-colors duration-200">
+                    View photos →
+                  </span>
                 </div>
               </Link>
             ))}
