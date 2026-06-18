@@ -23,7 +23,7 @@ export default function Photography() {
               key={cat.slug}
               to={`/photography/${cat.slug}`}
               className={`photo-card group ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
-              style={i !== 0 ? { aspectRatio: '3/2' } : {}}
+              style={{ aspectRatio: '3/2' }}
             >
               {covers[cat.slug] ? (
                 <img src={covers[cat.slug]} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
