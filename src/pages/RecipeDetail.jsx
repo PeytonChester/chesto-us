@@ -146,12 +146,25 @@ export default function RecipeDetail() {
         )}
 
         {/* Notes */}
-        {recipe.notes && (
-          <section className="border-l-2 border-chesto-gold pl-6 py-2">
-            <h3 className="section-label mb-2">Notes</h3>
-            <p className="font-body text-chesto-charcoal/70 leading-relaxed">{recipe.notes}</p>
-          </section>
-        )}
+        {(() => {
+          const raw = recipe.notes
+          const notes = Array.isArray(raw) ? raw : (raw ? [raw] : [])
+          const filled = notes.filter(Boolean)
+          if (!filled.length) return null
+          return (
+            <section className="border-l-2 border-chesto-gold pl-6 py-2">
+              <h3 className="section-label mb-4">Notes</h3>
+              <ul className="space-y-3">
+                {filled.map((note, i) => (
+                  <li key={i} className="flex gap-3 font-body text-chesto-charcoal/70 leading-relaxed">
+                    <span className="text-chesto-gold flex-shrink-0">—</span>
+                    {note}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        })()}
       </div>
     </article>
   )

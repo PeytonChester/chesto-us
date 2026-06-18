@@ -21,7 +21,7 @@ export default function AdminRecipeEditor() {
     prepTime: '', cookTime: '', servings: 4, difficulty: 'Medium',
     ingredients: [{ amount: '', unit: '', name: '' }],
     instructions: [{ text: '', substeps: [] }],
-    notes: '', imageUrl: '',
+    notes: [''], imageUrl: '',
   })
   const [imageFile, setImageFile] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -31,7 +31,12 @@ export default function AdminRecipeEditor() {
   useEffect(() => {
     if (!isEdit) return
     getDoc(doc(db, 'recipes', id)).then(snap => {
-      if (snap.exists()) setForm({ ...snap.data() })
+      if (snap.exists()) {
+        const data = snap.data()
+        const raw = data.notes
+        const notes = Array.isArray(raw) ? raw : (raw ? [raw] : [''])
+        setForm({ ...data, notes })
+      }
       setLoading(false)
     })
   }, [id, isEdit])
@@ -75,6 +80,12 @@ export default function AdminRecipeEditor() {
     next[i] = { ...next[i], substeps: next[i].substeps.filter((_, idx) => idx !== j) }
     return { ...f, instructions: next }
   })
+
+  const addNote = () => setForm(f => ({ ...f, notes: [...f.notes, ''] }))
+  const setNote = (i, val) => setForm(f => {
+    const next = [...f.notes]; next[i] = val; return { ...f, notes: next }
+  })
+  const removeNote = (i) => setForm(f => ({ ...f, notes: f.notes.filter((_, idx) => idx !== i) }))
 
   const uploadImage = () => new Promise((resolve, reject) => {
     if (!imageFile) return resolve(form.imageUrl)
@@ -232,8 +243,24 @@ export default function AdminRecipeEditor() {
 
         {/* Notes */}
         <section>
-          <label className="field-label text-chesto-cream/50">Notes / Tips</label>
-          <textarea className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream h-24" value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Optional tips, variations, storage notes…" />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-chesto-cream font-body font-medium">Notes / Tips</h2>
+            <button type="button" onClick={addNote} className="text-xs text-chesto-gold hover:text-chesto-gold-light">+ Add Note</button>
+          </div>
+          <div className="space-y-2">
+            {form.notes.map((note, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <span className="text-chesto-gold/40 font-mono text-sm leading-none mt-3 flex-shrink-0">—</span>
+                <textarea
+                  className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream flex-1 h-16 text-sm"
+                  placeholder="Tip, substitution, storage note…"
+                  value={note}
+                  onChange={e => setNote(i, e.target.value)}
+                />
+                <button type="button" onClick={() => removeNote(i)} className="text-red-400 text-lg leading-none px-1 mt-2">×</button>
+              </div>
+            ))}
+          </div>
         </section>
 
         <div className="flex gap-4 pt-4">
