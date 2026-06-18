@@ -9,8 +9,8 @@ export default function PageMeta({ title, description, image }) {
   const { pathname } = useLocation()
 
   const fullTitle = title
-    ? `${title} — ${SITE_NAME}`
-    : `${SITE_NAME} — Photography, Recipes & Stories`
+    ? `${title} | ${SITE_NAME}`
+    : `${SITE_NAME} | Photography, Recipes & Stories`
   const desc = description || DEFAULT_DESCRIPTION
   const url = `${SITE_URL}${pathname}`
 
