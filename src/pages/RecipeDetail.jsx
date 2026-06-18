@@ -4,6 +4,34 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
 
+function parseFraction(val) {
+  if (val === null || val === undefined || val === '') return null
+  const s = String(val).trim()
+  if (!isNaN(Number(s))) return Number(s)
+  const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)$/)
+  if (mixed) return Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3])
+  const frac = s.match(/^(\d+)\/(\d+)$/)
+  if (frac) return Number(frac[1]) / Number(frac[2])
+  return null
+}
+
+function formatFraction(num) {
+  const whole = Math.floor(num)
+  const dec = num - whole
+  const candidates = [
+    [0, ''], [1/8, '1/8'], [1/4, '1/4'], [1/3, '1/3'], [3/8, '3/8'],
+    [1/2, '1/2'], [5/8, '5/8'], [2/3, '2/3'], [3/4, '3/4'], [7/8, '7/8'],
+  ]
+  let bestStr = '', bestDist = Infinity
+  for (const [v, s] of candidates) {
+    const d = Math.abs(dec - v)
+    if (d < bestDist) { bestDist = d; bestStr = s }
+  }
+  if (Math.abs(dec - 1) < bestDist) return String(whole + 1)
+  if (!bestStr) return String(whole)
+  return whole ? `${whole} ${bestStr}` : bestStr
+}
+
 export default function RecipeDetail() {
   const { slug } = useParams()
   const [recipe, setRecipe] = useState(null)
@@ -29,7 +57,10 @@ export default function RecipeDetail() {
 
   const scale = (amount) => {
     if (!recipe?.servings || !amount) return amount
-    return Math.round((amount / recipe.servings) * servings * 10) / 10
+    const parsed = parseFraction(amount)
+    if (parsed === null) return amount
+    const scaled = (parsed / recipe.servings) * servings
+    return formatFraction(Math.round(scaled * 1000) / 1000)
   }
 
   if (loading) return (
