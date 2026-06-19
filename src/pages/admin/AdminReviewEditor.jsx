@@ -148,9 +148,9 @@ export default function AdminReviewEditor() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-8">
         <Link to="/admin/reviews" className="text-chesto-cream/40 hover:text-chesto-cream text-sm transition-colors">← Reviews</Link>
-        <h1 className="font-display font-semibold text-3xl text-chesto-cream">{isEdit ? 'Edit Review' : 'New Review'}</h1>
+        <h1 className="font-display font-semibold text-2xl sm:text-3xl text-chesto-cream">{isEdit ? 'Edit Review' : 'New Review'}</h1>
       </div>
 
       {/* Search — new reviews only, before media selected */}

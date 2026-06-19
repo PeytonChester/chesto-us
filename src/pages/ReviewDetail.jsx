@@ -88,7 +88,7 @@ export default function ReviewDetail() {
               ))}
             </div>
 
-            <h1 className="font-display font-semibold text-4xl md:text-5xl text-chesto-dark leading-tight mb-2">
+            <h1 className="font-display font-semibold text-2xl sm:text-4xl md:text-5xl text-chesto-dark leading-tight mb-2">
               {review.title}
             </h1>
 
