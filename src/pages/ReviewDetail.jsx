@@ -142,30 +142,57 @@ export default function ReviewDetail() {
 
         {/* Review body + Cast side by side */}
         {(review.body || review.cast?.length > 0) && (
-          <div className="flex flex-col md:flex-row gap-12 mb-6">
-            {/* Review body */}
-            {review.body && (
-              <section className="flex-1 min-w-0">
-                <div className="flex items-center gap-4 mb-8">
-                  <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
-                  {reviewDate && (
-                    <span className="text-chesto-charcoal/30 text-xs font-mono">
-                      {reviewDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </span>
+          <div className="flex flex-col md:flex-row md:items-start gap-12 mb-6">
+            {/* Left column: review body + spoilers */}
+            <div className="flex-1 min-w-0">
+              {review.body && (
+                <section className="mb-6">
+                  <div className="flex items-center gap-4 mb-8">
+                    <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
+                    {reviewDate && (
+                      <span className="text-chesto-charcoal/30 text-xs font-mono">
+                        {reviewDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    className="prose-chesto"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        Array.isArray(review.body)
+                          ? review.body.map(p => `<p>${p}</p>`).join('')
+                          : review.body || ''
+                      )
+                    }}
+                  />
+                </section>
+              )}
+
+              {/* Spoilers */}
+              {review.spoilers && (
+                <section className="mb-14">
+                  <div className="border-t border-chesto-charcoal/10 mb-10" />
+                  <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Spoiler Review</h2>
+                  {spoilersRevealed ? (
+                    <div
+                      className="prose-chesto"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(review.spoilers)
+                      }}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => setSpoilersRevealed(true)}
+                      className="w-full border border-chesto-charcoal/15 py-5 px-6 text-center group hover:border-chesto-gold/40 transition-colors"
+                    >
+                      <span className="text-chesto-charcoal/40 text-xs tracking-widest uppercase group-hover:text-chesto-gold transition-colors">
+                        Reveal Spoilers
+                      </span>
+                    </button>
                   )}
-                </div>
-                <div
-                  className="prose-chesto"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(
-                      Array.isArray(review.body)
-                        ? review.body.map(p => `<p>${p}</p>`).join('')
-                        : review.body || ''
-                    )
-                  }}
-                />
-              </section>
-            )}
+                </section>
+              )}
+            </div>
 
             {/* Cast */}
             {review.cast?.length > 0 && (
@@ -191,31 +218,6 @@ export default function ReviewDetail() {
               </section>
             )}
           </div>
-        )}
-
-        {/* Spoilers */}
-        {review.spoilers && (
-          <section className="max-w-2xl mb-14">
-            <div className="border-t border-chesto-charcoal/10 mb-10" />
-            <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Spoiler Review</h2>
-            {spoilersRevealed ? (
-              <div
-                className="prose-chesto"
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(review.spoilers)
-                }}
-              />
-            ) : (
-              <button
-                onClick={() => setSpoilersRevealed(true)}
-                className="w-full border border-chesto-charcoal/15 py-5 px-6 text-center group hover:border-chesto-gold/40 transition-colors"
-              >
-                <span className="text-chesto-charcoal/40 text-xs tracking-widest uppercase group-hover:text-chesto-gold transition-colors">
-                  Reveal Spoilers
-                </span>
-              </button>
-            )}
-          </section>
         )}
 
         <Link to="/reviews" className="section-label text-chesto-charcoal/40 hover:text-chesto-gold transition-colors inline-block mb-24">
