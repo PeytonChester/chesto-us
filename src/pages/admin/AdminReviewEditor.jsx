@@ -4,8 +4,6 @@ import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp, Timestamp 
 import { db } from '../../firebase'
 import RichTextEditor from '../../components/RichTextEditor'
 
-const TMDB_KEY = import.meta.env.VITE_TMDB_API_KEY
-const OMDB_KEY = import.meta.env.VITE_OMDB_API_KEY
 const TMDB_W500 = 'https://image.tmdb.org/t/p/w500'
 
 function slugify(str) {
@@ -39,13 +37,11 @@ export default function AdminReviewEditor() {
   }, [id, isEdit])
 
   const search = async () => {
-    if (!searchQuery.trim() || !TMDB_KEY) return
+    if (!searchQuery.trim()) return
     setSearching(true)
     setSearchResults([])
     try {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(searchQuery)}&include_adult=false`
-      )
+      const res = await fetch(`/api/tmdb-search?query=${encodeURIComponent(searchQuery)}`)
       const data = await res.json()
       setSearchResults((data.results || []).filter(r => r.media_type === 'movie' || r.media_type === 'tv').slice(0, 8))
     } catch (err) {
@@ -61,17 +57,15 @@ export default function AdminReviewEditor() {
     setSearchResults([])
 
     try {
-      const detailRes = await fetch(
-        `https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,external_ids`
-      )
+      const detailRes = await fetch(`/api/tmdb-detail?id=${tmdbId}&type=${mediaType}`)
       const detail = await detailRes.json()
 
       const imdbId = detail.external_ids?.imdb_id || detail.imdb_id || null
 
       let imdbRating = '', rtRating = '', metacriticRating = ''
-      if (imdbId && OMDB_KEY) {
+      if (imdbId) {
         try {
-          const omdbRes = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_KEY}`)
+          const omdbRes = await fetch(`/api/omdb-lookup?imdbId=${imdbId}`)
           const omdb = await omdbRes.json()
           imdbRating = omdb.imdbRating && omdb.imdbRating !== 'N/A' ? omdb.imdbRating : ''
           const rt = (omdb.Ratings || []).find(r => r.Source === 'Rotten Tomatoes')
@@ -161,9 +155,6 @@ export default function AdminReviewEditor() {
       {/* Search — new reviews only, before media selected */}
       {!isEdit && !form && (
         <div className="mb-10 max-w-2xl">
-          {!TMDB_KEY && (
-            <p className="text-red-400 text-xs mb-4 font-mono">VITE_TMDB_API_KEY is not set. Add it to your .env file.</p>
-          )}
           <label className="field-label text-chesto-cream/50">Search for a movie or TV show</label>
           <div className="flex gap-3 mb-4">
             <input
@@ -174,7 +165,7 @@ export default function AdminReviewEditor() {
               onKeyDown={e => e.key === 'Enter' && search()}
               autoFocus
             />
-            <button onClick={search} disabled={searching || !TMDB_KEY} className="btn-gold disabled:opacity-50">
+            <button onClick={search} disabled={searching} className="btn-gold disabled:opacity-50">
               {searching ? 'Searching…' : 'Search'}
             </button>
           </div>
