@@ -127,9 +127,12 @@ export default function ReviewDetail() {
 
         {/* Overview */}
         {review.overview && (
-          <p className="text-chesto-charcoal/60 font-body text-base leading-relaxed max-w-2xl mb-14 italic">
-            {review.overview}
-          </p>
+          <div className="max-w-2xl mb-14">
+            <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-4">Synopsis</h2>
+            <p className="text-chesto-charcoal/60 font-body text-base leading-relaxed italic">
+              {review.overview}
+            </p>
+          </div>
         )}
 
         {/* Review body + Cast side by side */}
