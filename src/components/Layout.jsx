@@ -1,5 +1,8 @@
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
+
+const GTM_ID = 'GTM-T589WSP4'
 
 export default function Layout() {
   const [scrolled, setScrolled] = useState(false)
@@ -17,6 +20,12 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <script>{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`}</script>
+      </Helmet>
+      <noscript>
+        <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`} height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
+      </noscript>
       {/* Nav */}
       <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-400 ${
         solid ? 'bg-chesto-cream/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
