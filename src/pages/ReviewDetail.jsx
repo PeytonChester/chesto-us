@@ -99,37 +99,40 @@ export default function ReviewDetail() {
               {review.creator ? ` · Created by ${review.creator}` : ''}
             </p>
 
-            {/* Ratings row */}
-            <div className="flex items-center gap-6 flex-wrap">
-              {review.userRating && (
-                <div>
-                  <span className="font-display font-semibold text-3xl text-chesto-gold">{review.userRating}</span>
-                  <span className="text-chesto-charcoal/30 text-sm font-mono">/10</span>
+            {/* My rating */}
+            {review.userRating && (
+              <div className="mb-4">
+                <p className="text-chesto-charcoal/30 text-xs tracking-widest uppercase mb-1">My Rating</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-display font-semibold text-6xl text-chesto-gold leading-none">{review.userRating}</span>
+                  <span className="text-chesto-charcoal/30 text-lg font-mono">/10</span>
                 </div>
-              )}
-              {hasExternalRatings && (
-                <div className="flex gap-5 flex-wrap">
-                  {review.imdbRating && (
-                    <div className="text-center">
-                      <p className="text-chesto-charcoal/70 font-body font-semibold text-sm">{review.imdbRating}</p>
-                      <p className="text-chesto-charcoal/30 text-xs font-mono">IMDB</p>
-                    </div>
-                  )}
-                  {review.rtRating && (
-                    <div className="text-center">
-                      <p className="text-chesto-charcoal/70 font-body font-semibold text-sm">{review.rtRating}</p>
-                      <p className="text-chesto-charcoal/30 text-xs font-mono">Rotten Tomatoes</p>
-                    </div>
-                  )}
-                  {review.metacriticRating && (
-                    <div className="text-center">
-                      <p className="text-chesto-charcoal/70 font-body font-semibold text-sm">{review.metacriticRating}</p>
-                      <p className="text-chesto-charcoal/30 text-xs font-mono">Metacritic</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* External ratings */}
+            {hasExternalRatings && (
+              <div className="flex gap-5 flex-wrap">
+                {review.imdbRating && (
+                  <div className="text-center">
+                    <p className="text-chesto-charcoal/70 font-body font-semibold text-sm">{review.imdbRating}</p>
+                    <p className="text-chesto-charcoal/30 text-xs font-mono">IMDB</p>
+                  </div>
+                )}
+                {review.rtRating && (
+                  <div className="text-center">
+                    <p className="text-chesto-charcoal/70 font-body font-semibold text-sm">{review.rtRating}</p>
+                    <p className="text-chesto-charcoal/30 text-xs font-mono">Rotten Tomatoes</p>
+                  </div>
+                )}
+                {review.metacriticRating && (
+                  <div className="text-center">
+                    <p className="text-chesto-charcoal/70 font-body font-semibold text-sm">{review.metacriticRating}</p>
+                    <p className="text-chesto-charcoal/30 text-xs font-mono">Metacritic</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
