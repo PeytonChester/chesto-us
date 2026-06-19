@@ -3,7 +3,8 @@ import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
 
 export default function Blog() {
-  const { docs: posts, loading } = useCollection('posts', 'publishedAt', 'desc')
+  const { docs: allPosts, loading } = useCollection('posts', 'publishedAt', 'desc')
+  const posts = allPosts.filter(p => p.published !== false)
 
   return (
     <div className="pt-16">

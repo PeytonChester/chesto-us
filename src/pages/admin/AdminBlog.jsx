@@ -45,7 +45,12 @@ export default function AdminBlog() {
                 <img src={post.imageUrl} alt={post.title} className="w-12 h-12 object-cover flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-chesto-cream font-body font-medium truncate">{post.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-chesto-cream font-body font-medium truncate">{post.title}</p>
+                  {post.published === false && (
+                    <span className="flex-shrink-0 text-xs font-mono px-1.5 py-0.5 border border-chesto-cream/20 text-chesto-cream/40">Draft</span>
+                  )}
+                </div>
                 <p className="text-chesto-cream/40 text-xs">
                   {post.category} · {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>

@@ -13,6 +13,11 @@ export async function firestoreList(collection) {
   return data.documents ?? []
 }
 
+export function getBoolean(doc, field) {
+  const val = doc?.fields?.[field]?.booleanValue
+  return val // undefined if field absent, true/false if set
+}
+
 export function getString(doc, field) {
   return doc?.fields?.[field]?.stringValue ?? null
 }

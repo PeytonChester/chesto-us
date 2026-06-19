@@ -14,7 +14,10 @@ export default function BlogPost() {
     const fetch = async () => {
       const q = query(collection(db, 'posts'), where('slug', '==', slug), limit(1))
       const snap = await getDocs(q)
-      if (!snap.empty) setPost({ id: snap.docs[0].id, ...snap.docs[0].data() })
+      if (!snap.empty) {
+        const data = snap.docs[0].data()
+        if (data.published !== false) setPost({ id: snap.docs[0].id, ...data })
+      }
       setLoading(false)
     }
     fetch()

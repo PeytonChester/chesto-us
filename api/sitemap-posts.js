@@ -1,4 +1,4 @@
-import { firestoreList, getString, getDate, xmlResponse, urlset } from './_firestore.js'
+import { firestoreList, getString, getDate, getBoolean, xmlResponse, urlset } from './_firestore.js'
 
 const SITE = 'https://chesto.us'
 
@@ -9,8 +9,9 @@ export default async function handler(req, res) {
     .map(d => ({
       slug: getString(d, 'slug'),
       lastmod: getDate(d, 'updatedAt') ?? getDate(d, 'createdAt'),
+      published: getBoolean(d, 'published'),
     }))
-    .filter(p => p.slug)
+    .filter(p => p.slug && p.published !== false)
     .map(p => ({
       loc: `${SITE}/blog/${p.slug}`,
       lastmod: p.lastmod,

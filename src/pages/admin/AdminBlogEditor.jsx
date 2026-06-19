@@ -17,7 +17,7 @@ export default function AdminBlogEditor() {
 
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', category: 'Photography',
-    body: '', imageUrl: '',
+    body: '', imageUrl: '', published: false,
     publishedAt: new Date().toISOString().split('T')[0],
   })
   const [imageFile, setImageFile] = useState(null)
@@ -33,7 +33,8 @@ export default function AdminBlogEditor() {
         const data = snap.data()
         const ts = data.publishedAt ?? data.createdAt
         const publishedAt = ts?.toDate?.()?.toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0]
-        setForm({ ...data, publishedAt, body: Array.isArray(data.body) ? data.body.map(p => `<p>${p}</p>`).join('') : data.body || '' })
+        const published = data.published !== undefined ? data.published : true
+        setForm({ ...data, publishedAt, published, body: Array.isArray(data.body) ? data.body.map(p => `<p>${p}</p>`).join('') : data.body || '' })
       }
       setLoading(false)
     })
@@ -58,13 +59,12 @@ export default function AdminBlogEditor() {
     })
   })
 
-  const handleSave = async (e) => {
-    e.preventDefault()
+  const handleSave = async (shouldPublish) => {
     setSaving(true)
     try {
       const imageUrl = await uploadImage()
       const publishedAt = Timestamp.fromDate(new Date(form.publishedAt + 'T12:00:00'))
-      const data = { ...form, imageUrl, publishedAt, updatedAt: serverTimestamp() }
+      const data = { ...form, imageUrl, publishedAt, published: shouldPublish, updatedAt: serverTimestamp() }
       if (isEdit) {
         await updateDoc(doc(db, 'posts', id), data)
       } else {
@@ -87,7 +87,7 @@ export default function AdminBlogEditor() {
         <h1 className="font-display font-semibold text-3xl text-chesto-cream">{isEdit ? 'Edit Post' : 'New Post'}</h1>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+      <form className="space-y-6 max-w-2xl">
         <div>
           <label className="field-label text-chesto-cream/50">Title</label>
           <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream" value={form.title} onChange={e => autoSlug(e.target.value)} required />
@@ -128,9 +128,12 @@ export default function AdminBlogEditor() {
           <RichTextEditor value={form.body} onChange={val => set('body', val)} />
         </div>
 
-        <div className="flex gap-4 pt-2">
-          <button type="submit" disabled={saving || uploading} className="btn-gold disabled:opacity-50">
-            {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Publish Post'}
+        <div className="flex flex-wrap gap-3 pt-2">
+          <button type="button" onClick={() => handleSave(false)} disabled={saving || uploading} className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark disabled:opacity-50">
+            {saving ? 'Saving…' : 'Save Draft'}
+          </button>
+          <button type="button" onClick={() => handleSave(true)} disabled={saving || uploading} className="btn-gold disabled:opacity-50">
+            {saving ? 'Saving…' : form.published ? 'Update' : 'Publish'}
           </button>
           <Link to="/admin/blog" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark">Cancel</Link>
         </div>
