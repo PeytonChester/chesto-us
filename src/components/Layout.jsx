@@ -92,7 +92,7 @@ export default function Layout() {
 
       {/* Footer */}
       <footer className="border-t border-chesto-charcoal/10 py-10 mt-20">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-center gap-6">
           <span className="font-display text-lg text-chesto-dark">
             Chesto<span className="text-chesto-gold">.</span>us
           </span>
@@ -101,9 +101,6 @@ export default function Layout() {
             {' · '}
             <a href="/sitemap.xml" className="hover:text-chesto-charcoal/70 transition-colors">Sitemap</a>
           </p>
-          <Link to="/admin" className="text-xs text-chesto-charcoal/30 hover:text-chesto-charcoal/60 transition-colors tracking-widest uppercase">
-            Admin
-          </Link>
         </div>
       </footer>
     </div>
