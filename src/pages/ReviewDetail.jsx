@@ -73,7 +73,7 @@ export default function ReviewDetail() {
               <img
                 src={review.poster}
                 alt={review.title}
-                className="w-36 md:w-48 h-64 md:h-80 object-cover shadow-2xl"
+                className="w-36 md:w-48 shadow-2xl"
               />
             </div>
           )}
