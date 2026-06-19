@@ -56,7 +56,7 @@ export default function ReviewDetail() {
       </Helmet>
 
       {/* Backdrop hero */}
-      <div className="relative w-full h-[45vh] md:h-[55vh] overflow-hidden bg-chesto-dark">
+      <div className="relative w-full h-[55vh] md:h-[65vh] overflow-hidden bg-chesto-dark">
         {review.backdrop ? (
           <img src={review.backdrop} alt={review.title} className="w-full h-full object-cover opacity-40" />
         ) : review.poster ? (
