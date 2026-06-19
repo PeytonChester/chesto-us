@@ -10,6 +10,7 @@ export default function ReviewDetail() {
   const { slug } = useParams()
   const [review, setReview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [spoilersRevealed, setSpoilersRevealed] = useState(false)
 
   useEffect(() => {
     const fetch = async () => {
@@ -187,6 +188,31 @@ export default function ReviewDetail() {
                 )
               }}
             />
+          </section>
+        )}
+
+        {/* Spoilers */}
+        {review.spoilers && (
+          <section className="max-w-2xl mb-14">
+            <div className="border-t border-chesto-charcoal/10 mb-10" />
+            <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Spoilers</h2>
+            {spoilersRevealed ? (
+              <div
+                className="prose-chesto"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(review.spoilers)
+                }}
+              />
+            ) : (
+              <button
+                onClick={() => setSpoilersRevealed(true)}
+                className="w-full border border-chesto-charcoal/15 py-5 px-6 text-center group hover:border-chesto-gold/40 transition-colors"
+              >
+                <span className="text-chesto-charcoal/40 text-xs tracking-widest uppercase group-hover:text-chesto-gold transition-colors">
+                  Reveal Spoilers
+                </span>
+              </button>
+            )}
           </section>
         )}
 

@@ -111,6 +111,7 @@ export default function AdminReviewEditor() {
         rtRating,
         metacriticRating,
         body: '',
+        spoilers: '',
         userRating: '',
         published: false,
         publishedAt: new Date().toISOString().split('T')[0],
@@ -278,6 +279,12 @@ export default function AdminReviewEditor() {
           <div>
             <label className="field-label text-chesto-cream/50">Review</label>
             <RichTextEditor value={form.body} onChange={val => set('body', val)} />
+          </div>
+
+          {/* Spoilers */}
+          <div>
+            <label className="field-label text-chesto-cream/50">Spoilers <span className="text-chesto-cream/20 font-normal normal-case">(optional — hidden behind a reveal button)</span></label>
+            <RichTextEditor value={form.spoilers || ''} onChange={val => set('spoilers', val)} />
           </div>
 
           {/* Actions */}
