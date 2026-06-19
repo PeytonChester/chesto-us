@@ -4,8 +4,7 @@ import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp, Timestamp 
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../../firebase'
 import RichTextEditor from '../../components/RichTextEditor'
-
-const CATEGORIES = ['Photography', 'Cooking', 'Travel', 'Life', 'Gear', 'Other']
+import { useBlogSettings } from '../../hooks/useBlogSettings'
 
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -25,6 +24,7 @@ export default function AdminBlogEditor() {
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(isEdit)
+  const { categories: blogCategories } = useBlogSettings()
 
   useEffect(() => {
     if (!isEdit) return
@@ -99,7 +99,7 @@ export default function AdminBlogEditor() {
         <div>
           <label className="field-label text-chesto-cream/50">Category</label>
           <select className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream" value={form.category} onChange={e => set('category', e.target.value)}>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            {blogCategories.map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
         <div>

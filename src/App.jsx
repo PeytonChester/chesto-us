@@ -22,6 +22,8 @@ import AdminRecipes from './pages/admin/AdminRecipes'
 import AdminRecipeEditor from './pages/admin/AdminRecipeEditor'
 import AdminBlog from './pages/admin/AdminBlog'
 import AdminBlogEditor from './pages/admin/AdminBlogEditor'
+import AdminCategories from './pages/admin/AdminCategories'
+import AdminBlogCategories from './pages/admin/AdminBlogCategories'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -52,12 +54,14 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="home" element={<AdminHome />} />
           <Route path="photos" element={<AdminPhotos />} />
+          <Route path="photo-categories" element={<AdminCategories />} />
           <Route path="recipes" element={<AdminRecipes />} />
           <Route path="recipes/new" element={<AdminRecipeEditor />} />
           <Route path="recipes/:id/edit" element={<AdminRecipeEditor />} />
           <Route path="blog" element={<AdminBlog />} />
           <Route path="blog/new" element={<AdminBlogEditor />} />
           <Route path="blog/:id/edit" element={<AdminBlogEditor />} />
+          <Route path="blog-categories" element={<AdminBlogCategories />} />
         </Route>
       </Routes>
     </BrowserRouter>

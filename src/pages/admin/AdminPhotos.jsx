@@ -1,22 +1,17 @@
 import { useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage'
 import { collection, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
 
-function slugify(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
 export default function AdminPhotos() {
   const { docs: photos } = useCollection('photos', 'createdAt', 'desc')
   const { categories, covers } = usePhotographySettings()
   const [uploads, setUploads] = useState([])
   const [category, setCategory] = useState('')
-  const [newLabel, setNewLabel] = useState('')
-  const [newDesc, setNewDesc] = useState('')
-  const [toast, setToast] = useState(null) // { message, type: 'success'|'error' }
+  const [toast, setToast] = useState(null)
   const fileRef = useRef()
 
   const showToast = (message, type = 'success') => {
@@ -80,23 +75,6 @@ export default function AdminPhotos() {
     }
   }
 
-  const addCategory = async (e) => {
-    e.preventDefault()
-    if (!newLabel.trim()) return
-    const slug = slugify(newLabel)
-    if (categories.find(c => c.slug === slug)) return alert('Category already exists.')
-    const updated = [...categories, { slug, label: newLabel.trim(), description: newDesc.trim() }]
-    await setDoc(doc(db, 'settings', 'photography'), { categories: updated }, { merge: true })
-    setNewLabel('')
-    setNewDesc('')
-  }
-
-  const removeCategory = async (slug) => {
-    if (!window.confirm('Remove this category? Photos already uploaded will not be deleted.')) return
-    const updated = categories.filter(c => c.slug !== slug)
-    await setDoc(doc(db, 'settings', 'photography'), { categories: updated }, { merge: true })
-  }
-
   return (
     <div>
       {/* Toast */}
@@ -113,6 +91,9 @@ export default function AdminPhotos() {
           <h1 className="font-display font-semibold text-3xl text-chesto-cream mb-1">Photos</h1>
           <p className="text-chesto-cream/40 text-sm">{photos.length} photos in library</p>
         </div>
+        <Link to="/admin/photo-categories" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark text-sm">
+          Edit Categories
+        </Link>
       </div>
 
       {/* Upload area */}
@@ -165,43 +146,6 @@ export default function AdminPhotos() {
           ))}
         </div>
       )}
-
-      {/* Category manager */}
-      <div className="mb-12">
-        <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">Manage Categories</h2>
-        <div className="space-y-2 mb-4">
-          {categories.map(cat => (
-            <div key={cat.slug} className="flex items-center justify-between bg-chesto-charcoal/30 px-4 py-2.5">
-              <div>
-                <span className="text-chesto-cream text-sm font-medium">{cat.label}</span>
-                {cat.description && <span className="text-chesto-cream/30 text-xs ml-3">{cat.description}</span>}
-              </div>
-              <button onClick={() => removeCategory(cat.slug)} className="text-red-400/60 hover:text-red-400 text-xs transition-colors">Remove</button>
-            </div>
-          ))}
-        </div>
-        <form onSubmit={addCategory} className="flex flex-col sm:flex-row gap-3 sm:items-end">
-          <div>
-            <label className="field-label text-chesto-cream/50">Label</label>
-            <input
-              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full sm:w-36"
-              placeholder="e.g. Portraits"
-              value={newLabel}
-              onChange={e => setNewLabel(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="field-label text-chesto-cream/50">Description</label>
-            <input
-              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full sm:w-56"
-              placeholder="Short description"
-              value={newDesc}
-              onChange={e => setNewDesc(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn-gold">Add Category</button>
-        </form>
-      </div>
 
       {/* Photo grid by category */}
       {categories.map(cat => {
