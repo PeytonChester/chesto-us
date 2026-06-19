@@ -99,17 +99,6 @@ export default function ReviewDetail() {
               {review.creator ? ` · Created by ${review.creator}` : ''}
             </p>
 
-            {/* My rating */}
-            {review.userRating && (
-              <div className="mb-4">
-                <p className="text-chesto-charcoal/30 text-xs tracking-widest uppercase mb-1">My Rating</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display font-semibold text-6xl text-chesto-gold leading-none">{review.userRating}</span>
-                  <span className="text-chesto-charcoal/30 text-lg font-mono">/10</span>
-                </div>
-              </div>
-            )}
-
             {/* External ratings */}
             {hasExternalRatings && (
               <div className="flex gap-5 flex-wrap">
@@ -150,8 +139,15 @@ export default function ReviewDetail() {
             <div className="flex-1 min-w-0">
               {review.body && (
                 <section className="mb-6">
-                  <div className="flex items-center gap-4 mb-8">
-                    <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
+                  <div className="flex items-baseline gap-4 mb-8">
+                    {review.userRating ? (
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-display font-semibold text-6xl text-chesto-gold leading-none">{review.userRating}</span>
+                        <span className="text-chesto-charcoal/30 text-lg font-mono">/10</span>
+                      </div>
+                    ) : (
+                      <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
+                    )}
                     {reviewDate && (
                       <span className="text-chesto-charcoal/30 text-xs font-mono">
                         {reviewDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
