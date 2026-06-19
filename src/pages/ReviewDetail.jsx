@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { Helmet } from 'react-helmet-async'
+import DOMPurify from 'dompurify'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
 
@@ -179,9 +180,11 @@ export default function ReviewDetail() {
             <div
               className="prose-chesto"
               dangerouslySetInnerHTML={{
-                __html: Array.isArray(review.body)
-                  ? review.body.map(p => `<p>${p}</p>`).join('')
-                  : review.body || ''
+                __html: DOMPurify.sanitize(
+                  Array.isArray(review.body)
+                    ? review.body.map(p => `<p>${p}</p>`).join('')
+                    : review.body || ''
+                )
               }}
             />
           </section>

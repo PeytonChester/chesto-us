@@ -3,6 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
 import { useEffect } from 'react'
+import DOMPurify from 'dompurify'
 
 function ToolbarButton({ onClick, active, title, children }) {
   return (
@@ -29,7 +30,7 @@ export default function RichTextEditor({ value, onChange }) {
       Link.configure({ openOnClick: false }),
     ],
     content: value || '',
-    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onUpdate: ({ editor }) => onChange(DOMPurify.sanitize(editor.getHTML())),
     editorProps: {
       attributes: {
         class: 'min-h-[320px] px-4 py-3 font-body text-sm text-chesto-cream leading-relaxed focus:outline-none',
