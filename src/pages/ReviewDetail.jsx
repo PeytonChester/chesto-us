@@ -140,55 +140,57 @@ export default function ReviewDetail() {
           </p>
         )}
 
-        {/* Cast */}
-        {review.cast?.length > 0 && (
-          <section className="mb-14">
-            <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Cast</h2>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
-              {review.cast.map((member, i) => (
-                <div key={i} className="text-center">
-                  <div className="w-full aspect-square rounded-full overflow-hidden bg-chesto-charcoal/10 mb-2">
-                    {member.profilePath ? (
-                      <img src={member.profilePath} alt={member.name} className="w-full h-full object-cover object-top" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-chesto-charcoal/20 text-xs font-mono">
-                        {member.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-chesto-dark text-xs font-body font-medium leading-tight line-clamp-1">{member.name}</p>
-                  <p className="text-chesto-charcoal/30 text-xs font-body line-clamp-1">{member.character}</p>
+        {/* Review body + Cast side by side */}
+        {(review.body || review.cast?.length > 0) && (
+          <div className="flex flex-col md:flex-row gap-12 mb-6">
+            {/* Review body */}
+            {review.body && (
+              <section className="flex-1 min-w-0">
+                <div className="flex items-center gap-4 mb-8">
+                  <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
+                  {reviewDate && (
+                    <span className="text-chesto-charcoal/30 text-xs font-mono">
+                      {reviewDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+                <div
+                  className="prose-chesto"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      Array.isArray(review.body)
+                        ? review.body.map(p => `<p>${p}</p>`).join('')
+                        : review.body || ''
+                    )
+                  }}
+                />
+              </section>
+            )}
 
-        {/* Divider */}
-        {review.body && <div className="border-t border-chesto-charcoal/10 mb-14" />}
-
-        {/* Review body */}
-        {review.body && (
-          <section className="max-w-2xl mb-6">
-            <div className="flex items-center gap-4 mb-8">
-              <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
-              {reviewDate && (
-                <span className="text-chesto-charcoal/30 text-xs font-mono">
-                  {reviewDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </span>
-              )}
-            </div>
-            <div
-              className="prose-chesto"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
-                  Array.isArray(review.body)
-                    ? review.body.map(p => `<p>${p}</p>`).join('')
-                    : review.body || ''
-                )
-              }}
-            />
-          </section>
+            {/* Cast */}
+            {review.cast?.length > 0 && (
+              <section className="w-full md:w-52 flex-shrink-0">
+                <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Cast</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {review.cast.map((member, i) => (
+                    <div key={i} className="text-center">
+                      <div className="w-full aspect-square rounded-full overflow-hidden bg-chesto-charcoal/10 mb-2">
+                        {member.profilePath ? (
+                          <img src={member.profilePath} alt={member.name} className="w-full h-full object-cover object-top" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-chesto-charcoal/20 text-xs font-mono">
+                            {member.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-chesto-dark text-xs font-body font-medium leading-tight line-clamp-1">{member.name}</p>
+                      <p className="text-chesto-charcoal/30 text-xs font-body line-clamp-1">{member.character}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         )}
 
         {/* Spoilers */}
