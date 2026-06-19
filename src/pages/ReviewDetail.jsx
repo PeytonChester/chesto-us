@@ -151,11 +151,6 @@ export default function ReviewDetail() {
                     ) : (
                       <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
                     )}
-                    {reviewDate && (
-                      <span className="text-chesto-charcoal/30 text-xs font-mono">
-                        {reviewDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </span>
-                    )}
                   </div>
                   <div
                     className="prose-chesto"
