@@ -195,7 +195,7 @@ export default function ReviewDetail() {
         {review.spoilers && (
           <section className="max-w-2xl mb-14">
             <div className="border-t border-chesto-charcoal/10 mb-10" />
-            <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Spoilers</h2>
+            <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase mb-6">Spoiler Review</h2>
             {spoilersRevealed ? (
               <div
                 className="prose-chesto"
