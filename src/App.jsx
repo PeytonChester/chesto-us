@@ -10,6 +10,8 @@ import Recipes from './pages/Recipes'
 import RecipeDetail from './pages/RecipeDetail'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
+import Reviews from './pages/Reviews'
+import ReviewDetail from './pages/ReviewDetail'
 import NotFound from './pages/NotFound'
 
 // Admin
@@ -24,6 +26,8 @@ import AdminBlog from './pages/admin/AdminBlog'
 import AdminBlogEditor from './pages/admin/AdminBlogEditor'
 import AdminCategories from './pages/admin/AdminCategories'
 import AdminBlogCategories from './pages/admin/AdminBlogCategories'
+import AdminReviews from './pages/admin/AdminReviews'
+import AdminReviewEditor from './pages/admin/AdminReviewEditor'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -45,6 +49,8 @@ export default function App() {
           <Route path="recipes/:slug" element={<RecipeDetail />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<BlogPost />} />
+          <Route path="reviews" element={<Reviews />} />
+          <Route path="reviews/:slug" element={<ReviewDetail />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -62,6 +68,9 @@ export default function App() {
           <Route path="blog/new" element={<AdminBlogEditor />} />
           <Route path="blog/:id/edit" element={<AdminBlogEditor />} />
           <Route path="blog-categories" element={<AdminBlogCategories />} />
+          <Route path="reviews" element={<AdminReviews />} />
+          <Route path="reviews/new" element={<AdminReviewEditor />} />
+          <Route path="reviews/:id/edit" element={<AdminReviewEditor />} />
         </Route>
       </Routes>
     </BrowserRouter>

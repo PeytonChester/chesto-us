@@ -42,6 +42,7 @@ export default function Layout() {
               { to: '/photography', label: 'Photography' },
               { to: '/recipes', label: 'Recipes' },
               { to: '/blog', label: 'Blog' },
+              { to: '/reviews', label: 'Reviews' },
             ].map(({ to, label }) => (
               <li key={to}>
                 <NavLink
@@ -79,6 +80,7 @@ export default function Layout() {
               { to: '/photography', label: 'Photography' },
               { to: '/recipes', label: 'Recipes' },
               { to: '/blog', label: 'Blog' },
+              { to: '/reviews', label: 'Reviews' },
             ].map(({ to, label }) => (
               <NavLink
                 key={to}

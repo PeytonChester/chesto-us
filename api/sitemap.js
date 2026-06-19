@@ -3,7 +3,7 @@ import { xmlResponse } from './_firestore.js'
 const SITE = 'https://chesto.us'
 
 export default function handler(req, res) {
-  const sitemaps = ['sitemap-pages', 'sitemap-photography', 'sitemap-recipes', 'sitemap-posts']
+  const sitemaps = ['sitemap-pages', 'sitemap-photography', 'sitemap-recipes', 'sitemap-posts', 'sitemap-reviews']
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
