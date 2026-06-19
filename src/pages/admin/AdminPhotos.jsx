@@ -180,11 +180,11 @@ export default function AdminPhotos() {
             </div>
           ))}
         </div>
-        <form onSubmit={addCategory} className="flex gap-3 items-end">
+        <form onSubmit={addCategory} className="flex flex-col sm:flex-row gap-3 sm:items-end">
           <div>
             <label className="field-label text-chesto-cream/50">Label</label>
             <input
-              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-36"
+              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full sm:w-36"
               placeholder="e.g. Portraits"
               value={newLabel}
               onChange={e => setNewLabel(e.target.value)}
@@ -193,7 +193,7 @@ export default function AdminPhotos() {
           <div>
             <label className="field-label text-chesto-cream/50">Description</label>
             <input
-              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-56"
+              className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full sm:w-56"
               placeholder="Short description"
               value={newDesc}
               onChange={e => setNewDesc(e.target.value)}
@@ -212,7 +212,7 @@ export default function AdminPhotos() {
             <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">
               {cat.label} · {catPhotos.length}
             </h2>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {catPhotos.map(photo => (
                 <div key={photo.id} className="relative group aspect-square">
                   <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
@@ -221,16 +221,16 @@ export default function AdminPhotos() {
                       Cover
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-chesto-dark/0 group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
                     <button
                       onClick={() => setCover(photo)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
+                      className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
                     >
                       Set Cover
                     </button>
                     <button
                       onClick={() => deletePhoto(photo)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white text-xs px-3 py-1.5 font-body"
+                      className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-600 text-white text-xs px-3 py-1.5 font-body"
                     >
                       Delete
                     </button>

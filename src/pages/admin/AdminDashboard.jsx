@@ -18,7 +18,7 @@ export default function AdminDashboard() {
       <p className="text-chesto-cream/40 text-sm font-body mb-10">Welcome back. Here's what's on the site.</p>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
         {stats.map(s => (
           <Link key={s.label} to={s.to} className="bg-chesto-charcoal/40 border border-chesto-cream/10 p-6 hover:border-chesto-gold/40 transition-colors duration-200 group">
             <p className="text-chesto-cream/40 text-xs tracking-widest uppercase mb-2">{s.label}</p>

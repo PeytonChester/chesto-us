@@ -43,7 +43,7 @@ export default function AdminRecipes() {
                 <p className="text-chesto-cream font-body font-medium truncate">{recipe.title}</p>
                 <p className="text-chesto-cream/40 text-xs">{recipe.category} · {recipe.prepTime || '—'}</p>
               </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <Link to={`/admin/recipes/${recipe.id}/edit`} className="text-xs text-chesto-gold hover:text-chesto-gold-light px-3 py-1.5 border border-chesto-gold/30 hover:border-chesto-gold transition-colors">
                   Edit
                 </Link>

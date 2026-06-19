@@ -143,7 +143,7 @@ export default function AdminRecipeEditor() {
             <textarea className="field-textarea bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream h-20" value={form.excerpt} onChange={e => set('excerpt', e.target.value)} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="field-label text-chesto-cream/50">Category</label>
               <select className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream" value={form.category} onChange={e => set('category', e.target.value)}>

@@ -45,7 +45,7 @@ export default function AdminBlog() {
                   {post.category} · {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <Link to={`/admin/blog/${post.id}/edit`} className="text-xs text-chesto-gold hover:text-chesto-gold-light px-3 py-1.5 border border-chesto-gold/30 hover:border-chesto-gold transition-colors">
                   Edit
                 </Link>
