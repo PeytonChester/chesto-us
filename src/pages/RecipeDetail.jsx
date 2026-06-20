@@ -80,6 +80,8 @@ export default function RecipeDetail() {
 
   const rawNotes = recipe.notes
   const filledNotes = (Array.isArray(rawNotes) ? rawNotes : (rawNotes ? [rawNotes] : [])).filter(Boolean)
+  const ingredientGroups = recipe.ingredientGroups
+    || (recipe.ingredients?.length > 0 ? [{ label: '', items: recipe.ingredients }] : [])
 
   return (
     <article className="pt-16">
@@ -121,27 +123,36 @@ export default function RecipeDetail() {
 
         {/* Ingredients + Notes */}
         <div className="grid md:grid-cols-12 gap-10 mb-12">
-          {recipe.ingredients?.length > 0 && (
+          {ingredientGroups.length > 0 && (
             <section className={filledNotes.length ? 'md:col-span-8' : 'md:col-span-12'}>
               <h2 className="display-heading text-2xl mb-6">Ingredients</h2>
-              <ul className="space-y-3">
-                {recipe.ingredients.map((ing, i) => {
-                  const key = `ing-${i}`
-                  return (
-                    <li
-                      key={key}
-                      onClick={() => toggle(key)}
-                      className={`flex items-start gap-3 cursor-pointer group transition-opacity duration-200 ${checked[key] ? 'opacity-40' : ''}`}
-                    >
-                      <span className={`mt-1 w-4 h-4 flex-shrink-0 border transition-colors duration-200 ${checked[key] ? 'bg-chesto-gold border-chesto-gold' : 'border-chesto-charcoal/30 group-hover:border-chesto-dark'}`} />
-                      <span className={`font-body text-base ${checked[key] ? 'line-through' : ''}`}>
-                        {ing.amount && <strong className="font-medium">{scale(ing.amount)}{ing.unit ? ` ${ing.unit}` : ''} </strong>}
-                        {ing.name}
-                      </span>
-                    </li>
-                  )
-                })}
-              </ul>
+              <div className="space-y-8">
+                {ingredientGroups.map((group, g) => (
+                  <div key={g}>
+                    {group.label && (
+                      <h3 className="text-chesto-charcoal/50 text-xs tracking-widest uppercase mb-3">{group.label}</h3>
+                    )}
+                    <ul className="space-y-3">
+                      {group.items.map((ing, i) => {
+                        const key = `g${g}-ing-${i}`
+                        return (
+                          <li
+                            key={key}
+                            onClick={() => toggle(key)}
+                            className={`flex items-start gap-3 cursor-pointer group transition-opacity duration-200 ${checked[key] ? 'opacity-40' : ''}`}
+                          >
+                            <span className={`mt-1 w-4 h-4 flex-shrink-0 border transition-colors duration-200 ${checked[key] ? 'bg-chesto-gold border-chesto-gold' : 'border-chesto-charcoal/30 group-hover:border-chesto-dark'}`} />
+                            <span className={`font-body text-base ${checked[key] ? 'line-through' : ''}`}>
+                              {ing.amount && <strong className="font-medium">{scale(ing.amount)}{ing.unit ? ` ${ing.unit}` : ''} </strong>}
+                              {ing.name}
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 

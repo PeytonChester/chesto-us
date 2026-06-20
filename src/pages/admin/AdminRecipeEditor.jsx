@@ -19,7 +19,7 @@ export default function AdminRecipeEditor() {
   const [form, setForm] = useState({
     title: '', slug: '', excerpt: '', category: 'Dinner',
     prepTime: '', cookTime: '', servings: 4, difficulty: 'Medium',
-    ingredients: [{ amount: '', unit: '', name: '' }],
+    ingredientGroups: [{ label: '', items: [{ amount: '', unit: '', name: '' }] }],
     instructions: [{ text: '', substeps: [] }],
     notes: [''], imageUrl: '',
   })
@@ -35,7 +35,9 @@ export default function AdminRecipeEditor() {
         const data = snap.data()
         const raw = data.notes
         const notes = Array.isArray(raw) ? raw : (raw ? [raw] : [''])
-        setForm({ ...data, notes })
+        const ingredientGroups = data.ingredientGroups
+          || (data.ingredients?.length > 0 ? [{ label: '', items: data.ingredients }] : [{ label: '', items: [{ amount: '', unit: '', name: '' }] }])
+        setForm({ ...data, notes, ingredientGroups })
       }
       setLoading(false)
     })
@@ -48,13 +50,20 @@ export default function AdminRecipeEditor() {
     if (!isEdit) set('slug', slugify(title))
   }
 
-  const addIngredient = () => setForm(f => ({ ...f, ingredients: [...f.ingredients, { amount: '', unit: '', name: '' }] }))
-  const setIngredient = (i, field, val) => setForm(f => {
-    const next = [...f.ingredients]
-    next[i] = { ...next[i], [field]: val }
-    return { ...f, ingredients: next }
+  const addGroup = () => setForm(f => ({ ...f, ingredientGroups: [...f.ingredientGroups, { label: '', items: [{ amount: '', unit: '', name: '' }] }] }))
+  const removeGroup = (g) => setForm(f => ({ ...f, ingredientGroups: f.ingredientGroups.filter((_, idx) => idx !== g) }))
+  const setGroupLabel = (g, val) => setForm(f => {
+    const next = [...f.ingredientGroups]; next[g] = { ...next[g], label: val }; return { ...f, ingredientGroups: next }
   })
-  const removeIngredient = (i) => setForm(f => ({ ...f, ingredients: f.ingredients.filter((_, idx) => idx !== i) }))
+  const addIngredient = (g) => setForm(f => {
+    const next = [...f.ingredientGroups]; next[g] = { ...next[g], items: [...next[g].items, { amount: '', unit: '', name: '' }] }; return { ...f, ingredientGroups: next }
+  })
+  const setIngredient = (g, i, field, val) => setForm(f => {
+    const next = [...f.ingredientGroups]; const items = [...next[g].items]; items[i] = { ...items[i], [field]: val }; next[g] = { ...next[g], items }; return { ...f, ingredientGroups: next }
+  })
+  const removeIngredient = (g, i) => setForm(f => {
+    const next = [...f.ingredientGroups]; next[g] = { ...next[g], items: next[g].items.filter((_, idx) => idx !== i) }; return { ...f, ingredientGroups: next }
+  })
 
   const addInstruction = () => setForm(f => ({ ...f, instructions: [...f.instructions, { text: '', substeps: [] }] }))
   const setInstruction = (i, val) => setForm(f => {
@@ -183,20 +192,38 @@ export default function AdminRecipeEditor() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-chesto-cream font-body font-medium">Ingredients</h2>
-            <button type="button" onClick={addIngredient} className="text-xs text-chesto-gold hover:text-chesto-gold-light">+ Add</button>
+            <button type="button" onClick={addGroup} className="text-xs text-chesto-gold hover:text-chesto-gold-light">+ Add Group</button>
           </div>
-          <div className="flex gap-2 mb-1 text-xs font-medium tracking-wider uppercase text-chesto-cream/30 ml-0">
-            <span className="w-20">Amount</span>
-            <span className="w-20">Unit</span>
-            <span className="flex-1">Ingredient</span>
-          </div>
-          <div className="space-y-2">
-            {form.ingredients.map((ing, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-20 text-sm" placeholder="Amount" value={ing.amount} onChange={e => setIngredient(i, 'amount', e.target.value)} />
-                <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-20 text-sm" placeholder="Unit" value={ing.unit} onChange={e => setIngredient(i, 'unit', e.target.value)} />
-                <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream flex-1 text-sm" placeholder="Ingredient name" value={ing.name} onChange={e => setIngredient(i, 'name', e.target.value)} />
-                <button type="button" onClick={() => removeIngredient(i)} className="text-red-400 text-lg leading-none px-2">×</button>
+          <div className="space-y-6">
+            {form.ingredientGroups.map((group, g) => (
+              <div key={g} className="border border-chesto-cream/10 p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <input
+                    className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream flex-1 text-sm"
+                    placeholder="Group name (e.g. For the sauce) — leave blank for no header"
+                    value={group.label}
+                    onChange={e => setGroupLabel(g, e.target.value)}
+                  />
+                  {form.ingredientGroups.length > 1 && (
+                    <button type="button" onClick={() => removeGroup(g)} className="text-red-400 text-lg leading-none px-1 flex-shrink-0">×</button>
+                  )}
+                </div>
+                <div className="flex gap-2 text-xs tracking-wider uppercase text-chesto-cream/30">
+                  <span className="w-20">Amount</span>
+                  <span className="w-20">Unit</span>
+                  <span className="flex-1">Ingredient</span>
+                </div>
+                <div className="space-y-2">
+                  {group.items.map((ing, i) => (
+                    <div key={i} className="flex gap-2 items-center">
+                      <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-20 text-sm" placeholder="Amount" value={ing.amount} onChange={e => setIngredient(g, i, 'amount', e.target.value)} />
+                      <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-20 text-sm" placeholder="Unit" value={ing.unit} onChange={e => setIngredient(g, i, 'unit', e.target.value)} />
+                      <input className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream flex-1 text-sm" placeholder="Ingredient name" value={ing.name} onChange={e => setIngredient(g, i, 'name', e.target.value)} />
+                      <button type="button" onClick={() => removeIngredient(g, i)} className="text-red-400 text-lg leading-none px-2">×</button>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => addIngredient(g)} className="text-xs text-chesto-gold/60 hover:text-chesto-gold">+ Add Ingredient</button>
               </div>
             ))}
           </div>
