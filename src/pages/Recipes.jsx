@@ -9,7 +9,8 @@ export default function Recipes() {
   const { docs: recipes, loading } = useCollection('recipes', 'createdAt', 'desc')
   const [active, setActive] = useState('All')
 
-  const filtered = active === 'All' ? recipes : recipes.filter(r => r.category === active)
+  const published = recipes.filter(r => r.published !== false)
+  const filtered = active === 'All' ? published : published.filter(r => r.category === active)
 
   return (
     <div className="pt-16">

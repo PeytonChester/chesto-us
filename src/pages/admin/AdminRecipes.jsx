@@ -40,7 +40,12 @@ export default function AdminRecipes() {
                 <img src={recipe.imageUrl} alt={recipe.title} className="w-12 h-12 object-cover flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-chesto-cream font-body font-medium truncate">{recipe.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-chesto-cream font-body font-medium truncate">{recipe.title}</p>
+                  {recipe.published === false && (
+                    <span className="text-xs font-mono px-1.5 py-0.5 border border-chesto-cream/20 text-chesto-cream/30 flex-shrink-0">Draft</span>
+                  )}
+                </div>
                 <p className="text-chesto-cream/40 text-xs">{recipe.category} · {recipe.prepTime || '—'}</p>
               </div>
               <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">

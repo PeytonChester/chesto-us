@@ -45,8 +45,10 @@ export default function RecipeDetail() {
       const snap = await getDocs(q)
       if (!snap.empty) {
         const data = { id: snap.docs[0].id, ...snap.docs[0].data() }
-        setRecipe(data)
-        setServings(data.servings || 4)
+        if (data.published !== false) {
+          setRecipe(data)
+          setServings(data.servings || 4)
+        }
       }
       setLoading(false)
     }

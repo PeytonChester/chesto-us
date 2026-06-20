@@ -21,7 +21,7 @@ export default function AdminRecipeEditor() {
     prepTime: '', cookTime: '', servings: 4, difficulty: 'Medium',
     ingredientGroups: [{ label: '', items: [{ amount: '', unit: '', name: '' }] }],
     instructions: [{ text: '', substeps: [] }],
-    notes: [''], imageUrl: '',
+    notes: [''], imageUrl: '', published: false,
   })
   const [imageFile, setImageFile] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -37,7 +37,7 @@ export default function AdminRecipeEditor() {
         const notes = Array.isArray(raw) ? raw : (raw ? [raw] : [''])
         const ingredientGroups = data.ingredientGroups
           || (data.ingredients?.length > 0 ? [{ label: '', items: data.ingredients }] : [{ label: '', items: [{ amount: '', unit: '', name: '' }] }])
-        setForm({ ...data, notes, ingredientGroups })
+        setForm({ ...data, notes, ingredientGroups, published: data.published ?? true })
       }
       setLoading(false)
     })
@@ -65,6 +65,13 @@ export default function AdminRecipeEditor() {
     const next = [...f.ingredientGroups]; next[g] = { ...next[g], items: next[g].items.filter((_, idx) => idx !== i) }; return { ...f, ingredientGroups: next }
   })
 
+  const moveInstruction = (i, dir) => setForm(f => {
+    const next = [...f.instructions]
+    const j = i + dir
+    if (j < 0 || j >= next.length) return f;
+    [next[i], next[j]] = [next[j], next[i]]
+    return { ...f, instructions: next }
+  })
   const addInstruction = () => setForm(f => ({ ...f, instructions: [...f.instructions, { text: '', substeps: [] }] }))
   const setInstruction = (i, val) => setForm(f => {
     const next = [...f.instructions]
@@ -108,12 +115,11 @@ export default function AdminRecipeEditor() {
     })
   })
 
-  const handleSave = async (e) => {
-    e.preventDefault()
+  const handleSave = async (shouldPublish) => {
     setSaving(true)
     try {
       const imageUrl = await uploadImage()
-      const data = { ...form, imageUrl, updatedAt: serverTimestamp() }
+      const data = { ...form, imageUrl, published: shouldPublish, updatedAt: serverTimestamp() }
       if (isEdit) {
         await updateDoc(doc(db, 'recipes', id), data)
       } else {
@@ -136,7 +142,7 @@ export default function AdminRecipeEditor() {
         <h1 className="font-display font-semibold text-3xl text-chesto-cream">{isEdit ? 'Edit Recipe' : 'New Recipe'}</h1>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-8 max-w-2xl">
+      <form onSubmit={e => e.preventDefault()} className="space-y-8 max-w-2xl">
         {/* Basic info */}
         <section className="space-y-4">
           <div>
@@ -247,6 +253,8 @@ export default function AdminRecipeEditor() {
                     onChange={e => setInstruction(i, e.target.value)}
                   />
                   <div className="flex flex-col gap-1 mt-2">
+                    <button type="button" onClick={() => moveInstruction(i, -1)} disabled={i === 0} className="text-xs text-chesto-cream/30 hover:text-chesto-cream disabled:opacity-20 px-1">↑</button>
+                    <button type="button" onClick={() => moveInstruction(i, 1)} disabled={i === form.instructions.length - 1} className="text-xs text-chesto-cream/30 hover:text-chesto-cream disabled:opacity-20 px-1">↓</button>
                     <button type="button" onClick={() => addSubstep(i)} className="text-xs text-chesto-gold/60 hover:text-chesto-gold whitespace-nowrap">+ sub</button>
                     <button type="button" onClick={() => removeInstruction(i)} className="text-red-400 text-lg leading-none px-1">×</button>
                   </div>
@@ -290,9 +298,12 @@ export default function AdminRecipeEditor() {
           </div>
         </section>
 
-        <div className="flex gap-4 pt-4">
-          <button type="submit" disabled={saving || uploading} className="btn-gold disabled:opacity-50">
-            {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Publish Recipe'}
+        <div className="flex flex-wrap gap-3 pt-4">
+          <button type="button" onClick={() => handleSave(false)} disabled={saving || uploading} className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark disabled:opacity-50">
+            {saving ? 'Saving…' : 'Save Draft'}
+          </button>
+          <button type="button" onClick={() => handleSave(true)} disabled={saving || uploading} className="btn-gold disabled:opacity-50">
+            {saving ? 'Saving…' : form.published ? 'Update' : 'Publish'}
           </button>
           <Link to="/admin/recipes" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark">Cancel</Link>
         </div>
