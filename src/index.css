@@ -154,3 +154,6 @@
 .masonry-grid-column > div {
   margin-bottom: 12px;
 }
+
+/* Social embeds (blog posts) */
+.prose-chesto .social-embed-slot { @apply my-10; }

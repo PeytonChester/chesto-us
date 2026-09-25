@@ -1,10 +1,33 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams, Link } from 'react-router-dom'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { Helmet } from 'react-helmet-async'
 import DOMPurify from 'dompurify'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
+import SocialEmbed from '../components/SocialEmbed'
+
+// Renders the post HTML, then mounts social embeds into the
+// <div data-embed-url> placeholders the editor saved.
+function PostBody({ body }) {
+  const ref = useRef(null)
+  const [slots, setSlots] = useState([])
+  const html = useMemo(() => DOMPurify.sanitize(
+    Array.isArray(body) ? body.map(p => `<p>${p}</p>`).join('') : body || ''
+  ), [body])
+
+  useLayoutEffect(() => {
+    setSlots(Array.from(ref.current.querySelectorAll('[data-embed-url]')))
+  }, [html])
+
+  return (
+    <>
+      <div ref={ref} className="prose-chesto" dangerouslySetInnerHTML={{ __html: html }} />
+      {slots.map((el, i) => createPortal(<SocialEmbed url={el.getAttribute('data-embed-url')} />, el, `${i}-${el.getAttribute('data-embed-url')}`))}
+    </>
+  )
+}
 
 export default function BlogPost() {
   const { slug } = useParams()
@@ -68,16 +91,7 @@ export default function BlogPost() {
           {publishedDate?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
 
-        <div
-          className="prose-chesto"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(
-              Array.isArray(post.body)
-                ? post.body.map(p => `<p>${p}</p>`).join('')
-                : post.body || ''
-            )
-          }}
-        />
+        <PostBody body={post.body} />
       </div>
     </article>
   )

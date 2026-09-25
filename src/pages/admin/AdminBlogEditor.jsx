@@ -125,7 +125,8 @@ export default function AdminBlogEditor() {
 
         <div>
           <label className="field-label text-chesto-cream/50">Body</label>
-          <RichTextEditor value={form.body} onChange={val => set('body', val)} />
+          <RichTextEditor value={form.body} onChange={val => set('body', val)} allowEmbeds />
+          <p className="text-xs text-chesto-cream/30 mt-2">Tip: paste a YouTube, TikTok, Instagram, or X link on an empty line to embed it, or use the Embed button.</p>
         </div>
 
         <div className="flex flex-wrap gap-3 pt-2">
