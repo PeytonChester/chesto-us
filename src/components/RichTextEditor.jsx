@@ -4,6 +4,8 @@ import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
 import { useEffect } from 'react'
 import DOMPurify from 'dompurify'
+import { SocialEmbedNode } from './SocialEmbedExtension'
+import { parseEmbed } from '../lib/embeds'
 
 function ToolbarButton({ onClick, active, title, children }) {
   return (
@@ -22,12 +24,13 @@ function ToolbarButton({ onClick, active, title, children }) {
   )
 }
 
-export default function RichTextEditor({ value, onChange }) {
+export default function RichTextEditor({ value, onChange, allowEmbeds = false }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
       Link.configure({ openOnClick: false }),
+      ...(allowEmbeds ? [SocialEmbedNode] : []),
     ],
     content: value || '',
     onUpdate: ({ editor }) => onChange(DOMPurify.sanitize(editor.getHTML())),
@@ -48,6 +51,15 @@ export default function RichTextEditor({ value, onChange }) {
     const url = window.prompt('URL')
     if (url) editor.chain().focus().setLink({ href: url }).run()
     else editor.chain().focus().unsetLink().run()
+  }
+
+  const addEmbed = () => {
+    const input = window.prompt('Paste a link or embed code from YouTube, TikTok, Instagram, or X/Twitter')
+    if (!input) return
+    const embed = parseEmbed(input)
+    if (!embed) return alert('That link isn’t supported. Use a YouTube, TikTok, Instagram, or X/Twitter post link.')
+    if (embed.error) return alert(embed.error)
+    editor.chain().focus().insertSocialEmbed(embed.url).run()
   }
 
   if (!editor) return null
@@ -74,6 +86,9 @@ export default function RichTextEditor({ value, onChange }) {
 
         <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Blockquote">" Quote</ToolbarButton>
         <ToolbarButton onClick={setLink} active={editor.isActive('link')} title="Link">Link</ToolbarButton>
+        {allowEmbeds && (
+          <ToolbarButton onClick={addEmbed} active={false} title="Embed a post or video from YouTube, TikTok, Instagram, or X">Embed</ToolbarButton>
+        )}
       </div>
 
       {/* Editor area */}
