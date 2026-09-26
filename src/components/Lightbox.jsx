@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { responsiveImage, fixedImage } from '../lib/images'
+import { responsiveImage, fixedImage, optimizedUrl } from '../lib/images'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 5
@@ -22,6 +22,8 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
   const thumbStripRef = useRef(null)
   const activeThumbRef = useRef(null)
   const photo = photos[index]
+  const [baseFailed, setBaseFailed] = useState(false)
+  const [hiResSrc, setHiResSrc] = useState(null)
 
   // Keep the zoomed photo covering the stage instead of drifting off it
   const constrain = useCallback((scale, x, y) => {
@@ -49,6 +51,33 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
   const resetZoom = useCallback(() => setView({ scale: 1, x: 0, y: 0 }), [])
 
   useEffect(() => { resetZoom() }, [index, resetZoom])
+
+  useEffect(() => { setBaseFailed(false); setHiResSrc(null) }, [photo.id])
+
+  // Once zoomed in, fetch a sharper version in the background and swap it in
+  // only after it has loaded, so the photo never goes blank. If the optimizer
+  // can't serve it, use the original upload instead.
+  const wantHiRes = view.scale > 1.5
+  useEffect(() => {
+    if (!wantHiRes || hiResSrc) return
+    let cancelled = false
+    const load = (url, onFail) => {
+      const img = new Image()
+      img.onload = () => { if (!cancelled) setHiResSrc(url) }
+      img.onerror = () => { if (!cancelled) onFail?.() }
+      img.src = url
+    }
+    const optimized = optimizedUrl(photo.url, 3840, 85)
+    if (optimized === photo.url || baseFailed) load(photo.url)
+    else load(optimized, () => load(photo.url))
+    return () => { cancelled = true }
+  }, [wantHiRes, hiResSrc, baseFailed, photo.url])
+
+  const imageProps = hiResSrc
+    ? { src: hiResSrc }
+    : baseFailed
+      ? { src: photo.url }
+      : { ...responsiveImage(photo.url, '100vw', { maxWidth: 3840 }), onError: () => setBaseFailed(true) }
 
   useEffect(() => {
     activeThumbRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
@@ -220,9 +249,7 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
         <img
           ref={imgRef}
           key={photo.id}
-          {...(view.scale > 1.5
-            ? fixedImage(photo.url, 3840, 85)
-            : responsiveImage(photo.url, '100vw', { maxWidth: 3840 }))}
+          {...imageProps}
           alt={photo.title || label}
           draggable={false}
           className="max-w-full max-h-full object-contain"
