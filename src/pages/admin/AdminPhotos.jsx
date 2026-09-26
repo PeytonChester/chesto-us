@@ -6,6 +6,8 @@ import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
 
+const UNCATEGORIZED = '__uncategorized'
+
 export default function AdminPhotos() {
   const { docs: photos } = useCollection('photos', 'createdAt', 'desc')
   const { categories, covers, albums } = usePhotographySettings()
@@ -15,6 +17,7 @@ export default function AdminPhotos() {
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState(() => new Set())
   const [bulkAlbum, setBulkAlbum] = useState('')
+  const [bulkCategory, setBulkCategory] = useState('')
   const [bulkSaving, setBulkSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const fileRef = useRef()
@@ -111,7 +114,7 @@ export default function AdminPhotos() {
     return next
   })
 
-  const exitSelecting = () => { setSelecting(false); setSelected(new Set()); setBulkAlbum('') }
+  const exitSelecting = () => { setSelecting(false); setSelected(new Set()); setBulkAlbum(''); setBulkCategory('') }
 
   // Firestore batches are capped at 500 writes
   const updatePhotos = async (list, data) => {
@@ -139,6 +142,26 @@ export default function AdminPhotos() {
       exitSelecting()
     } catch (err) {
       showToast('Failed to add to album: ' + err.message, 'error')
+    } finally {
+      setBulkSaving(false)
+    }
+  }
+
+  // Albums belong to one category, so moved photos leave their album
+  const moveSelectedToCategory = async () => {
+    const target = categories.find(c => c.slug === bulkCategory)
+    const toMove = selectedPhotos.filter(p => p.category !== bulkCategory)
+    if (!target) return
+    if (toMove.length === 0) return showToast(`Those photos are already in ${target.label}.`)
+    const inAlbum = toMove.filter(p => p.album).length
+    if (inAlbum && !window.confirm(`${inAlbum} of these photos ${inAlbum !== 1 ? 'are' : 'is'} in an album and will be taken out of it. Continue?`)) return
+    setBulkSaving(true)
+    try {
+      await updatePhotos(toMove, { category: target.slug, album: deleteField() })
+      showToast(`Moved ${toMove.length} photo${toMove.length !== 1 ? 's' : ''} to ${target.label}.`)
+      exitSelecting()
+    } catch (err) {
+      showToast('Failed to move photos: ' + err.message, 'error')
     } finally {
       setBulkSaving(false)
     }
@@ -256,9 +279,11 @@ export default function AdminPhotos() {
         </div>
       )}
 
-      {/* Photo grid by category */}
-      {categories.map(cat => {
-        const catPhotos = photos.filter(p => p.category === cat.slug)
+      {/* Photo grid by category; photos with a missing or deleted category show under Uncategorized */}
+      {[...categories, { slug: UNCATEGORIZED, label: 'Uncategorized' }].map(cat => {
+        const catPhotos = cat.slug === UNCATEGORIZED
+          ? photos.filter(p => !categories.some(c => c.slug === p.category))
+          : photos.filter(p => p.category === cat.slug)
         if (catPhotos.length === 0) return null
         const catAlbums = albumsIn(cat.slug)
         return (
@@ -300,12 +325,14 @@ export default function AdminPhotos() {
                     )}
                   </div>
                   {!selecting && <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
-                    <button
-                      onClick={() => setCover(photo)}
-                      className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
-                    >
-                      Set Cover
-                    </button>
+                    {cat.slug !== UNCATEGORIZED && (
+                      <button
+                        onClick={() => setCover(photo)}
+                        className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
+                      >
+                        Set Cover
+                      </button>
+                    )}
                     {catAlbums.some(a => a.id === photo.album) && (
                       <button
                         onClick={() => setAlbumCover(photo)}
@@ -348,6 +375,19 @@ export default function AdminPhotos() {
       {selecting && selected.size > 0 && (
         <div className="fixed bottom-0 right-0 left-0 md:left-56 z-40 bg-chesto-charcoal border-t border-chesto-cream/10 px-6 py-4 flex flex-wrap items-center gap-3">
           <span className="text-chesto-cream text-sm font-medium mr-2">{selected.size} selected</span>
+          <select
+            value={bulkCategory}
+            onChange={e => setBulkCategory(e.target.value)}
+            className="field-input bg-chesto-dark border-chesto-cream/10 text-chesto-cream text-sm py-2 w-auto"
+            aria-label="Category to move to"
+          >
+            <option value="">Choose a category…</option>
+            {categories.map(c => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+          </select>
+          <button type="button" onClick={moveSelectedToCategory} disabled={!bulkCategory || bulkSaving} className="btn-gold text-sm disabled:opacity-50">
+            {bulkSaving ? 'Saving…' : 'Move to Category'}
+          </button>
+          <span className="w-px h-6 bg-chesto-cream/10 mx-1" />
           {albums.length > 0 ? (
             <>
               <select
