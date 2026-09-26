@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { db, storage } from '../../firebase'
+import { db } from '../../firebase'
+import { storage } from '../../firebaseStorage'
 import { fixedImage } from '../../lib/images'
 
 export default function AdminHome() {

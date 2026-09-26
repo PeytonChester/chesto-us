@@ -1,6 +1,7 @@
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Helmet } from 'react-helmet-async'
+import PageLoading from './PageLoading'
 
 const GTM_ID = 'GTM-T589WSP4'
 
@@ -98,7 +99,7 @@ export default function Layout() {
 
       {/* Page content */}
       <main className="flex-1 page-enter">
-        <Outlet />
+        <Suspense fallback={<PageLoading />}><Outlet /></Suspense>
       </main>
 
       {/* Footer */}

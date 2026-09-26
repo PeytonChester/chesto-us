@@ -1,45 +1,43 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from './hooks/useAuth'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './components/Layout'
+import PageLoading from './components/PageLoading'
+
+// Every page is its own chunk, so visitors only download the page they open
+// and never the admin panel, editor, or Firebase Auth/Storage code.
 
 // Public pages
-import Layout from './components/Layout'
-import Home from './pages/Home'
-import Photography from './pages/Photography'
-import PhotoCategory from './pages/PhotoCategory'
-import Recipes from './pages/Recipes'
-import RecipeDetail from './pages/RecipeDetail'
-import Blog from './pages/Blog'
-import BlogPost from './pages/BlogPost'
-import Reviews from './pages/Reviews'
-import ReviewDetail from './pages/ReviewDetail'
-import NotFound from './pages/NotFound'
+const Home = lazy(() => import('./pages/Home'))
+const Photography = lazy(() => import('./pages/Photography'))
+const PhotoCategory = lazy(() => import('./pages/PhotoCategory'))
+const Recipes = lazy(() => import('./pages/Recipes'))
+const RecipeDetail = lazy(() => import('./pages/RecipeDetail'))
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
+const Reviews = lazy(() => import('./pages/Reviews'))
+const ReviewDetail = lazy(() => import('./pages/ReviewDetail'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Admin
-import AdminLayout from './pages/admin/AdminLayout'
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminHome from './pages/admin/AdminHome'
-import AdminPhotos from './pages/admin/AdminPhotos'
-import AdminRecipes from './pages/admin/AdminRecipes'
-import AdminRecipeEditor from './pages/admin/AdminRecipeEditor'
-import AdminBlog from './pages/admin/AdminBlog'
-import AdminBlogEditor from './pages/admin/AdminBlogEditor'
-import AdminCategories from './pages/admin/AdminCategories'
-import AdminAlbums from './pages/admin/AdminAlbums'
-import AdminBlogCategories from './pages/admin/AdminBlogCategories'
-import AdminReviews from './pages/admin/AdminReviews'
-import AdminReviewEditor from './pages/admin/AdminReviewEditor'
-
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><span className="text-chesto-charcoal/40 text-sm tracking-widest uppercase">Loading…</span></div>
-  if (!user) return <Navigate to="/admin/login" replace />
-  return children
-}
+const AdminRoot = lazy(() => import('./pages/admin/AdminRoot'))
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminHome = lazy(() => import('./pages/admin/AdminHome'))
+const AdminPhotos = lazy(() => import('./pages/admin/AdminPhotos'))
+const AdminRecipes = lazy(() => import('./pages/admin/AdminRecipes'))
+const AdminRecipeEditor = lazy(() => import('./pages/admin/AdminRecipeEditor'))
+const AdminBlog = lazy(() => import('./pages/admin/AdminBlog'))
+const AdminBlogEditor = lazy(() => import('./pages/admin/AdminBlogEditor'))
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'))
+const AdminAlbums = lazy(() => import('./pages/admin/AdminAlbums'))
+const AdminBlogCategories = lazy(() => import('./pages/admin/AdminBlogCategories'))
+const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'))
+const AdminReviewEditor = lazy(() => import('./pages/admin/AdminReviewEditor'))
 
 export default function App() {
   return (
     <BrowserRouter>
+      <Suspense fallback={<PageLoading fullScreen />}>
       <Routes>
         {/* Public */}
         <Route element={<Layout />}>
@@ -58,7 +56,7 @@ export default function App() {
 
         {/* Admin */}
         <Route path="admin/login" element={<AdminLogin />} />
-        <Route path="admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+        <Route path="admin" element={<AdminRoot />}>
           <Route index element={<AdminDashboard />} />
           <Route path="home" element={<AdminHome />} />
           <Route path="photos" element={<AdminPhotos />} />
@@ -76,6 +74,7 @@ export default function App() {
           <Route path="reviews/:id/edit" element={<AdminReviewEditor />} />
         </Route>
       </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }
