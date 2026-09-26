@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react'
-import { Plugin } from '@tiptap/pm/state'
+import { Plugin, NodeSelection } from '@tiptap/pm/state'
 import SocialEmbed from './SocialEmbed'
 import { parseEmbed, PROVIDER_LABELS } from '../lib/embeds'
 
@@ -55,10 +55,14 @@ export const SocialEmbedNode = Node.create({
 
   addCommands() {
     return {
-      insertSocialEmbed: url => ({ commands }) => {
+      insertSocialEmbed: url => ({ state, commands }) => {
         const embed = parseEmbed(url)
         if (!embed || embed.error) return false
-        return commands.insertContent({ type: this.name, attrs: { url: embed.url } })
+        const content = { type: this.name, attrs: { url: embed.url } }
+        // Insert after a selected block instead of replacing it
+        return state.selection instanceof NodeSelection
+          ? commands.insertContentAt(state.selection.to, content)
+          : commands.insertContent(content)
       },
     }
   },

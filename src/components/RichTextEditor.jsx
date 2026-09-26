@@ -5,6 +5,7 @@ import Link from '@tiptap/extension-link'
 import { useEffect } from 'react'
 import DOMPurify from 'dompurify'
 import { SocialEmbedNode } from './SocialEmbedExtension'
+import { PhotoGalleryNode, PhotoGalleryPicker } from './PhotoGalleryExtension'
 import { parseEmbed } from '../lib/embeds'
 
 function ToolbarButton({ onClick, active, title, children }) {
@@ -30,7 +31,7 @@ export default function RichTextEditor({ value, onChange, allowEmbeds = false })
       StarterKit,
       Underline,
       Link.configure({ openOnClick: false }),
-      ...(allowEmbeds ? [SocialEmbedNode] : []),
+      ...(allowEmbeds ? [SocialEmbedNode, PhotoGalleryNode] : []),
     ],
     content: value || '',
     onUpdate: ({ editor }) => onChange(DOMPurify.sanitize(editor.getHTML())),
@@ -87,7 +88,10 @@ export default function RichTextEditor({ value, onChange, allowEmbeds = false })
         <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Blockquote">" Quote</ToolbarButton>
         <ToolbarButton onClick={setLink} active={editor.isActive('link')} title="Link">Link</ToolbarButton>
         {allowEmbeds && (
-          <ToolbarButton onClick={addEmbed} active={false} title="Embed a post or video from YouTube, TikTok, Instagram, or X">Embed</ToolbarButton>
+          <>
+            <ToolbarButton onClick={addEmbed} active={false} title="Embed a post or video from YouTube, TikTok, Instagram, or X">Embed</ToolbarButton>
+            <PhotoGalleryPicker editor={editor} />
+          </>
         )}
       </div>
 

@@ -7,9 +7,15 @@ import DOMPurify from 'dompurify'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
 import SocialEmbed from '../components/SocialEmbed'
+import PhotoGalleryEmbed from '../components/PhotoGalleryEmbed'
 
-// Renders the post HTML, then mounts social embeds into the
-// <div data-embed-url> placeholders the editor saved.
+// Renders the post HTML, then mounts social embeds and photo galleries into
+// the <div data-embed-url> / <div data-photo-gallery> placeholders the editor saved.
+function renderSlot(el) {
+  if (el.hasAttribute('data-embed-url')) return <SocialEmbed url={el.getAttribute('data-embed-url')} />
+  return <PhotoGalleryEmbed category={el.getAttribute('data-category')} album={el.getAttribute('data-album')} />
+}
+
 function PostBody({ body }) {
   const ref = useRef(null)
   const [slots, setSlots] = useState([])
@@ -18,13 +24,13 @@ function PostBody({ body }) {
   ), [body])
 
   useLayoutEffect(() => {
-    setSlots(Array.from(ref.current.querySelectorAll('[data-embed-url]')))
+    setSlots(Array.from(ref.current.querySelectorAll('[data-embed-url], [data-photo-gallery]')))
   }, [html])
 
   return (
     <>
       <div ref={ref} className="prose-chesto" dangerouslySetInnerHTML={{ __html: html }} />
-      {slots.map((el, i) => createPortal(<SocialEmbed url={el.getAttribute('data-embed-url')} />, el, `${i}-${el.getAttribute('data-embed-url')}`))}
+      {slots.map((el, i) => createPortal(renderSlot(el), el, `${i}-${el.getAttribute('data-embed-url') ?? `${el.getAttribute('data-category')}/${el.getAttribute('data-album')}`}`))}
     </>
   )
 }
