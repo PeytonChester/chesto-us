@@ -5,9 +5,9 @@ import Masonry from 'react-masonry-css'
 const BREAKPOINTS = { default: 3, 1100: 2, 640: 1 }
 
 // Masonry grid with "Load More" paging and a fullscreen lightbox.
-export default function PhotoGallery({ photos, label }) {
+export default function PhotoGallery({ photos, label, breakpoints = BREAKPOINTS, pageSize = 10 }) {
   const [lightbox, setLightbox] = useState(null)
-  const [visibleCount, setVisibleCount] = useState(10)
+  const [visibleCount, setVisibleCount] = useState(pageSize)
   const thumbStripRef = useRef(null)
   const activeThumbRef = useRef(null)
 
@@ -32,7 +32,7 @@ export default function PhotoGallery({ photos, label }) {
 
   return (
     <>
-      <Masonry breakpointCols={BREAKPOINTS} className="masonry-grid" columnClassName="masonry-grid-column">
+      <Masonry breakpointCols={breakpoints} className="masonry-grid" columnClassName="masonry-grid-column">
         {visiblePhotos.map((photo, i) => (
           <div
             key={photo.id}
@@ -57,7 +57,7 @@ export default function PhotoGallery({ photos, label }) {
       {visibleCount < photos.length && (
         <div className="flex justify-center mt-12">
           <button
-            onClick={() => setVisibleCount(c => c + 10)}
+            onClick={() => setVisibleCount(c => c + pageSize)}
             className="btn-ghost"
           >
             Load More

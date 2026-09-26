@@ -161,3 +161,8 @@
 /* Admin: album tag on photo tiles */
 .album-tag { @apply bg-chesto-dark/70 backdrop-blur-sm border border-chesto-cream/15 rounded-full text-[10px] font-medium tracking-widest uppercase leading-4 shadow-sm focus:outline-none focus:border-chesto-gold/60 hover:border-chesto-cream/30 transition-colors; }
 .album-tag option { @apply text-chesto-dark normal-case tracking-normal; }
+
+/* Photo galleries (blog posts) */
+.prose-chesto .photo-gallery-slot { @apply my-12; }
+.prose-chesto .photo-gallery-embed a.photo-gallery-link { @apply no-underline text-chesto-charcoal/50 hover:text-chesto-gold; }
+.prose-chesto .photo-gallery-embed p { @apply m-0 text-sm; }
