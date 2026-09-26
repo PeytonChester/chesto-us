@@ -348,21 +348,29 @@ export default function AdminPhotos() {
                       Delete
                     </button>
                   </div>}
-                  {!selecting && catAlbums.length > 0 && (
-                    <select
-                      value={catAlbums.some(a => a.id === photo.album) ? photo.album : ''}
-                      onChange={e => movePhotoToAlbum(photo, e.target.value)}
-                      className="absolute bottom-0 inset-x-0 bg-chesto-dark/80 text-chesto-cream text-xs px-2 py-1 border-0 focus:outline-none"
-                      aria-label="Album"
-                    >
-                      <option value="">No album</option>
-                      {catAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
-                    </select>
-                  )}
-                  {selecting && photo.album && catAlbums.find(a => a.id === photo.album) && (
-                    <div className="absolute bottom-0 inset-x-0 bg-chesto-dark/80 text-chesto-cream/80 text-xs px-2 py-1 truncate">
+                  {!selecting && catAlbums.length > 0 && (() => {
+                    const current = catAlbums.find(a => a.id === photo.album)
+                    return (
+                      <label className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] cursor-pointer">
+                        <select
+                          value={current ? current.id : ''}
+                          onChange={e => movePhotoToAlbum(photo, e.target.value)}
+                          className={`album-tag appearance-none max-w-full truncate pl-2.5 pr-6 py-1 ${current ? 'text-chesto-cream' : 'text-chesto-cream/50'}`}
+                          aria-label="Album"
+                        >
+                          <option value="">No album</option>
+                          {catAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
+                        </select>
+                        <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-chesto-cream/60" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                          <path d="M2 3.5 5 6.5 8 3.5" />
+                        </svg>
+                      </label>
+                    )
+                  })()}
+                  {selecting && catAlbums.find(a => a.id === photo.album) && (
+                    <span className="album-tag absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate px-2.5 py-1 text-chesto-cream">
                       {catAlbums.find(a => a.id === photo.album).title}
-                    </div>
+                    </span>
                   )}
                 </div>
               ))}
