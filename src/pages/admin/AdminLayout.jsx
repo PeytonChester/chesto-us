@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
-import { auth } from '../../firebase'
+import { auth } from '../../firebaseAuth'
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', icon: '⬡', end: true },
@@ -89,7 +89,7 @@ export default function AdminLayout() {
       {/* Main content */}
       <main className="flex-1 overflow-auto">
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-10">
-          <Outlet />
+          <Suspense fallback={<div className="text-chesto-cream/40 text-sm animate-pulse">Loading…</div>}><Outlet /></Suspense>
         </div>
       </main>
     </div>
