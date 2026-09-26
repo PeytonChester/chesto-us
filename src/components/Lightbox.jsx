@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { responsiveImage, fixedImage } from '../lib/images'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 5
@@ -219,7 +220,9 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
         <img
           ref={imgRef}
           key={photo.id}
-          src={photo.url}
+          {...(view.scale > 1.5
+            ? fixedImage(photo.url, 3840, 85)
+            : responsiveImage(photo.url, '100vw', { maxWidth: 3840 }))}
           alt={photo.title || label}
           draggable={false}
           className="max-w-full max-h-full object-contain"
@@ -263,7 +266,7 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
               }`}
               aria-label={`Photo ${i + 1}`}
             >
-              <img src={p.url} alt="" className="w-full h-full object-cover" />
+              <img {...fixedImage(p.url, 128)} loading="lazy" alt="" className="w-full h-full object-cover" />
             </button>
           ))}
         </div>

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
+import { fixedImage } from '../../lib/images'
 
 export default function AdminRecipes() {
   const { docs: recipes, loading } = useCollection('recipes', 'createdAt', 'desc')
@@ -37,7 +38,7 @@ export default function AdminRecipes() {
           {recipes.map(recipe => (
             <div key={recipe.id} className="flex items-center gap-4 bg-chesto-charcoal/20 px-4 py-3 group hover:bg-chesto-charcoal/30 transition-colors">
               {recipe.imageUrl && (
-                <img src={recipe.imageUrl} alt={recipe.title} className="w-12 h-12 object-cover flex-shrink-0" />
+                <img {...fixedImage(recipe.imageUrl, 128)} alt={recipe.title} className="w-12 h-12 object-cover flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

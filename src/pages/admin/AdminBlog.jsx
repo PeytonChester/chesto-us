@@ -3,6 +3,7 @@ import { deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { useBlogSettings } from '../../hooks/useBlogSettings'
+import { fixedImage } from '../../lib/images'
 
 export default function AdminBlog() {
   const { docs: posts, loading } = useCollection('posts', 'publishedAt', 'desc')
@@ -42,7 +43,7 @@ export default function AdminBlog() {
           {posts.map(post => (
             <div key={post.id} className="flex items-center gap-4 bg-chesto-charcoal/20 px-4 py-3 group hover:bg-chesto-charcoal/30 transition-colors">
               {post.imageUrl && (
-                <img src={post.imageUrl} alt={post.title} className="w-12 h-12 object-cover flex-shrink-0" />
+                <img {...fixedImage(post.imageUrl, 128)} alt={post.title} className="w-12 h-12 object-cover flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

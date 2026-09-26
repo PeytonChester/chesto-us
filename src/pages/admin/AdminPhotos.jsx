@@ -5,6 +5,7 @@ import { collection, addDoc, deleteDoc, doc, setDoc, updateDoc, deleteField, ser
 import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
+import { fixedImage } from '../../lib/images'
 
 const UNCATEGORIZED = '__uncategorized'
 
@@ -308,7 +309,7 @@ export default function AdminPhotos() {
                   className={`relative group aspect-square ${selecting ? 'cursor-pointer' : ''} ${selected.has(photo.id) ? 'ring-2 ring-chesto-gold' : ''}`}
                   onClick={selecting ? () => toggleSelected([photo.id]) : undefined}
                 >
-                  <img src={photo.url} alt={photo.title} className={`w-full h-full object-cover transition-opacity ${selecting && !selected.has(photo.id) ? 'opacity-60' : ''}`} />
+                  <img {...fixedImage(photo.url, 640)} loading="lazy" alt={photo.title} className={`w-full h-full object-cover transition-opacity ${selecting && !selected.has(photo.id) ? 'opacity-60' : ''}`} />
                   {selecting && (
                     <div className={`absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-sm border-2 ${
                       selected.has(photo.id) ? 'bg-chesto-gold border-chesto-gold text-chesto-dark' : 'border-chesto-cream/80 bg-chesto-dark/40'

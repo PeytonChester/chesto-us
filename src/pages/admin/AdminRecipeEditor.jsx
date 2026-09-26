@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../../firebase'
+import { fixedImage } from '../../lib/images'
 
 const CATEGORIES = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink']
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
@@ -189,7 +190,7 @@ export default function AdminRecipeEditor() {
         {/* Cover image */}
         <section>
           <label className="field-label text-chesto-cream/50">Cover Image</label>
-          {form.imageUrl && <img src={form.imageUrl} alt="cover" className="w-32 h-20 object-cover mb-3" />}
+          {form.imageUrl && <img {...fixedImage(form.imageUrl, 384)} alt="cover" className="w-32 h-20 object-cover mb-3" />}
           <input type="file" accept="image/*" className="text-chesto-cream/50 text-sm" onChange={e => setImageFile(e.target.files[0])} />
           {uploading && <p className="text-chesto-gold text-xs mt-1">Uploading…</p>}
         </section>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
+import { responsiveImage } from '../lib/images'
 
 const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink']
 
@@ -57,7 +58,7 @@ export default function Recipes() {
               <Link key={recipe.id} to={`/recipes/${recipe.slug}`} className="group">
                 <div className="aspect-photo overflow-hidden mb-5">
                   {recipe.imageUrl ? (
-                    <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img {...responsiveImage(recipe.imageUrl, '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw')} loading="lazy" alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
                     <div className="w-full h-full bg-chesto-charcoal/10 flex items-center justify-center">
                       <span className="text-chesto-charcoal/20 text-xs tracking-widest uppercase">No Image</span>

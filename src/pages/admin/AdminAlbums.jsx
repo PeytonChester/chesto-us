@@ -4,6 +4,7 @@ import { doc, setDoc, writeBatch, deleteField } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
+import { fixedImage } from '../../lib/images'
 
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -109,7 +110,7 @@ export default function AdminAlbums() {
                 return (
                   <div key={album.id} className="flex items-center gap-4 bg-chesto-charcoal/20 px-4 py-3 group hover:bg-chesto-charcoal/30 transition-colors">
                     {cover
-                      ? <img src={cover} alt="" className="w-16 h-11 object-cover flex-shrink-0" />
+                      ? <img {...fixedImage(cover, 128)} alt="" className="w-16 h-11 object-cover flex-shrink-0" />
                       : <div className="w-16 h-11 bg-chesto-charcoal flex-shrink-0" />}
                     <div className="min-w-0 flex-1">
                       {editing ? (
