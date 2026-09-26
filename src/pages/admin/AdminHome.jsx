@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../../firebase'
+import { fixedImage } from '../../lib/images'
 
 export default function AdminHome() {
   const [form, setForm] = useState({ heroTagline: '', heroHeading: '', heroImageUrl: '' })
@@ -85,7 +86,7 @@ export default function AdminHome() {
         <section>
           <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">Hero Image</h2>
           {form.heroImageUrl && (
-            <img src={form.heroImageUrl} alt="Hero" className="w-full h-48 object-cover mb-4" />
+            <img {...fixedImage(form.heroImageUrl, 1080)} alt="Hero" className="w-full h-48 object-cover mb-4" />
           )}
           <input
             type="file"

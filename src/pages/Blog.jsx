@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
+import { responsiveImage } from '../lib/images'
 
 export default function Blog() {
   const { docs: allPosts, loading } = useCollection('posts', 'publishedAt', 'desc')
@@ -37,7 +38,7 @@ export default function Blog() {
               <Link key={post.id} to={`/blog/${post.slug}`} className="group flex flex-col md:flex-row gap-6 md:gap-10 py-10">
                 {post.imageUrl && (
                   <div className="w-full md:w-52 h-36 overflow-hidden flex-shrink-0">
-                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 208px')} loading="lazy" alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                 )}
                 <div className="flex flex-col justify-center">

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { usePhotographySettings } from '../hooks/usePhotographySettings'
 import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
+import { responsiveImage } from '../lib/images'
 
 export default function Photography() {
   const { categories: allCategories, covers, loading: settingsLoading } = usePhotographySettings()
@@ -49,7 +50,7 @@ export default function Photography() {
                 style={{ aspectRatio: '3/2' }}
               >
                 {covers[cat.slug] ? (
-                  <img src={covers[cat.slug]} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img {...responsiveImage(covers[cat.slug], i === 0 ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw')} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 ) : (
                   <div className={`w-full h-full ${
                     ['bg-stone-800','bg-stone-700','bg-stone-600','bg-stone-700','bg-stone-800','bg-stone-600'][i]

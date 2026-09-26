@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
+import { responsiveImage } from '../lib/images'
 
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
@@ -43,7 +44,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-chesto-dark">
           {heroSettings.heroImageUrl && (
             <img
-              src={heroSettings.heroImageUrl}
+              {...responsiveImage(heroSettings.heroImageUrl, '100vw', { maxWidth: 3840 })}
               alt="Hero"
               className="w-full h-full object-cover opacity-60"
             />
@@ -89,7 +90,7 @@ export default function Home() {
                 style={{ aspectRatio: '3/2' }}
               >
                 {covers[cat.slug] ? (
-                  <img src={covers[cat.slug]} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img {...responsiveImage(covers[cat.slug], '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 ) : (
                   <div className="w-full h-full bg-stone-800 flex items-center justify-center">
                     <span className="text-white/20 text-xs tracking-widest uppercase">{cat.label}</span>
@@ -137,7 +138,7 @@ export default function Home() {
                 >
                   <div className="aspect-photo overflow-hidden mb-5">
                     {recipe.imageUrl ? (
-                      <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <img {...responsiveImage(recipe.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     ) : (
                       <div className="w-full h-full bg-chesto-charcoal flex items-center justify-center">
                         <span className="text-chesto-cream/20 text-xs tracking-widest uppercase">No Image</span>
@@ -178,7 +179,7 @@ export default function Home() {
               <Link key={post.id} to={`/blog/${post.slug}`} className="group">
                 {post.imageUrl && (
                   <div className="aspect-photo overflow-hidden mb-5">
-                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                 )}
                 <p className="section-label mb-1.5">{post.category}</p>

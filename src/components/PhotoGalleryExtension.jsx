@@ -3,6 +3,7 @@ import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react'
 import { usePhotographySettings } from '../hooks/usePhotographySettings'
 import { usePhotoSet } from './PhotoGalleryEmbed'
 import { insertBlock } from './editorUtils'
+import { fixedImage } from '../lib/images'
 
 function GalleryNodeView({ node, selected, deleteNode }) {
   const { category, album } = node.attrs
@@ -30,7 +31,7 @@ function GalleryNodeView({ node, selected, deleteNode }) {
         ) : (
           <div className="grid grid-cols-6 gap-1">
             {set.photos.slice(0, 6).map(p => (
-              <img key={p.id} src={p.url} alt="" className="w-full aspect-square object-cover" />
+              <img key={p.id} {...fixedImage(p.url, 128)} alt="" className="w-full aspect-square object-cover" />
             ))}
           </div>
         )}

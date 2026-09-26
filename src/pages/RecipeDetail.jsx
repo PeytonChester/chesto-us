@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
+import { responsiveImage } from '../lib/images'
 
 function parseFraction(val) {
   if (val === null || val === undefined || val === '') return null
@@ -91,7 +92,7 @@ export default function RecipeDetail() {
       {/* Hero image */}
       {recipe.imageUrl && (
         <div className="w-full h-[50vh] md:h-[65vh] overflow-hidden">
-          <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover" />
+          <img {...responsiveImage(recipe.imageUrl, '100vw', { maxWidth: 3840 })} alt={recipe.title} className="w-full h-full object-cover" />
         </div>
       )}
 

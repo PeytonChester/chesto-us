@@ -8,6 +8,7 @@ import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
 import SocialEmbed from '../components/SocialEmbed'
 import PhotoGalleryEmbed from '../components/PhotoGalleryEmbed'
+import { responsiveImage } from '../lib/images'
 
 // Renders the post HTML, then mounts social embeds and photo galleries into
 // the <div data-embed-url> / <div data-photo-gallery> placeholders the editor saved.
@@ -81,7 +82,7 @@ export default function BlogPost() {
       </Helmet>
       {post.imageUrl && (
         <div className="w-full h-[45vh] md:h-[60vh] overflow-hidden">
-          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+          <img {...responsiveImage(post.imageUrl, '100vw', { maxWidth: 3840 })} alt={post.title} className="w-full h-full object-cover" />
         </div>
       )}
 

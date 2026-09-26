@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import Masonry from 'react-masonry-css'
 import Lightbox from './Lightbox'
+import { responsiveImage } from '../lib/images'
 
 const BREAKPOINTS = { default: 3, 1100: 2, 640: 1 }
 
 // Masonry grid with "Load More" paging and a fullscreen lightbox.
-export default function PhotoGallery({ photos, label, breakpoints = BREAKPOINTS, pageSize = 10 }) {
+const SIZES = '(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw'
+
+export default function PhotoGallery({ photos, label, breakpoints = BREAKPOINTS, pageSize = 10, sizes = SIZES }) {
   const [lightbox, setLightbox] = useState(null)
   const [visibleCount, setVisibleCount] = useState(pageSize)
   const visiblePhotos = photos.slice(0, visibleCount)
@@ -20,7 +23,7 @@ export default function PhotoGallery({ photos, label, breakpoints = BREAKPOINTS,
             onClick={() => setLightbox(i)}
           >
             <img
-              src={photo.url}
+              {...responsiveImage(photo.url, sizes)}
               alt={photo.title || label}
               className="w-full block transition-transform duration-700 hover:scale-105"
               loading="lazy"

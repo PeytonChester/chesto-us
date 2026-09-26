@@ -1,4 +1,12 @@
 {
+  "images": {
+    "sizes": [128, 384, 640, 1080, 1920, 2560, 3840],
+    "formats": ["image/avif", "image/webp"],
+    "minimumCacheTTL": 2678400,
+    "remotePatterns": [
+      { "protocol": "https", "hostname": "firebasestorage.googleapis.com", "pathname": "/v0/b/chesto-us*/o/**" }
+    ]
+  },
   "rewrites": [
     { "source": "/sitemap.xml",             "destination": "/api/sitemap" },
     { "source": "/sitemap-pages.xml",       "destination": "/api/sitemap-pages" },

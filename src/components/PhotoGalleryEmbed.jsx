@@ -40,7 +40,7 @@ export default function PhotoGalleryEmbed({ category, album }) {
           {set.photos.length} photo{set.photos.length !== 1 ? 's' : ''} →
         </Link>
       </figcaption>
-      <PhotoGallery photos={set.photos} label={set.title} breakpoints={POST_BREAKPOINTS} pageSize={9} />
+      <PhotoGallery photos={set.photos} label={set.title} breakpoints={POST_BREAKPOINTS} pageSize={9} sizes="(max-width: 640px) 50vw, 224px" />
     </figure>
   )
 }
