@@ -27,6 +27,7 @@ export default function Home() {
 
   const topCategories = categories
     .map(cat => ({ ...cat, count: recentPhotos.filter(p => p.category === cat.slug).length }))
+    .filter(cat => cat.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 3)
 
