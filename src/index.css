@@ -171,3 +171,7 @@
 .prose-chesto .photo-gallery-slot { @apply my-12; }
 .prose-chesto .photo-gallery-embed a.photo-gallery-link { @apply no-underline text-chesto-charcoal/50 hover:text-chesto-gold; }
 .prose-chesto .photo-gallery-embed p { @apply m-0 text-sm; }
+
+/* Optimized images stay hidden until loaded, so a failed first attempt
+   (before falling back to the original) never shows a broken-image icon */
+img[data-img]:not([data-loaded]) { opacity: 0 !important; }

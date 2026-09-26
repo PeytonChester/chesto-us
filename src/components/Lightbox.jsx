@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { responsiveImage, fixedImage, optimizedUrl } from '../lib/images'
+import { responsiveImage, fixedImage, optimizedUrl, hideUntilLoaded } from '../lib/images'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 5
@@ -74,10 +74,10 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
   }, [wantHiRes, hiResSrc, baseFailed, photo.url])
 
   const imageProps = hiResSrc
-    ? { src: hiResSrc }
+    ? { src: hiResSrc, ...hideUntilLoaded }
     : baseFailed
-      ? { src: photo.url }
-      : { ...responsiveImage(photo.url, '100vw', { maxWidth: 3840 }), onError: () => setBaseFailed(true) }
+      ? { src: photo.url, ...hideUntilLoaded }
+      : { ...responsiveImage(photo.url, '100vw', { maxWidth: 3840 }), ...hideUntilLoaded, onError: () => setBaseFailed(true) }
 
   useEffect(() => {
     activeThumbRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
