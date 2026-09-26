@@ -37,6 +37,7 @@ export function responsiveImage(src, sizes, { maxWidth = 1920, quality } = {}) {
     src: optimizedUrl(src, Math.min(1080, maxWidth), quality),
     srcSet: widths.map(w => `${optimizedUrl(src, w, quality)} ${w}w`).join(', '),
     sizes,
+    ...hideUntilLoaded,
     onError: fallbackToOriginal(src),
   }
 }
@@ -44,7 +45,15 @@ export function responsiveImage(src, sizes, { maxWidth = 1920, quality } = {}) {
 /** Props for a fixed-size <img> (thumbnails, covers) */
 export function fixedImage(src, width, quality) {
   if (!canOptimize(src)) return { src }
-  return { src: optimizedUrl(src, width, quality), onError: fallbackToOriginal(src) }
+  return { src: optimizedUrl(src, width, quality), ...hideUntilLoaded, onError: fallbackToOriginal(src) }
+}
+
+// Keeps an image invisible until it has actually loaded (see img[data-img] in
+// index.css), so browsers never flash a broken-image icon (Safari's "?")
+// while a failed request falls back to the original.
+export const hideUntilLoaded = {
+  'data-img': '',
+  onLoad: (e) => { e.currentTarget.dataset.loaded = '1' },
 }
 
 // If the optimizer rejects an image (e.g. usage limit reached), show the original

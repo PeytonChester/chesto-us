@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
-import { responsiveImage, HERO_SRCSET, HERO_SIZES, heroImageAvailable } from '../lib/images'
+import { responsiveImage, hideUntilLoaded, HERO_SRCSET, HERO_SIZES, heroImageAvailable } from '../lib/images'
 
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
@@ -56,6 +56,7 @@ export default function Home() {
               srcSet={HERO_SRCSET}
               sizes={HERO_SIZES}
               fetchpriority="high"
+              {...hideUntilLoaded}
               alt=""
               onError={() => setHeroFailed(true)}
               className="w-full h-full object-cover opacity-60"
