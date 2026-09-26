@@ -157,3 +157,7 @@
 
 /* Social embeds (blog posts) */
 .prose-chesto .social-embed-slot { @apply my-10; }
+
+/* Admin: album tag on photo tiles */
+.album-tag { @apply bg-chesto-dark/70 backdrop-blur-sm border border-chesto-cream/15 rounded-full text-[10px] font-medium tracking-widest uppercase leading-4 shadow-sm focus:outline-none focus:border-chesto-gold/60 hover:border-chesto-cream/30 transition-colors; }
+.album-tag option { @apply text-chesto-dark normal-case tracking-normal; }
