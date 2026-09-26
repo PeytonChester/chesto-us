@@ -14,6 +14,7 @@ const DEFAULT_CATEGORIES = [
 export function usePhotographySettings() {
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES)
   const [covers, setCovers] = useState({})
+  const [albums, setAlbums] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,11 +23,12 @@ export function usePhotographySettings() {
         const data = snap.data()
         if (data.categories?.length) setCategories(data.categories)
         setCovers(data.covers || {})
+        setAlbums(data.albums || [])
       }
       setLoading(false)
     })
     return unsub
   }, [])
 
-  return { categories, covers, loading }
+  return { categories, covers, albums, loading }
 }
