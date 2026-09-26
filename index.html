@@ -9,7 +9,23 @@
     <title>Chesto.us | Photography, Recipes &amp; Stories</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+    <!-- Only the weights in use; loaded without blocking the first paint -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" /></noscript>
+    <script>
+      // Start downloading the home page hero right away instead of after the
+      // app and Firestore load. Must match HERO_SRCSET/HERO_SIZES in src/lib/images.js.
+      if (location.pathname === '/') {
+        var hero = document.createElement('link')
+        hero.rel = 'preload'
+        hero.as = 'image'
+        hero.href = '/api/hero?w=1080'
+        hero.setAttribute('imagesrcset', [640, 1080, 1920, 2560, 3840].map(function (w) { return '/api/hero?w=' + w + ' ' + w + 'w' }).join(', '))
+        hero.setAttribute('imagesizes', '(max-width: 768px) 360px, 100vw')
+        hero.setAttribute('fetchpriority', 'high')
+        document.head.appendChild(hero)
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

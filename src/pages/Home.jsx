@@ -5,21 +5,29 @@ import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
-import { responsiveImage } from '../lib/images'
+import { responsiveImage, HERO_SRCSET, HERO_SIZES, heroImageAvailable } from '../lib/images'
 
 export default function Home() {
   const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
   const { docs: recentPhotos } = useCollection('photos', 'createdAt', 'desc')
   const { docs: allRecentPosts } = useCollection('posts', 'publishedAt', 'desc')
   const recentPosts = allRecentPosts.filter(p => p.published !== false)
-  const [heroSettings, setHeroSettings] = useState({ heroTagline: 'Welcome to the party', heroHeading: 'Photography.\nFood. Life.', heroImageUrl: '' })
+  const [heroSettings, setHeroSettings] = useState({ heroTagline: 'Welcome to the party', heroHeading: 'Photography.\nFood. Life.', heroImageUrl: null })
+  const [heroFailed, setHeroFailed] = useState(false)
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'home'), snap => {
-      if (snap.exists()) setHeroSettings(snap.data())
+      setHeroSettings(s => snap.exists() ? snap.data() : { ...s, heroImageUrl: '' })
     })
     return unsub
   }, [])
+
+  // The hero is requested from /api/hero right away (and preloaded by
+  // index.html) instead of waiting for Firestore. It's hidden once Firestore
+  // says there's no hero image, and if /api/hero fails we fall back to the
+  // Firestore URL.
+  const showHero = heroSettings.heroImageUrl !== ''
+  const useHeroApi = heroImageAvailable && !heroFailed
 
   const { categories, covers } = usePhotographySettings()
 
@@ -42,13 +50,23 @@ export default function Home() {
       <section className="relative min-h-screen flex items-end pb-20 overflow-hidden">
         {/* Background — replace src with your hero image URL in Firestore or hardcode */}
         <div className="absolute inset-0 bg-chesto-dark">
-          {heroSettings.heroImageUrl && (
+          {showHero && (useHeroApi ? (
             <img
-              {...responsiveImage(heroSettings.heroImageUrl, '100vw', { maxWidth: 3840 })}
-              alt="Hero"
+              src="/api/hero?w=1080"
+              srcSet={HERO_SRCSET}
+              sizes={HERO_SIZES}
+              fetchpriority="high"
+              alt=""
+              onError={() => setHeroFailed(true)}
               className="w-full h-full object-cover opacity-60"
             />
-          )}
+          ) : heroSettings.heroImageUrl && (
+            <img
+              {...responsiveImage(heroSettings.heroImageUrl, '100vw', { maxWidth: 3840 })}
+              alt=""
+              className="w-full h-full object-cover opacity-60"
+            />
+          ))}
           <div className="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/20 to-transparent" />
         </div>
 
