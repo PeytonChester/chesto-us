@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage'
-import { collection, addDoc, deleteDoc, doc, setDoc, updateDoc, deleteField, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, setDoc, updateDoc, deleteField, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
@@ -12,6 +12,10 @@ export default function AdminPhotos() {
   const [uploads, setUploads] = useState([])
   const [category, setCategory] = useState('')
   const [album, setAlbum] = useState('')
+  const [selecting, setSelecting] = useState(false)
+  const [selected, setSelected] = useState(() => new Set())
+  const [bulkAlbum, setBulkAlbum] = useState('')
+  const [bulkSaving, setBulkSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const fileRef = useRef()
 
@@ -101,11 +105,65 @@ export default function AdminPhotos() {
     }
   }
 
+  const toggleSelected = (ids, on) => setSelected(prev => {
+    const next = new Set(prev)
+    ids.forEach(id => (on ?? !next.has(id)) ? next.add(id) : next.delete(id))
+    return next
+  })
+
+  const exitSelecting = () => { setSelecting(false); setSelected(new Set()); setBulkAlbum('') }
+
+  // Firestore batches are capped at 500 writes
+  const updatePhotos = async (list, data) => {
+    for (let i = 0; i < list.length; i += 450) {
+      const batch = writeBatch(db)
+      list.slice(i, i + 450).forEach(p => batch.update(doc(db, 'photos', p.id), data))
+      await batch.commit()
+    }
+  }
+
+  const selectedPhotos = photos.filter(p => selected.has(p.id))
+
+  // bulkAlbum is "category/albumId"; albums belong to one category, so photos
+  // from other categories move into the album's category
+  const addSelectedToAlbum = async () => {
+    const target = albums.find(a => `${a.category}/${a.id}` === bulkAlbum)
+    if (!target || selectedPhotos.length === 0) return
+    const moving = selectedPhotos.filter(p => p.category !== target.category).length
+    const catLabel = categories.find(c => c.slug === target.category)?.label ?? target.category
+    if (moving && !window.confirm(`${moving} of the selected photos ${moving !== 1 ? 'are' : 'is'} in another category and will move to ${catLabel}. Continue?`)) return
+    setBulkSaving(true)
+    try {
+      await updatePhotos(selectedPhotos, { album: target.id, category: target.category })
+      showToast(`Added ${selectedPhotos.length} photo${selectedPhotos.length !== 1 ? 's' : ''} to ${target.title}.`)
+      exitSelecting()
+    } catch (err) {
+      showToast('Failed to add to album: ' + err.message, 'error')
+    } finally {
+      setBulkSaving(false)
+    }
+  }
+
+  const removeSelectedFromAlbums = async () => {
+    const inAlbum = selectedPhotos.filter(p => p.album)
+    if (inAlbum.length === 0) return
+    setBulkSaving(true)
+    try {
+      await updatePhotos(inAlbum, { album: deleteField() })
+      showToast(`Removed ${inAlbum.length} photo${inAlbum.length !== 1 ? 's' : ''} from ${inAlbum.length !== 1 ? 'their albums' : 'its album'}.`)
+      exitSelecting()
+    } catch (err) {
+      showToast('Failed to remove from album: ' + err.message, 'error')
+    } finally {
+      setBulkSaving(false)
+    }
+  }
+
   return (
-    <div>
+    <div className={selected.size > 0 ? 'pb-24' : ''}>
       {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 text-sm font-body shadow-lg transition-all ${
+        <div className={`fixed ${selecting && selected.size > 0 ? 'bottom-24' : 'bottom-6'} right-6 z-50 px-5 py-3 text-sm font-body shadow-lg transition-all ${
           toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-chesto-gold text-chesto-dark'
         }`}>
           {toast.message}
@@ -118,6 +176,13 @@ export default function AdminPhotos() {
           <p className="text-chesto-cream/40 text-sm">{photos.length} photos in library</p>
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => selecting ? exitSelecting() : setSelecting(true)}
+            className={`btn-ghost text-sm ${selecting ? 'bg-chesto-gold border-chesto-gold text-chesto-dark' : 'border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark'}`}
+          >
+            {selecting ? 'Done Selecting' : 'Select Photos'}
+          </button>
           <Link to="/admin/photo-albums" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark text-sm">
             Albums
           </Link>
@@ -198,13 +263,34 @@ export default function AdminPhotos() {
         const catAlbums = albumsIn(cat.slug)
         return (
           <div key={cat.slug} className="mb-12">
-            <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">
-              {cat.label} · {catPhotos.length}
-            </h2>
+            <div className="flex items-center gap-4 mb-4">
+              <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase">
+                {cat.label} · {catPhotos.length}
+              </h2>
+              {selecting && (() => {
+                const allOn = catPhotos.every(p => selected.has(p.id))
+                return (
+                  <button type="button" onClick={() => toggleSelected(catPhotos.map(p => p.id), !allOn)} className="text-xs text-chesto-gold hover:text-chesto-gold-light">
+                    {allOn ? 'Deselect all' : 'Select all'}
+                  </button>
+                )
+              })()}
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {catPhotos.map(photo => (
-                <div key={photo.id} className="relative group aspect-square">
-                  <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+                <div
+                  key={photo.id}
+                  className={`relative group aspect-square ${selecting ? 'cursor-pointer' : ''} ${selected.has(photo.id) ? 'ring-2 ring-chesto-gold' : ''}`}
+                  onClick={selecting ? () => toggleSelected([photo.id]) : undefined}
+                >
+                  <img src={photo.url} alt={photo.title} className={`w-full h-full object-cover transition-opacity ${selecting && !selected.has(photo.id) ? 'opacity-60' : ''}`} />
+                  {selecting && (
+                    <div className={`absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-sm border-2 ${
+                      selected.has(photo.id) ? 'bg-chesto-gold border-chesto-gold text-chesto-dark' : 'border-chesto-cream/80 bg-chesto-dark/40'
+                    }`}>
+                      {selected.has(photo.id) && '✓'}
+                    </div>
+                  )}
                   <div className="absolute top-2 left-2 flex flex-col items-start gap-1">
                     {covers[photo.category] === photo.url && (
                       <div className="bg-chesto-gold text-chesto-dark text-xs font-medium px-2 py-0.5">Cover</div>
@@ -213,7 +299,7 @@ export default function AdminPhotos() {
                       <div className="bg-chesto-cream text-chesto-dark text-xs font-medium px-2 py-0.5">Album Cover</div>
                     )}
                   </div>
-                  <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
+                  {!selecting && <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
                     <button
                       onClick={() => setCover(photo)}
                       className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
@@ -234,8 +320,8 @@ export default function AdminPhotos() {
                     >
                       Delete
                     </button>
-                  </div>
-                  {catAlbums.length > 0 && (
+                  </div>}
+                  {!selecting && catAlbums.length > 0 && (
                     <select
                       value={catAlbums.some(a => a.id === photo.album) ? photo.album : ''}
                       onChange={e => movePhotoToAlbum(photo, e.target.value)}
@@ -246,12 +332,58 @@ export default function AdminPhotos() {
                       {catAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
                     </select>
                   )}
+                  {selecting && photo.album && catAlbums.find(a => a.id === photo.album) && (
+                    <div className="absolute bottom-0 inset-x-0 bg-chesto-dark/80 text-chesto-cream/80 text-xs px-2 py-1 truncate">
+                      {catAlbums.find(a => a.id === photo.album).title}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         )
       })}
+
+      {/* Bulk actions */}
+      {selecting && selected.size > 0 && (
+        <div className="fixed bottom-0 right-0 left-0 md:left-56 z-40 bg-chesto-charcoal border-t border-chesto-cream/10 px-6 py-4 flex flex-wrap items-center gap-3">
+          <span className="text-chesto-cream text-sm font-medium mr-2">{selected.size} selected</span>
+          {albums.length > 0 ? (
+            <>
+              <select
+                value={bulkAlbum}
+                onChange={e => setBulkAlbum(e.target.value)}
+                className="field-input bg-chesto-dark border-chesto-cream/10 text-chesto-cream text-sm py-2 w-auto"
+                aria-label="Album to add to"
+              >
+                <option value="">Choose an album…</option>
+                {categories.map(c => {
+                  const list = albumsIn(c.slug)
+                  if (list.length === 0) return null
+                  return (
+                    <optgroup key={c.slug} label={c.label}>
+                      {list.map(a => <option key={a.id} value={`${a.category}/${a.id}`}>{a.title}</option>)}
+                    </optgroup>
+                  )
+                })}
+              </select>
+              <button type="button" onClick={addSelectedToAlbum} disabled={!bulkAlbum || bulkSaving} className="btn-gold text-sm disabled:opacity-50">
+                {bulkSaving ? 'Saving…' : 'Add to Album'}
+              </button>
+            </>
+          ) : (
+            <Link to="/admin/photo-albums" className="text-sm text-chesto-gold hover:text-chesto-gold-light">Create an album first →</Link>
+          )}
+          {selectedPhotos.some(p => p.album) && (
+            <button type="button" onClick={removeSelectedFromAlbums} disabled={bulkSaving} className="text-sm text-chesto-cream/60 hover:text-chesto-cream px-3 py-2 disabled:opacity-50">
+              Remove from Album
+            </button>
+          )}
+          <button type="button" onClick={() => setSelected(new Set())} className="text-sm text-chesto-cream/40 hover:text-chesto-cream px-3 py-2 ml-auto">
+            Clear
+          </button>
+        </div>
+      )}
     </div>
   )
 }
