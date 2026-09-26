@@ -2,12 +2,12 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import PageLoading from './components/PageLoading'
+import Home from './pages/Home' // landing page: part of the main bundle, not lazy
 
 // Every page is its own chunk, so visitors only download the page they open
 // and never the admin panel, editor, or Firebase Auth/Storage code.
 
 // Public pages
-const Home = lazy(() => import('./pages/Home'))
 const Photography = lazy(() => import('./pages/Photography'))
 const PhotoCategory = lazy(() => import('./pages/PhotoCategory'))
 const Recipes = lazy(() => import('./pages/Recipes'))

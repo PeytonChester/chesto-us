@@ -57,3 +57,12 @@ export function fallbackToOriginal(src) {
     img.src = src
   }
 }
+
+// Home hero, served via /api/hero so index.html can preload it before any JS
+// runs. Keep HERO_SRCSET and HERO_SIZES identical to the preload in
+// index.html, or the browser downloads the photo twice. Phones cap at 1080px:
+// the hero sits under a dark overlay, so more pixels aren't visible.
+export const HERO_WIDTHS = [640, 1080, 1920, 2560, 3840]
+export const HERO_SRCSET = HERO_WIDTHS.map(w => `/api/hero?w=${w} ${w}w`).join(', ')
+export const HERO_SIZES = '(max-width: 768px) 360px, 100vw'
+export const heroImageAvailable = !import.meta.env.DEV // /api only runs on Vercel
