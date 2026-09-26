@@ -25,6 +25,7 @@ import AdminRecipeEditor from './pages/admin/AdminRecipeEditor'
 import AdminBlog from './pages/admin/AdminBlog'
 import AdminBlogEditor from './pages/admin/AdminBlogEditor'
 import AdminCategories from './pages/admin/AdminCategories'
+import AdminAlbums from './pages/admin/AdminAlbums'
 import AdminBlogCategories from './pages/admin/AdminBlogCategories'
 import AdminReviews from './pages/admin/AdminReviews'
 import AdminReviewEditor from './pages/admin/AdminReviewEditor'
@@ -45,6 +46,7 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="photography" element={<Photography />} />
           <Route path="photography/:category" element={<PhotoCategory />} />
+          <Route path="photography/:category/:album" element={<PhotoCategory />} />
           <Route path="recipes" element={<Recipes />} />
           <Route path="recipes/:slug" element={<RecipeDetail />} />
           <Route path="blog" element={<Blog />} />
@@ -61,6 +63,7 @@ export default function App() {
           <Route path="home" element={<AdminHome />} />
           <Route path="photos" element={<AdminPhotos />} />
           <Route path="photo-categories" element={<AdminCategories />} />
+          <Route path="photo-albums" element={<AdminAlbums />} />
           <Route path="recipes" element={<AdminRecipes />} />
           <Route path="recipes/new" element={<AdminRecipeEditor />} />
           <Route path="recipes/:id/edit" element={<AdminRecipeEditor />} />

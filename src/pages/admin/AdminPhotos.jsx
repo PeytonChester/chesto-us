@@ -1,16 +1,17 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage'
-import { collection, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, setDoc, updateDoc, deleteField, serverTimestamp } from 'firebase/firestore'
 import { storage, db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
 
 export default function AdminPhotos() {
   const { docs: photos } = useCollection('photos', 'createdAt', 'desc')
-  const { categories, covers } = usePhotographySettings()
+  const { categories, covers, albums } = usePhotographySettings()
   const [uploads, setUploads] = useState([])
   const [category, setCategory] = useState('')
+  const [album, setAlbum] = useState('')
   const [toast, setToast] = useState(null)
   const fileRef = useRef()
 
@@ -19,9 +20,14 @@ export default function AdminPhotos() {
     setTimeout(() => setToast(null), 3000)
   }
 
+  // The select shows the first category before one is picked
+  const uploadCategory = category || categories[0]?.slug || ''
+  const uploadAlbums = albums.filter(a => a.category === uploadCategory)
+  const albumsIn = cat => albums.filter(a => a.category === cat)
+
   const handleFiles = (files) => {
     const items = Array.from(files).map(file => ({
-      file, progress: 0, category, title: '', done: false, error: null, id: Math.random().toString(36).slice(2)
+      file, progress: 0, category: uploadCategory, album, title: '', done: false, error: null, id: Math.random().toString(36).slice(2)
     }))
     setUploads(prev => [...prev, ...items])
     items.forEach(item => uploadFile(item))
@@ -46,6 +52,7 @@ export default function AdminPhotos() {
           url,
           storagePath: path,
           category: item.category,
+          ...(item.album ? { album: item.album } : {}),
           title: item.title || '',
           createdAt: serverTimestamp(),
         })
@@ -75,6 +82,25 @@ export default function AdminPhotos() {
     }
   }
 
+  const setAlbumCover = async (photo) => {
+    try {
+      await setDoc(doc(db, 'settings', 'photography'), {
+        albums: albums.map(a => a.category === photo.category && a.id === photo.album ? { ...a, cover: photo.url } : a),
+      }, { merge: true })
+      showToast('Album cover updated.')
+    } catch (err) {
+      showToast('Failed to set album cover: ' + err.message, 'error')
+    }
+  }
+
+  const movePhotoToAlbum = async (photo, albumId) => {
+    try {
+      await updateDoc(doc(db, 'photos', photo.id), { album: albumId || deleteField() })
+    } catch (err) {
+      showToast('Failed to move photo: ' + err.message, 'error')
+    }
+  }
+
   return (
     <div>
       {/* Toast */}
@@ -91,9 +117,14 @@ export default function AdminPhotos() {
           <h1 className="font-display font-semibold text-3xl text-chesto-cream mb-1">Photos</h1>
           <p className="text-chesto-cream/40 text-sm">{photos.length} photos in library</p>
         </div>
-        <Link to="/admin/photo-categories" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark text-sm">
-          Edit Categories
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/admin/photo-albums" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark text-sm">
+            Albums
+          </Link>
+          <Link to="/admin/photo-categories" className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark text-sm">
+            Edit Categories
+          </Link>
+        </div>
       </div>
 
       {/* Upload area */}
@@ -102,13 +133,26 @@ export default function AdminPhotos() {
           <div>
             <label className="field-label text-chesto-cream/50">Category</label>
             <select
-              value={category}
-              onChange={e => setCategory(e.target.value)}
+              value={uploadCategory}
+              onChange={e => { setCategory(e.target.value); setAlbum('') }}
               className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream"
             >
               {categories.map(c => <option key={c.slug} value={c.slug}>{c.label}</option>)}
             </select>
           </div>
+          {uploadAlbums.length > 0 && (
+            <div>
+              <label className="field-label text-chesto-cream/50">Album</label>
+              <select
+                value={album}
+                onChange={e => setAlbum(e.target.value)}
+                className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream"
+              >
+                <option value="">No album</option>
+                {uploadAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
+              </select>
+            </div>
+          )}
         </div>
 
         <div
@@ -151,6 +195,7 @@ export default function AdminPhotos() {
       {categories.map(cat => {
         const catPhotos = photos.filter(p => p.category === cat.slug)
         if (catPhotos.length === 0) return null
+        const catAlbums = albumsIn(cat.slug)
         return (
           <div key={cat.slug} className="mb-12">
             <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-4">
@@ -160,11 +205,14 @@ export default function AdminPhotos() {
               {catPhotos.map(photo => (
                 <div key={photo.id} className="relative group aspect-square">
                   <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
-                  {covers[photo.category] === photo.url && (
-                    <div className="absolute top-2 left-2 bg-chesto-gold text-chesto-dark text-xs font-medium px-2 py-0.5">
-                      Cover
-                    </div>
-                  )}
+                  <div className="absolute top-2 left-2 flex flex-col items-start gap-1">
+                    {covers[photo.category] === photo.url && (
+                      <div className="bg-chesto-gold text-chesto-dark text-xs font-medium px-2 py-0.5">Cover</div>
+                    )}
+                    {photo.album && catAlbums.find(a => a.id === photo.album)?.cover === photo.url && (
+                      <div className="bg-chesto-cream text-chesto-dark text-xs font-medium px-2 py-0.5">Album Cover</div>
+                    )}
+                  </div>
                   <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
                     <button
                       onClick={() => setCover(photo)}
@@ -172,6 +220,14 @@ export default function AdminPhotos() {
                     >
                       Set Cover
                     </button>
+                    {catAlbums.some(a => a.id === photo.album) && (
+                      <button
+                        onClick={() => setAlbumCover(photo)}
+                        className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-cream text-chesto-dark text-xs px-3 py-1.5 font-body"
+                      >
+                        Set Album Cover
+                      </button>
+                    )}
                     <button
                       onClick={() => deletePhoto(photo)}
                       className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-600 text-white text-xs px-3 py-1.5 font-body"
@@ -179,6 +235,17 @@ export default function AdminPhotos() {
                       Delete
                     </button>
                   </div>
+                  {catAlbums.length > 0 && (
+                    <select
+                      value={catAlbums.some(a => a.id === photo.album) ? photo.album : ''}
+                      onChange={e => movePhotoToAlbum(photo, e.target.value)}
+                      className="absolute bottom-0 inset-x-0 bg-chesto-dark/80 text-chesto-cream text-xs px-2 py-1 border-0 focus:outline-none"
+                      aria-label="Album"
+                    >
+                      <option value="">No album</option>
+                      {catAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
+                    </select>
+                  )}
                 </div>
               ))}
             </div>

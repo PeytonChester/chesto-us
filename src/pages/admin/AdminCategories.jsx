@@ -9,7 +9,7 @@ function slugify(str) {
 }
 
 export default function AdminCategories() {
-  const { categories, covers } = usePhotographySettings()
+  const { categories, covers, albums } = usePhotographySettings()
   const [editingSlug, setEditingSlug] = useState(null)
   const [editForm, setEditForm] = useState({ label: '', description: '' })
   const [addForm, setAddForm] = useState({ label: '', description: '' })
@@ -44,6 +44,7 @@ export default function AdminCategories() {
       await setDoc(doc(db, 'settings', 'photography'), {
         categories: updatedCategories,
         covers: updatedCovers,
+        albums: albums.map(a => a.category === oldSlug ? { ...a, category: newSlug } : a),
       }, { merge: true })
 
       if (slugChanged) {
