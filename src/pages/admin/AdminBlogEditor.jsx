@@ -7,6 +7,7 @@ import { storage } from '../../firebaseStorage'
 import RichTextEditor from '../../components/RichTextEditor'
 import { useBlogSettings } from '../../hooks/useBlogSettings'
 import { fixedImage } from '../../lib/images'
+import PhotoPicker from '../../components/PhotoPicker'
 
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -23,6 +24,9 @@ export default function AdminBlogEditor() {
     publishedAt: new Date().toISOString().split('T')[0],
   })
   const [imageFile, setImageFile] = useState(null)
+  const [filePreview, setFilePreview] = useState(null)
+  const [fileInputKey, setFileInputKey] = useState(0)
+  const [showPicker, setShowPicker] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(isEdit)
@@ -43,6 +47,27 @@ export default function AdminBlogEditor() {
   }, [id, isEdit])
 
   const set = (field, val) => setForm(f => ({ ...f, [field]: val }))
+
+  // Local preview for a newly picked file (uploaded on save)
+  useEffect(() => {
+    if (!imageFile) return setFilePreview(null)
+    const url = URL.createObjectURL(imageFile)
+    setFilePreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [imageFile])
+
+  const resetFileInput = () => { setImageFile(null); setFileInputKey(k => k + 1) }
+
+  const chooseLibraryPhoto = (photo) => {
+    resetFileInput()
+    set('imageUrl', photo.url)
+    setShowPicker(false)
+  }
+
+  const clearCover = () => {
+    resetFileInput()
+    set('imageUrl', '')
+  }
 
   const autoSlug = (title) => {
     set('title', title)
@@ -120,9 +145,39 @@ export default function AdminBlogEditor() {
 
         <div>
           <label className="field-label text-chesto-cream/50">Cover Image</label>
-          {form.imageUrl && <img {...fixedImage(form.imageUrl, 384)} alt="cover" className="w-32 h-20 object-cover mb-3" />}
-          <input type="file" accept="image/*" className="text-chesto-cream/50 text-sm" onChange={e => setImageFile(e.target.files[0])} />
+          {filePreview
+            ? <img src={filePreview} alt="cover" className="w-32 h-20 object-cover mb-3" />
+            : form.imageUrl && <img {...fixedImage(form.imageUrl, 384)} alt="cover" className="w-32 h-20 object-cover mb-3" />}
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowPicker(true)}
+              className="btn-ghost border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark text-xs"
+            >
+              Choose from Photos
+            </button>
+            <span className="text-chesto-cream/30 text-xs">or upload</span>
+            <input
+              key={fileInputKey}
+              type="file"
+              accept="image/*"
+              className="text-chesto-cream/50 text-sm"
+              onChange={e => setImageFile(e.target.files[0] || null)}
+            />
+            {(form.imageUrl || imageFile) && (
+              <button type="button" onClick={clearCover} className="text-xs text-chesto-cream/40 hover:text-red-400">
+                Remove
+              </button>
+            )}
+          </div>
           {uploading && <p className="text-chesto-gold text-xs mt-1">Uploading…</p>}
+          {showPicker && (
+            <PhotoPicker
+              selectedUrl={imageFile ? null : form.imageUrl}
+              onClose={() => setShowPicker(false)}
+              onSelect={chooseLibraryPhoto}
+            />
+          )}
         </div>
 
         <div>
