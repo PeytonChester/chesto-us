@@ -19,6 +19,19 @@ export default function Layout() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [isHome])
 
+  // While the mobile menu is open: lock page scroll and let Esc close it
+  useEffect(() => {
+    if (!menuOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = e => { if (e.key === 'Escape') setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
+
   return (
     <div className="min-h-screen flex flex-col">
       <Helmet>
@@ -27,6 +40,15 @@ export default function Layout() {
       <noscript>
         <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`} height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
       </noscript>
+      {/* Dims the page under the open mobile menu; tap to close */}
+      <div
+        className={`md:hidden fixed inset-0 z-30 bg-chesto-dark/60 backdrop-blur-[2px] transition-opacity duration-300 ${
+          menuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+      />
+
       {/* Nav */}
       <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-400 ${
         solid ? 'bg-chesto-cream/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
