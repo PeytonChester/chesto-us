@@ -18,7 +18,8 @@ export default async function handler(req, res) {
   let target = url
   try {
     const { hostname, pathname } = new URL(url)
-    if (hostname === 'firebasestorage.googleapis.com' && pathname.startsWith('/v0/b/chesto-us')) {
+    // Must match images.remotePatterns in vercel.json
+    if (hostname === 'firebasestorage.googleapis.com' && pathname.startsWith('/v0/b/chesto-us.firebasestorage.app/o/')) {
       target = `/_vercel/image?url=${encodeURIComponent(url)}&w=${width}&q=75`
     }
   } catch {

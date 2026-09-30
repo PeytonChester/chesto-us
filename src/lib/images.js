@@ -3,16 +3,13 @@
 // vercel.json, and only hosts listed in `images.remotePatterns` are allowed.
 export const IMAGE_WIDTHS = [128, 384, 640, 1080, 1920, 2560, 3840]
 
-const OPTIMIZABLE_HOSTS = ['firebasestorage.googleapis.com']
+// Must match images.remotePatterns in vercel.json (and api/hero.js)
+const OPTIMIZABLE_PREFIX = 'https://firebasestorage.googleapis.com/v0/b/chesto-us.firebasestorage.app/o/'
 
 function canOptimize(src) {
   // /_vercel/image only exists on Vercel deployments, not the Vite dev server
   if (!src || import.meta.env.DEV) return false
-  try {
-    return OPTIMIZABLE_HOSTS.includes(new URL(src).hostname)
-  } catch {
-    return false
-  }
+  return src.startsWith(OPTIMIZABLE_PREFIX)
 }
 
 // Smallest allowed width that is at least `width`
