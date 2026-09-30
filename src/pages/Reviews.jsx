@@ -47,31 +47,37 @@ export default function Reviews() {
         <h1 className="display-heading text-5xl md:text-7xl mb-10">Movie &amp; TV Reviews</h1>
 
         {/* Filter tabs + sort */}
-        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 mb-12 border-b border-chesto-charcoal/10">
-          <div className="flex gap-1">
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-5 py-2.5 text-xs font-body font-medium tracking-widest uppercase transition-colors border-b-2 -mb-px ${
-                filter === f
-                  ? 'border-chesto-gold text-chesto-dark'
-                  : 'border-transparent text-chesto-charcoal/40 hover:text-chesto-dark'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+        <div className="flex items-end justify-between gap-4 mb-12 border-b border-chesto-charcoal/10">
+          <div className="flex">
+            {FILTERS.map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 sm:px-5 py-2.5 text-xs font-body font-medium tracking-widest uppercase transition-colors border-b-2 -mb-px ${
+                  filter === f
+                    ? 'border-chesto-gold text-chesto-dark'
+                    : 'border-transparent text-chesto-charcoal/40 hover:text-chesto-dark'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
-          <label className="flex items-center gap-2 pb-2.5 text-xs font-body font-medium tracking-widest uppercase text-chesto-charcoal/40">
-            Sort
-            <select
-              value={sort}
-              onChange={e => setSort(e.target.value)}
-              className="bg-transparent text-chesto-dark text-xs font-body font-medium tracking-widest uppercase cursor-pointer focus:outline-none border-b border-chesto-charcoal/20 hover:border-chesto-gold py-0.5 pr-1"
-            >
-              {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
+          <label className="group flex items-center gap-3 pb-2.5 cursor-pointer">
+            <span className="hidden sm:inline text-xs font-body font-medium tracking-widest uppercase text-chesto-charcoal/40">Sort</span>
+            <span className="relative flex items-center">
+              <select
+                value={sort}
+                onChange={e => setSort(e.target.value)}
+                aria-label="Sort reviews"
+                className="appearance-none bg-transparent border-0 rounded-none p-0 pr-5 text-xs font-body font-medium tracking-widest uppercase text-chesto-dark cursor-pointer focus:outline-none focus-visible:text-chesto-gold group-hover:text-chesto-gold transition-colors"
+              >
+                {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+              <svg className="pointer-events-none absolute right-0 w-3 h-3 text-chesto-gold" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path d="M3 4.5 6 7.5 9 4.5" />
+              </svg>
+            </span>
           </label>
         </div>
 
