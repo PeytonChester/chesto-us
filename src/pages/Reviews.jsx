@@ -4,17 +4,37 @@ import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
 
 const FILTERS = ['All', 'Film', 'TV']
+const SORTS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'highest', label: 'Highest rated' },
+  { value: 'lowest', label: 'Lowest rated' },
+]
+
+// Unrated reviews sort last either way; ties keep newest-first order
+function sortReviews(list, sort) {
+  if (sort === 'newest') return list
+  const score = r => {
+    const n = parseFloat(r.userRating)
+    return Number.isFinite(n) ? n : null
+  }
+  return [...list].sort((a, b) => {
+    const sa = score(a), sb = score(b)
+    if (sa === null || sb === null) return (sa === null) - (sb === null)
+    return sort === 'highest' ? sb - sa : sa - sb
+  })
+}
 
 export default function Reviews() {
   const { docs: allReviews, loading } = useCollection('reviews', 'publishedAt', 'desc')
   const [filter, setFilter] = useState('All')
+  const [sort, setSort] = useState('newest')
 
-  const reviews = allReviews.filter(r => {
+  const reviews = sortReviews(allReviews.filter(r => {
     if (r.published === false) return false
     if (filter === 'Film') return r.mediaType === 'movie'
     if (filter === 'TV') return r.mediaType === 'tv'
     return true
-  })
+  }), sort)
 
   return (
     <div className="pt-16">
@@ -26,8 +46,9 @@ export default function Reviews() {
         <p className="section-label mb-3">Watching</p>
         <h1 className="display-heading text-5xl md:text-7xl mb-10">Movie &amp; TV Reviews</h1>
 
-        {/* Filter tabs */}
-        <div className="flex gap-1 mb-12 border-b border-chesto-charcoal/10">
+        {/* Filter tabs + sort */}
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 mb-12 border-b border-chesto-charcoal/10">
+          <div className="flex gap-1">
           {FILTERS.map(f => (
             <button
               key={f}
@@ -41,6 +62,17 @@ export default function Reviews() {
               {f}
             </button>
           ))}
+          </div>
+          <label className="flex items-center gap-2 pb-2.5 text-xs font-body font-medium tracking-widest uppercase text-chesto-charcoal/40">
+            Sort
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value)}
+              className="bg-transparent text-chesto-dark text-xs font-body font-medium tracking-widest uppercase cursor-pointer focus:outline-none border-b border-chesto-charcoal/20 hover:border-chesto-gold py-0.5 pr-1"
+            >
+              {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+          </label>
         </div>
 
         {loading ? (
