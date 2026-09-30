@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // iOS Safari zooms in when focusing a form field with text under 16px.
+      // maximum-scale=1 stops that auto-zoom; since iOS 10 Safari ignores it
+      // for pinch-zoom, so people can still zoom. Android would block pinch
+      // with it, so apply it on iOS only (iPadOS reports itself as a Mac).
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1')
+      }
+    </script>
     <meta name="description" content="Chesto.us — Photography, recipes, and stories." />
     <title>Chesto.us | Photography, Recipes &amp; Stories</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
