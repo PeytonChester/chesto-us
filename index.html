@@ -37,7 +37,68 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static copy of the home page's first screen, painted before the app's
+           JS loads (React replaces everything inside #root on start). Shown on
+           / only. Keep in sync with the hero in src/pages/Home.jsx and the
+           header in src/components/Layout.jsx. -->
+      <div id="boot-home" hidden>
+        <header class="fixed top-0 inset-x-0 z-40">
+          <nav class="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+            <a href="/" class="font-display font-semibold text-xl tracking-tight text-chesto-cream">Chesto<span class="text-chesto-gold">.</span>us</a>
+            <span class="md:hidden flex flex-col gap-1.5 p-2" aria-hidden="true">
+              <span class="block w-6 h-px bg-white"></span><span class="block w-6 h-px bg-white"></span><span class="block w-6 h-px bg-white"></span>
+            </span>
+          </nav>
+        </header>
+        <section class="relative min-h-screen flex items-end pb-20 overflow-hidden">
+          <div class="absolute inset-0 bg-chesto-dark">
+            <img
+              src="/api/hero?w=1080"
+              srcset="/api/hero?w=640 640w, /api/hero?w=1080 1080w, /api/hero?w=1920 1920w, /api/hero?w=2560 2560w, /api/hero?w=3840 3840w"
+              sizes="(max-width: 768px) 360px, 100vw"
+              fetchpriority="high"
+              alt=""
+              class="w-full h-full object-cover"
+              style="opacity: 0"
+              onload="this.style.opacity = '0.6'; window.__heroLoaded = true"
+              onerror="this.remove()"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/20 to-transparent"></div>
+          </div>
+          <div class="relative max-w-7xl mx-auto px-6 md:px-10 w-full">
+            <p id="boot-tagline" class="section-label text-chesto-gold/80 mb-4">Welcome to the party</p>
+            <h1 id="boot-heading" class="font-display font-semibold text-5xl md:text-7xl text-chesto-cream leading-[1.05] mb-8 max-w-2xl">Photography.<br />Food. Life.</h1>
+            <div class="flex flex-wrap gap-4">
+              <a href="/photography" class="btn-gold">View Photography</a>
+              <a href="/recipes" class="inline-flex items-center gap-2 px-6 py-3 border border-chesto-cream/30 text-chesto-cream font-body font-medium text-sm tracking-wider uppercase">Browse Recipes</a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <script>
+        if (location.pathname === '/') {
+          // Use the hero text from the last visit, if the site saved it
+          try {
+            var saved = JSON.parse(localStorage.getItem('chesto-hero') || 'null')
+            if (saved) {
+              var tagline = document.getElementById('boot-tagline')
+              if (saved.tagline) tagline.textContent = saved.tagline
+              else tagline.remove()
+              if (saved.heading) {
+                var h1 = document.getElementById('boot-heading')
+                h1.textContent = ''
+                saved.heading.split('\n').forEach(function (line, i) {
+                  if (i) h1.appendChild(document.createElement('br'))
+                  h1.appendChild(document.createTextNode(line))
+                })
+              }
+            }
+          } catch (e) {}
+          document.getElementById('boot-home').hidden = false
+        }
+      </script>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
