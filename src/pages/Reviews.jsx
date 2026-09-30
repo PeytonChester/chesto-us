@@ -74,9 +74,9 @@ export default function Reviews() {
                     </div>
                   )}
                   {review.userRating && (
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-2">
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent px-3 pt-10 pb-2.5 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">
                       <span className="text-chesto-gold font-display font-semibold text-sm">{review.userRating}</span>
-                      <span className="text-white/40 text-xs font-mono">/10</span>
+                      <span className="text-white/70 text-xs font-mono">/10</span>
                     </div>
                   )}
                 </div>
