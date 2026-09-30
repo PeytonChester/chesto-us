@@ -18,6 +18,11 @@ export default function Home() {
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'home'), snap => {
       setHeroSettings(s => snap.exists() ? snap.data() : { ...s, heroImageUrl: '' })
+      // index.html's pre-JS copy of the hero shows this text on the next visit
+      if (snap.exists()) {
+        const { heroTagline = '', heroHeading = '' } = snap.data()
+        try { localStorage.setItem('chesto-hero', JSON.stringify({ tagline: heroTagline, heading: heroHeading })) } catch {}
+      }
     })
     return unsub
   }, [])
@@ -56,7 +61,7 @@ export default function Home() {
               srcSet={HERO_SRCSET}
               sizes={HERO_SIZES}
               fetchpriority="high"
-              {...hideUntilLoaded}
+              {...(window.__heroLoaded ? {} : hideUntilLoaded) /* already shown by index.html's copy */}
               alt=""
               onError={() => setHeroFailed(true)}
               className="w-full h-full object-cover opacity-60"
