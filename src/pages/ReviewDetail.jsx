@@ -43,6 +43,14 @@ export default function ReviewDetail() {
   const reviewDate = (review.publishedAt ?? review.createdAt)?.toDate?.()
   const hasExternalRatings = review.imdbRating || review.rtRating || review.metacriticRating
 
+  // A score can be left without a written review; an emptied editor still
+  // saves markup like "<p></p>", so check for actual text
+  const hasRating = review.userRating !== undefined && review.userRating !== null && review.userRating !== ''
+  const bodyHtml = DOMPurify.sanitize(
+    Array.isArray(review.body) ? review.body.map(p => `<p>${p}</p>`).join('') : review.body || ''
+  )
+  const hasBody = bodyHtml.replace(/<[^>]*>|&nbsp;/g, '').trim().length > 0
+
   return (
     <article className="pt-16">
       <PageMeta
@@ -136,14 +144,14 @@ export default function ReviewDetail() {
         )}
 
         {/* Review body + Cast side by side */}
-        {(review.body || review.cast?.length > 0) && (
+        {(hasBody || hasRating || review.cast?.length > 0) && (
           <div className="flex flex-col md:flex-row md:items-start gap-12 mb-6">
             {/* Left column: review body + spoilers */}
             <div className="flex-1 min-w-0">
-              {review.body && (
+              {(hasBody || hasRating) && (
                 <section className="mb-6">
-                  <div className="flex items-baseline gap-4 mb-8">
-                    {review.userRating ? (
+                  <div className={`flex items-baseline gap-4 ${hasBody ? 'mb-8' : ''}`}>
+                    {hasRating ? (
                       <div className="flex items-baseline gap-1">
                         <span className="font-display font-semibold text-6xl text-chesto-gold leading-none">{review.userRating}</span>
                         <span className="text-chesto-charcoal/30 text-lg font-mono">/10</span>
@@ -152,16 +160,9 @@ export default function ReviewDetail() {
                       <h2 className="text-chesto-charcoal/40 text-xs tracking-widest uppercase">My Review</h2>
                     )}
                   </div>
-                  <div
-                    className="prose-chesto"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
-                        Array.isArray(review.body)
-                          ? review.body.map(p => `<p>${p}</p>`).join('')
-                          : review.body || ''
-                      )
-                    }}
-                  />
+                  {hasBody && (
+                    <div className="prose-chesto" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+                  )}
                 </section>
               )}
 
