@@ -1,7 +1,7 @@
 {
   "images": {
     "sizes": [128, 384, 640, 1080, 1920, 2560, 3840],
-    "formats": ["image/avif", "image/webp"],
+    "formats": ["image/webp"],
     "qualities": [75, 85],
     "minimumCacheTTL": 2678400,
     "remotePatterns": [

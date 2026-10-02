@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import DOMPurify from 'dompurify'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
+import { tmdbImage, tmdbUrl } from '../lib/tmdb'
 
 export default function ReviewDetail() {
   const { slug } = useParams()
@@ -66,9 +67,9 @@ export default function ReviewDetail() {
       {/* Backdrop hero */}
       <div className="relative w-full h-[45vh] md:h-[55vh] overflow-hidden bg-chesto-dark">
         {review.backdrop ? (
-          <img src={review.backdrop} alt={review.title} className="w-full h-full object-cover opacity-40" />
+          <img {...tmdbImage(review.backdrop, 'backdrop', '100vw')} fetchpriority="high" alt={review.title} className="w-full h-full object-cover opacity-40" />
         ) : review.poster ? (
-          <img src={review.poster} alt={review.title} className="w-full h-full object-cover opacity-20 blur-xl scale-110" />
+          <img src={tmdbUrl(review.poster, 'poster', 154)} alt={review.title} className="w-full h-full object-cover opacity-20 blur-xl scale-110" />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/30 to-transparent" />
       </div>
@@ -79,7 +80,7 @@ export default function ReviewDetail() {
           {review.poster && (
             <div className="flex-shrink-0">
               <img
-                src={review.poster}
+                {...tmdbImage(review.poster, 'poster', '(max-width: 768px) 144px, 192px')}
                 alt={review.title}
                 className="w-36 md:w-48 shadow-2xl"
               />
@@ -201,7 +202,7 @@ export default function ReviewDetail() {
                     <div key={i} className="text-center">
                       <div className="w-full aspect-square rounded-full overflow-hidden bg-chesto-charcoal/10 mb-2">
                         {member.profilePath ? (
-                          <img src={member.profilePath} alt={member.name} className="w-full h-full object-cover object-top" />
+                          <img src={tmdbUrl(member.profilePath, 'profile', 185)} loading="lazy" alt={member.name} className="w-full h-full object-cover object-top" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-chesto-charcoal/20 text-xs font-mono">
                             {member.name.charAt(0)}

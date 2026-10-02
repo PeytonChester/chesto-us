@@ -6,7 +6,9 @@ import { responsiveImage } from '../lib/images'
 const BREAKPOINTS = { default: 3, 1100: 2, 640: 1 }
 
 // Masonry grid with "Load More" paging and a fullscreen lightbox.
-const SIZES = '(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw'
+// Rendered tile widths: page padding is 24px a side on phones, 40px from md;
+// the container caps at 1280px, so 3 columns are at most ~400px wide
+const SIZES = '(max-width: 640px) calc(100vw - 48px), (max-width: 1100px) calc(50vw - 46px), 400px'
 
 export default function PhotoGallery({ photos, label, breakpoints = BREAKPOINTS, pageSize = 10, sizes = SIZES }) {
   const [lightbox, setLightbox] = useState(null)

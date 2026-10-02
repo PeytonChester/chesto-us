@@ -1,7 +1,56 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
+import { warmImages, HERO_WIDTHS } from '../../lib/images'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight, faBolt } from '@fortawesome/free-solid-svg-icons'
+
+// Has Vercel create the common sizes of every site image up front, so
+// visitors aren't the first to request (and wait for) a resize
+function PrepareImages({ photos, recipes, posts }) {
+  const [progress, setProgress] = useState(null) // { done, total } while running
+  const [result, setResult] = useState(null)
+
+  const run = async () => {
+    setResult(null)
+    setProgress({ done: 0, total: 0 })
+    const onProgress = (done, total) => setProgress({ done, total })
+    const covers = [...recipes, ...posts].map(d => d.imageUrl).filter(Boolean)
+    const main = await warmImages([...photos.map(p => p.url), ...covers], { onProgress })
+    const hero = (await getDoc(doc(db, 'settings', 'home'))).data()?.heroImageUrl
+    const heroResult = hero ? await warmImages([hero], { widths: HERO_WIDTHS }) : { total: 0, failed: 0 }
+    setProgress(null)
+    setResult({ total: main.total + heroResult.total, failed: main.failed + heroResult.failed })
+  }
+
+  return (
+    <div className="mt-12 bg-chesto-charcoal/40 border border-chesto-cream/10 p-6">
+      <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-2">Image speed</h2>
+      <p className="text-chesto-cream/60 text-sm font-body mb-4 max-w-xl">
+        Prepares every photo, cover and the home hero in the sizes visitors load, so pages don't wait on first-time resizing.
+        New uploads are prepared automatically; run this once for existing images, or after a big batch.
+      </p>
+      <div className="flex flex-wrap items-center gap-4">
+        <button type="button" onClick={run} disabled={!!progress} className="btn-gold text-xs disabled:opacity-60">
+          <FontAwesomeIcon icon={faBolt} className="mr-2" />
+          {progress ? 'Preparing…' : 'Prepare Images'}
+        </button>
+        {progress && progress.total > 0 && (
+          <span className="text-chesto-cream/50 text-xs font-mono">{progress.done} / {progress.total}</span>
+        )}
+        {result && (
+          <span className={`text-xs ${result.failed ? 'text-red-400' : 'text-chesto-gold'}`}>
+            {result.failed
+              ? `Done — ${result.failed} of ${result.total} sizes couldn't be prepared.`
+              : `Done — ${result.total} image sizes ready.`}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function AdminDashboard() {
   const { docs: photos }  = useCollection('photos', 'createdAt', 'desc')
@@ -43,6 +92,8 @@ export default function AdminDashboard() {
         <Link to="/admin/blog/new" className="btn-ghost text-xs border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark">New Blog Post</Link>
         <Link to="/admin/reviews/new" className="btn-ghost text-xs border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark">New Review</Link>
       </div>
+
+      <PrepareImages photos={photos} recipes={recipes} posts={posts} />
 
       {/* Recent */}
       {recipes.length > 0 && (

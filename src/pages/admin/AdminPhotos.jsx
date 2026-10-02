@@ -6,7 +6,7 @@ import { db } from '../../firebase'
 import { storage } from '../../firebaseStorage'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
-import { fixedImage } from '../../lib/images'
+import { fixedImage, warmImages } from '../../lib/images'
 
 const UNCATEGORIZED = '__uncategorized'
 
@@ -57,6 +57,7 @@ export default function AdminPhotos() {
       },
       async () => {
         const url = await getDownloadURL(task.snapshot.ref)
+        warmImages([url]).catch(() => {}) // prepare common sizes in the background
         await addDoc(collection(db, 'photos'), {
           url,
           storagePath: path,

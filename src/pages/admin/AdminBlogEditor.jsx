@@ -6,7 +6,7 @@ import { db } from '../../firebase'
 import { storage } from '../../firebaseStorage'
 import RichTextEditor from '../../components/RichTextEditor'
 import { useBlogSettings } from '../../hooks/useBlogSettings'
-import { fixedImage } from '../../lib/images'
+import { fixedImage, warmImages } from '../../lib/images'
 import PhotoPicker from '../../components/PhotoPicker'
 
 function slugify(str) {
@@ -90,6 +90,7 @@ export default function AdminBlogEditor() {
     setSaving(true)
     try {
       const imageUrl = await uploadImage()
+      if (imageUrl) warmImages([imageUrl]).catch(() => {}) // prepare cover sizes in the background
       const publishedAt = Timestamp.fromDate(new Date(form.publishedAt + 'T12:00:00'))
       const data = { ...form, imageUrl, publishedAt, published: shouldPublish, updatedAt: serverTimestamp() }
       if (isEdit) {
