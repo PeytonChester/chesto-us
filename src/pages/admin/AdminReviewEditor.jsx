@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { db } from '../../firebase'
 import RichTextEditor from '../../components/RichTextEditor'
+import { tmdbUrl } from '../../lib/tmdb'
 
 const TMDB_W500 = 'https://image.tmdb.org/t/p/w500'
 
@@ -180,7 +181,7 @@ export default function AdminReviewEditor() {
                   <div className="aspect-[2/3] overflow-hidden bg-chesto-charcoal/40 mb-2">
                     {r.poster_path ? (
                       <img
-                        src={`${TMDB_W500}${r.poster_path}`}
+                        src={`https://image.tmdb.org/t/p/w342${r.poster_path}`}
                         alt={r.title || r.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -208,7 +209,7 @@ export default function AdminReviewEditor() {
           {/* Selected media header */}
           <div className="flex gap-5 bg-chesto-charcoal/20 p-4 border-l-2 border-chesto-gold/30">
             {form.poster && (
-              <img src={form.poster} alt={form.title} className="w-14 h-20 object-cover flex-shrink-0" />
+              <img src={tmdbUrl(form.poster, 'poster', 154)} alt={form.title} className="w-14 h-20 object-cover flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">

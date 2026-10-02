@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
+import { tmdbImage } from '../lib/tmdb'
 
 const FILTERS = ['All', 'Film', 'TV']
 const SORTS = [
@@ -102,7 +103,8 @@ export default function Reviews() {
                 <div className="aspect-[2/3] overflow-hidden bg-chesto-charcoal/10 mb-3 relative">
                   {review.poster ? (
                     <img
-                      src={review.poster}
+                      {...tmdbImage(review.poster, 'poster', '(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 240px', { maxWidth: 500 })}
+                      loading="lazy"
                       alt={review.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />

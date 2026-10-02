@@ -4,7 +4,7 @@ import { doc, getDoc, addDoc, updateDoc, collection, serverTimestamp } from 'fir
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db } from '../../firebase'
 import { storage } from '../../firebaseStorage'
-import { fixedImage } from '../../lib/images'
+import { fixedImage, warmImages } from '../../lib/images'
 
 const CATEGORIES = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink']
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
@@ -121,6 +121,7 @@ export default function AdminRecipeEditor() {
     setSaving(true)
     try {
       const imageUrl = await uploadImage()
+      if (imageUrl) warmImages([imageUrl]).catch(() => {}) // prepare cover sizes in the background
       const data = { ...form, imageUrl, published: shouldPublish, updatedAt: serverTimestamp() }
       if (isEdit) {
         await updateDoc(doc(db, 'recipes', id), data)

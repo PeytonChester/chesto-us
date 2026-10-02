@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
+import { tmdbUrl } from '../../lib/tmdb'
 
 export default function AdminReviews() {
   const { docs: reviews, loading } = useCollection('reviews', 'publishedAt', 'desc')
@@ -37,7 +38,7 @@ export default function AdminReviews() {
           {reviews.map(review => (
             <div key={review.id} className="flex items-center gap-4 bg-chesto-charcoal/20 px-4 py-3 group hover:bg-chesto-charcoal/30 transition-colors">
               {review.poster && (
-                <img src={review.poster} alt={review.title} className="w-8 h-12 object-cover flex-shrink-0" />
+                <img src={tmdbUrl(review.poster, 'poster', 92)} loading="lazy" alt={review.title} className="w-8 h-12 object-cover flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

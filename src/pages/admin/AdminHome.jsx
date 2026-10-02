@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db } from '../../firebase'
 import { storage } from '../../firebaseStorage'
-import { fixedImage } from '../../lib/images'
+import { fixedImage, warmImages, HERO_WIDTHS } from '../../lib/images'
 
 export default function AdminHome() {
   const [form, setForm] = useState({ heroTagline: '', heroHeading: '', heroImageUrl: '' })
@@ -39,6 +39,7 @@ export default function AdminHome() {
     setSaving(true)
     try {
       const heroImageUrl = await uploadImage()
+      warmImages([heroImageUrl], { widths: HERO_WIDTHS }).catch(() => {}) // prepare hero sizes in the background
       await setDoc(doc(db, 'settings', 'home'), { ...form, heroImageUrl }, { merge: true })
       setForm(f => ({ ...f, heroImageUrl }))
       setImageFile(null)

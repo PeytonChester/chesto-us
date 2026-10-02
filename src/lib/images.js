@@ -1,5 +1,5 @@
 // Vercel Image Optimization: resizes Firebase Storage images and serves
-// AVIF/WebP from Vercel's edge cache. Widths must match `images.sizes` in
+// WebP from Vercel's edge cache. Widths must match `images.sizes` in
 // vercel.json, and only hosts listed in `images.remotePatterns` are allowed.
 export const IMAGE_WIDTHS = [128, 384, 640, 1080, 1920, 2560, 3840]
 
@@ -72,3 +72,32 @@ export const HERO_WIDTHS = [640, 1080, 1920, 2560, 3840]
 export const HERO_SRCSET = HERO_WIDTHS.map(w => `/api/hero?w=${w} ${w}w`).join(', ')
 export const HERO_SIZES = '(max-width: 768px) 360px, 100vw'
 export const heroImageAvailable = !import.meta.env.DEV // /api only runs on Vercel
+
+// Widths visitors' browsers most often request: thumbnails, grid tiles and
+// covers (phone/tablet/desktop), and the lightbox photo.
+export const WARM_WIDTHS = [128, 640, 1080, 1920, 2560]
+
+/**
+ * Asks Vercel to create (and cache) the common sizes of these images now, so
+ * a visitor is never the first to request a size and wait for the resize.
+ * The URLs match exactly what the site's <img> tags request.
+ */
+export async function warmImages(srcs, { widths = WARM_WIDTHS, concurrency = 4, onProgress } = {}) {
+  const jobs = [...new Set(srcs.filter(canOptimize))].flatMap(src => widths.map(w => optimizedUrl(src, w)))
+  let next = 0, done = 0, failed = 0
+  const worker = async () => {
+    while (next < jobs.length) {
+      const url = jobs[next++]
+      try {
+        const res = await fetch(url, { headers: { Accept: 'image/webp,image/*,*/*;q=0.8' } })
+        await res.arrayBuffer()
+        if (!res.ok) failed++
+      } catch {
+        failed++
+      }
+      onProgress?.(++done, jobs.length)
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length) }, worker))
+  return { total: jobs.length, failed }
+}
