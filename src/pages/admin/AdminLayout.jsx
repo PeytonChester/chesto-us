@@ -2,14 +2,19 @@ import { useState, Suspense } from 'react'
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../firebaseAuth'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faGauge, faHouse, faImages, faUtensils, faPenNib, faFilm,
+  faRightFromBracket, faBars, faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 
 const NAV = [
-  { to: '/admin', label: 'Dashboard', icon: '⬡', end: true },
-  { to: '/admin/home', label: 'Home Page', icon: '◈' },
-  { to: '/admin/photos', label: 'Photos', icon: '◻' },
-  { to: '/admin/recipes', label: 'Recipes', icon: '◇' },
-  { to: '/admin/blog', label: 'Blog', icon: '○' },
-  { to: '/admin/reviews', label: 'Reviews', icon: '◎' },
+  { to: '/admin', label: 'Dashboard', icon: faGauge, end: true },
+  { to: '/admin/home', label: 'Home Page', icon: faHouse },
+  { to: '/admin/photos', label: 'Photos', icon: faImages },
+  { to: '/admin/recipes', label: 'Recipes', icon: faUtensils },
+  { to: '/admin/blog', label: 'Blog', icon: faPenNib },
+  { to: '/admin/reviews', label: 'Reviews', icon: faFilm },
 ]
 
 export default function AdminLayout() {
@@ -32,7 +37,7 @@ export default function AdminLayout() {
             onClick={() => setMenuOpen(false)}
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
           >
-            <span className="text-base">{item.icon}</span>
+            <FontAwesomeIcon icon={item.icon} fixedWidth className="text-sm" />
             {item.label}
           </NavLink>
         ))}
@@ -41,7 +46,7 @@ export default function AdminLayout() {
         onClick={handleSignOut}
         className="admin-nav-item w-full text-left mt-4 border-t border-chesto-cream/10 pt-4"
       >
-        <span>↩</span> Sign out
+        <FontAwesomeIcon icon={faRightFromBracket} fixedWidth className="text-sm" /> Sign out
       </button>
     </>
   )
@@ -56,12 +61,10 @@ export default function AdminLayout() {
         </Link>
         <button
           onClick={() => setMenuOpen(o => !o)}
-          className="flex flex-col gap-1.5 p-2"
+          className="p-2 text-chesto-cream/70 hover:text-chesto-cream transition-colors"
           aria-label="Toggle menu"
         >
-          <span className={`block w-5 h-px bg-chesto-cream/70 transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-          <span className={`block w-5 h-px bg-chesto-cream/70 transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
-          <span className={`block w-5 h-px bg-chesto-cream/70 transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          <FontAwesomeIcon icon={menuOpen ? faXmark : faBars} fixedWidth className="text-lg" />
         </button>
       </header>
 

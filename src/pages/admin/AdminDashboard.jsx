@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../../hooks/useCollection'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export default function AdminDashboard() {
   const { docs: photos }  = useCollection('photos', 'createdAt', 'desc')
@@ -25,7 +27,10 @@ export default function AdminDashboard() {
           <Link key={s.label} to={s.to} className="bg-chesto-charcoal/40 border border-chesto-cream/10 p-6 hover:border-chesto-gold/40 transition-colors duration-200 group">
             <p className="text-chesto-cream/40 text-xs tracking-widest uppercase mb-2">{s.label}</p>
             <p className="font-display font-semibold text-4xl text-chesto-cream mb-4">{s.count}</p>
-            <p className="text-xs text-chesto-gold/60 group-hover:text-chesto-gold transition-colors">{s.action} →</p>
+            <p className="text-xs text-chesto-gold/60 group-hover:text-chesto-gold transition-colors">
+              {s.action}
+              <FontAwesomeIcon icon={faArrowRight} className="ml-1.5 text-[0.7rem] transition-transform group-hover:translate-x-0.5" />
+            </p>
           </Link>
         ))}
       </div>
@@ -47,7 +52,10 @@ export default function AdminDashboard() {
             {recipes.slice(0, 5).map(r => (
               <Link key={r.id} to={`/admin/recipes/${r.id}/edit`} className="flex items-center justify-between px-4 py-3 bg-chesto-charcoal/20 hover:bg-chesto-charcoal/40 transition-colors group">
                 <span className="text-chesto-cream text-sm font-body">{r.title}</span>
-                <span className="text-xs text-chesto-cream/30 group-hover:text-chesto-gold transition-colors">Edit →</span>
+                <span className="text-xs text-chesto-cream/30 group-hover:text-chesto-gold transition-colors">
+                  Edit
+                  <FontAwesomeIcon icon={faArrowRight} className="ml-1.5 text-[0.7rem] transition-transform group-hover:translate-x-0.5" />
+                </span>
               </Link>
             ))}
           </div>
@@ -61,7 +69,10 @@ export default function AdminDashboard() {
             {reviews.slice(0, 5).map(r => (
               <Link key={r.id} to={`/admin/reviews/${r.id}/edit`} className="flex items-center justify-between px-4 py-3 bg-chesto-charcoal/20 hover:bg-chesto-charcoal/40 transition-colors group">
                 <span className="text-chesto-cream text-sm font-body">{r.title}</span>
-                <span className="text-xs text-chesto-cream/30 group-hover:text-chesto-gold transition-colors">Edit →</span>
+                <span className="text-xs text-chesto-cream/30 group-hover:text-chesto-gold transition-colors">
+                  Edit
+                  <FontAwesomeIcon icon={faArrowRight} className="ml-1.5 text-[0.7rem] transition-transform group-hover:translate-x-0.5" />
+                </span>
               </Link>
             ))}
           </div>
