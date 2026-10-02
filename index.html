@@ -37,11 +37,37 @@
     </script>
   </head>
   <body>
+    <!-- Home hero photo and backdrop, painted before any JS runs and kept on
+         screen afterwards: React renders the hero text over it (see Home.jsx)
+         instead of replacing the image, so the LCP image isn't redrawn. -->
+    <div id="hero-bg" class="absolute top-0 inset-x-0 h-screen overflow-hidden bg-chesto-dark" hidden aria-hidden="true">
+      <img
+        id="hero-bg-img"
+        alt=""
+        fetchpriority="high"
+        class="w-full h-full object-cover"
+        style="opacity: 0"
+        onload="this.style.opacity = '0.6'"
+        onerror="this.remove(); window.dispatchEvent(new Event('hero-bg-error'))"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/20 to-transparent"></div>
+    </div>
+    <script>
+      // Only load it on the home page. Same srcset/sizes as the preload above
+      // and HERO_SRCSET/HERO_SIZES in src/lib/images.js.
+      if (location.pathname === '/') {
+        var heroImg = document.getElementById('hero-bg-img')
+        heroImg.setAttribute('sizes', '(max-width: 768px) 360px, 100vw')
+        heroImg.setAttribute('srcset', [640, 1080, 1920, 2560, 3840].map(function (w) { return '/api/hero?w=' + w + ' ' + w + 'w' }).join(', '))
+        heroImg.setAttribute('src', '/api/hero?w=1080')
+        document.getElementById('hero-bg').hidden = false
+      }
+    </script>
     <div id="root">
-      <!-- Static copy of the home page's first screen, painted before the app's
-           JS loads (React replaces everything inside #root on start). Shown on
-           / only. Keep in sync with the hero in src/pages/Home.jsx and the
-           header in src/components/Layout.jsx. -->
+      <!-- Static copy of the home page's first screen (over #hero-bg), painted
+           before the app's JS loads; React replaces everything inside #root on
+           start. Shown on / only. Keep in sync with the hero in
+           src/pages/Home.jsx and the header in src/components/Layout.jsx. -->
       <div id="boot-home" hidden>
         <header class="fixed top-0 inset-x-0 z-40">
           <nav class="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
@@ -52,20 +78,6 @@
           </nav>
         </header>
         <section class="relative min-h-screen flex items-end pb-20 overflow-hidden">
-          <div class="absolute inset-0 bg-chesto-dark">
-            <img
-              src="/api/hero?w=1080"
-              srcset="/api/hero?w=640 640w, /api/hero?w=1080 1080w, /api/hero?w=1920 1920w, /api/hero?w=2560 2560w, /api/hero?w=3840 3840w"
-              sizes="(max-width: 768px) 360px, 100vw"
-              fetchpriority="high"
-              alt=""
-              class="w-full h-full object-cover"
-              style="opacity: 0"
-              onload="this.style.opacity = '0.6'; window.__heroLoaded = true"
-              onerror="this.remove()"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/20 to-transparent"></div>
-          </div>
           <div class="relative max-w-7xl mx-auto px-6 md:px-10 w-full">
             <p id="boot-tagline" class="section-label text-chesto-gold/80 mb-4">Welcome to the party</p>
             <h1 id="boot-heading" class="font-display font-semibold text-5xl md:text-7xl text-chesto-cream leading-[1.05] mb-8 max-w-2xl">Photography.<br />Food. Life.</h1>
