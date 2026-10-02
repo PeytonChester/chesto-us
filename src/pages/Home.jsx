@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import { usePhotographySettings } from '../hooks/usePhotographySettings'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
@@ -34,6 +34,33 @@ export default function Home() {
   const showHero = heroSettings.heroImageUrl !== ''
   const useHeroApi = heroImageAvailable && !heroFailed
 
+  // index.html paints the hero photo before any JS runs (#hero-bg, outside
+  // #root) and we keep it behind this section rather than drawing a new one.
+  // It's only there if the visit started on / and it loaded; otherwise this
+  // section renders its own image as before.
+  const heroSectionRef = useRef(null)
+  const [staticHero, setStaticHero] = useState(() => !!document.querySelector('#hero-bg-img[src]'))
+  const useStaticHero = staticHero && showHero
+
+  useEffect(() => {
+    const bg = document.getElementById('hero-bg')
+    if (!bg) return
+    if (!useStaticHero) { bg.hidden = true; return }
+    bg.hidden = false
+    const section = heroSectionRef.current
+    const sync = () => { bg.style.height = `${section.offsetHeight}px` }
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(section)
+    const onError = () => setStaticHero(false)
+    window.addEventListener('hero-bg-error', onError)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('hero-bg-error', onError)
+      bg.hidden = true
+    }
+  }, [useStaticHero])
+
   const { categories, covers } = usePhotographySettings()
 
   const featuredRecipes = recentRecipes.slice(0, 3)
@@ -52,16 +79,16 @@ export default function Home() {
         image={heroSettings.heroImageUrl || undefined}
       />
       {/* Hero */}
-      <section className="relative min-h-screen flex items-end pb-20 overflow-hidden">
-        {/* Background — replace src with your hero image URL in Firestore or hardcode */}
-        <div className="absolute inset-0 bg-chesto-dark">
+      <section ref={heroSectionRef} className="relative min-h-screen flex items-end pb-20 overflow-hidden">
+        {/* Background (unless index.html's #hero-bg is showing behind it) */}
+        {!useStaticHero && <div className="absolute inset-0 bg-chesto-dark">
           {showHero && (useHeroApi ? (
             <img
               src="/api/hero?w=1080"
               srcSet={HERO_SRCSET}
               sizes={HERO_SIZES}
               fetchpriority="high"
-              {...(window.__heroLoaded ? {} : hideUntilLoaded) /* already shown by index.html's copy */}
+              {...hideUntilLoaded}
               alt=""
               onError={() => setHeroFailed(true)}
               className="w-full h-full object-cover opacity-60"
@@ -74,7 +101,7 @@ export default function Home() {
             />
           ))}
           <div className="absolute inset-0 bg-gradient-to-t from-chesto-dark via-chesto-dark/20 to-transparent" />
-        </div>
+        </div>}
 
         <div className="relative max-w-7xl mx-auto px-6 md:px-10 w-full">
           {heroSettings.heroTagline && (
