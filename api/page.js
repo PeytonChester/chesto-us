@@ -9,15 +9,24 @@ import { pageMeta, headTags, injectHead } from './_seo.js'
 // "/" is still the static index.html, which already carries the home tags.
 
 let template
-async function loadTemplate() {
-  // dist/index.html is bundled with this function (includeFiles in vercel.json)
-  template ??= await readFile(join(process.cwd(), 'dist', 'index.html'), 'utf8')
+async function loadTemplate(req) {
+  if (template) return template
+  try {
+    // dist/index.html is bundled with this function (includeFiles in vercel.json)
+    template = await readFile(join(process.cwd(), 'dist', 'index.html'), 'utf8')
+  } catch (err) {
+    // Fallback: the same deployment serves it as a static file
+    console.error('page: bundled index.html missing, fetching it', err.message)
+    const res = await fetch(`https://${req.headers['x-forwarded-host'] || req.headers.host}/index.html`)
+    if (!res.ok) throw new Error(`index.html fetch failed: ${res.status}`)
+    template = await res.text()
+  }
   return template
 }
 
 export default async function handler(req, res) {
   const path = typeof req.query.path === 'string' && req.query.path.startsWith('/') ? req.query.path : '/'
-  const html = await loadTemplate()
+  const html = await loadTemplate(req)
   const meta = await pageMeta(path)
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
