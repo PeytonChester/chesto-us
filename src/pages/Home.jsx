@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import PageMeta from '../components/PageMeta'
+import ReviewCard from '../components/ReviewCard'
 import { responsiveImage, hideUntilLoaded, HERO_SRCSET, HERO_SIZES, heroImageAvailable } from '../lib/images'
 
 export default function Home() {
@@ -12,6 +13,8 @@ export default function Home() {
   const { docs: recentPhotos } = useCollection('photos', 'createdAt', 'desc')
   const { docs: allRecentPosts } = useCollection('posts', 'publishedAt', 'desc')
   const recentPosts = allRecentPosts.filter(p => p.published !== false)
+  const { docs: allRecentReviews } = useCollection('reviews', 'publishedAt', 'desc')
+  const featuredReviews = allRecentReviews.filter(r => r.published !== false).slice(0, 6)
   const [heroSettings, setHeroSettings] = useState({ heroTagline: 'Welcome to the party', heroHeading: 'Photography.\nFood. Life.', heroImageUrl: null })
   const [heroFailed, setHeroFailed] = useState(false)
 
@@ -63,7 +66,7 @@ export default function Home() {
 
   const { categories, covers } = usePhotographySettings()
 
-  const featuredRecipes = recentRecipes.slice(0, 3)
+  const featuredRecipes = recentRecipes.filter(r => r.published !== false).slice(0, 3)
   const featuredPosts = recentPosts.slice(0, 3)
 
   const topCategories = categories
@@ -159,7 +162,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="h-64 flex items-center justify-center border border-chesto-charcoal/10 text-chesto-charcoal/30 text-sm tracking-wider">
-            Photos will appear here once added via the admin panel
+            New photos are on the way — check back soon
           </div>
         )}
 
@@ -206,7 +209,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="h-48 flex items-center justify-center border border-chesto-cream/10 text-chesto-cream/20 text-sm tracking-wider">
-              Recipes will appear here once added via the admin panel
+              New recipes are on the way — check back soon
             </div>
           )}
 
@@ -215,6 +218,25 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Reviews preview (hidden until there are reviews) */}
+      {featuredReviews.length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 md:px-10 pt-24">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="section-label mb-2">Watching</p>
+              <h2 className="display-heading text-4xl">Movie &amp; TV Reviews</h2>
+            </div>
+            <Link to="/reviews" className="btn-ghost hidden md:inline-flex">View All</Link>
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+            {featuredReviews.map(review => (
+              <ReviewCard key={review.id} review={review} sizes="(max-width: 768px) 33vw, 190px" />
+            ))}
+          </div>
+          <Link to="/reviews" className="btn-ghost mt-8 md:hidden">View All Reviews</Link>
+        </section>
+      )}
 
       {/* Blog preview */}
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-24">
@@ -254,7 +276,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="h-48 flex items-center justify-center border border-chesto-charcoal/10 text-chesto-charcoal/30 text-sm tracking-wider">
-            Posts will appear here once added via the admin panel
+            New posts are on the way — check back soon
           </div>
         )}
 

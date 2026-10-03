@@ -4,13 +4,19 @@ import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
 import { responsiveImage } from '../lib/images'
 
-const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink']
+// Display order for filters; only categories that have recipes are shown
+const CATEGORY_ORDER = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink']
 
 export default function Recipes() {
   const { docs: recipes, loading } = useCollection('recipes', 'createdAt', 'desc')
   const [active, setActive] = useState('All')
 
   const published = recipes.filter(r => r.published !== false)
+  const present = new Set(published.map(r => r.category).filter(Boolean))
+  const categories = [
+    ...CATEGORY_ORDER.filter(c => present.has(c)),
+    ...[...present].filter(c => !CATEGORY_ORDER.includes(c)).sort(),
+  ]
   const filtered = active === 'All' ? published : published.filter(r => r.category === active)
 
   return (
@@ -20,9 +26,9 @@ export default function Recipes() {
         <p className="section-label mb-3">From the kitchen</p>
         <h1 className="display-heading text-5xl md:text-7xl mb-10">Recipes</h1>
 
-        {/* Filter bar */}
-        <div className="flex flex-wrap gap-2 mb-14">
-          {CATEGORIES.map(cat => (
+        {/* Filter bar (only worth showing with more than one category) */}
+        {categories.length > 1 && <div className="flex flex-wrap gap-2 mb-14">
+          {['All', ...categories].map(cat => (
             <button
               key={cat}
               onClick={() => setActive(cat)}
@@ -35,7 +41,7 @@ export default function Recipes() {
               {cat}
             </button>
           ))}
-        </div>
+        </div>}
 
         {loading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -53,7 +59,7 @@ export default function Recipes() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="h-64 flex items-center justify-center border border-chesto-charcoal/10 text-chesto-charcoal/30 text-sm tracking-wider">
-            No recipes yet — add some in the admin panel
+            No recipes yet — check back soon
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">

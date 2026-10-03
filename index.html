@@ -14,8 +14,22 @@
         document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1')
       }
     </script>
-    <meta name="description" content="Chesto.us — Photography, recipes, and stories." />
+    <!-- page-meta: the home page's tags. /api/page (api/_seo.js) swaps this
+         block for each other page's tags; keep it in step with headTags(). -->
     <title>Chesto.us | Photography, Recipes &amp; Stories</title>
+    <meta data-rh="true" name="description" content="Photography, recipes, and stories by Peyton Chester." />
+    <link data-rh="true" rel="canonical" href="https://www.chesto.us/" />
+    <meta data-rh="true" property="og:site_name" content="Chesto.us" />
+    <meta data-rh="true" property="og:title" content="Chesto.us | Photography, Recipes &amp; Stories" />
+    <meta data-rh="true" property="og:description" content="Photography, recipes, and stories by Peyton Chester." />
+    <meta data-rh="true" property="og:url" content="https://www.chesto.us/" />
+    <meta data-rh="true" property="og:type" content="website" />
+    <meta data-rh="true" property="og:image" content="https://www.chesto.us/api/hero?w=1920" />
+    <meta data-rh="true" name="twitter:card" content="summary_large_image" />
+    <meta data-rh="true" name="twitter:title" content="Chesto.us | Photography, Recipes &amp; Stories" />
+    <meta data-rh="true" name="twitter:description" content="Photography, recipes, and stories by Peyton Chester." />
+    <meta data-rh="true" name="twitter:image" content="https://www.chesto.us/api/hero?w=1920" />
+    <!-- /page-meta -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Only the weights in use; loaded without blocking the first paint -->

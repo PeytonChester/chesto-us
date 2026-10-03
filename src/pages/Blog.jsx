@@ -34,7 +34,7 @@ export default function Blog() {
           </div>
         ) : posts.length === 0 ? (
           <div className="h-64 flex items-center justify-center border border-chesto-charcoal/10 text-chesto-charcoal/30 text-sm tracking-wider">
-            No posts yet — write something in the admin panel
+            No posts yet — check back soon
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
