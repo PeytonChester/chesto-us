@@ -180,25 +180,27 @@ export default function Home() {
           </div>
 
           {featuredRecipes.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8">
               {featuredRecipes.map(recipe => (
                 <Link
                   key={recipe.id}
                   to={`/recipes/${recipe.slug}`}
-                  className="group"
+                  className="group content-card content-card-dark"
                 >
-                  <div className="aspect-photo overflow-hidden mb-5">
+                  <div className="content-card-media">
                     {recipe.imageUrl ? (
-                      <img {...responsiveImage(recipe.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <img {...responsiveImage(recipe.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={recipe.title} />
                     ) : (
                       <div className="w-full h-full bg-chesto-charcoal flex items-center justify-center">
                         <span className="text-chesto-cream/20 text-xs tracking-widest uppercase">No Image</span>
                       </div>
                     )}
                   </div>
-                  <p className="section-label text-chesto-gold/70 mb-1.5">{recipe.category || 'Recipe'}</p>
-                  <h3 className="font-display font-semibold text-xl text-chesto-cream mb-2 group-hover:text-chesto-gold transition-colors duration-200">{recipe.title}</h3>
-                  <p className="text-chesto-cream/50 text-sm font-body leading-relaxed line-clamp-2">{recipe.excerpt}</p>
+                  <div className="content-card-body">
+                    <p className="section-label text-chesto-gold/70 mb-2">{recipe.category || 'Recipe'}</p>
+                    <h3 className="font-display font-semibold text-xl text-chesto-cream mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{recipe.title}</h3>
+                    <p className="text-chesto-cream/50 text-sm font-body leading-relaxed line-clamp-2">{recipe.excerpt}</p>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -225,20 +227,28 @@ export default function Home() {
         </div>
 
         {featuredPosts.length > 0 ? (
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {featuredPosts.map(post => (
-              <Link key={post.id} to={`/blog/${post.slug}`} className="group">
-                {post.imageUrl && (
-                  <div className="aspect-photo overflow-hidden mb-5">
-                    <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <Link key={post.id} to={`/blog/${post.slug}`} className="group content-card">
+                <div className="content-card-media">
+                  {post.imageUrl ? (
+                    <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={post.title} />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-chesto-dark">
+                      <span className="font-display italic text-3xl text-chesto-gold/60">{post.category || 'Blog'}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="content-card-body">
+                  <p className="section-label mb-2">{post.category || 'Blog'}</p>
+                  <h3 className="font-display font-semibold text-xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{post.title}</h3>
+                  {post.excerpt && (
+                    <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-2 mb-5">{post.excerpt}</p>
+                  )}
+                  <div className="content-card-meta">
+                    <span>{(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                   </div>
-                )}
-                <p className="section-label mb-1.5">{post.category}</p>
-                <h3 className="font-display font-semibold text-xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{post.title}</h3>
-                <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-2">{post.excerpt}</p>
-                <p className="text-xs font-mono text-chesto-charcoal/30 mt-3">
-                  {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </p>
+                </div>
               </Link>
             ))}
           </div>
