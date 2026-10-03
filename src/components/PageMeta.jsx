@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useLocation } from 'react-router-dom'
 
 const SITE_NAME = 'Chesto.us'
-const SITE_URL = 'https://chesto.us'
+const SITE_URL = 'https://www.chesto.us'
 const DEFAULT_DESCRIPTION = 'Photography, recipes, and stories by Peyton Chester.'
 
 export default function PageMeta({ title, description, image }) {
@@ -18,6 +18,7 @@ export default function PageMeta({ title, description, image }) {
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={desc} />
+      <link rel="canonical" href={url} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={desc} />

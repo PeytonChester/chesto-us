@@ -15,8 +15,11 @@
     { "source": "/sitemap-recipes.xml",     "destination": "/api/sitemap-recipes" },
     { "source": "/sitemap-posts.xml",       "destination": "/api/sitemap-posts" },
     { "source": "/sitemap-reviews.xml",     "destination": "/api/sitemap-reviews" },
-    { "source": "/(.*)",                    "destination": "/index.html" }
+    { "source": "/(.*)",                    "destination": "/api/page?path=/$1" }
   ],
+  "functions": {
+    "api/page.js": { "includeFiles": "dist/index.html" }
+  },
   "headers": [
     {
       "source": "/(.*)",

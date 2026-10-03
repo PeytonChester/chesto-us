@@ -1,6 +1,6 @@
 import { xmlResponse, urlset } from './_firestore.js'
 
-const SITE = 'https://chesto.us'
+const SITE = 'https://www.chesto.us'
 
 export default function handler(req, res) {
   xmlResponse(res, urlset([
@@ -8,5 +8,6 @@ export default function handler(req, res) {
     { loc: `${SITE}/photography`, changefreq: 'weekly', priority: '0.8' },
     { loc: `${SITE}/recipes`,     changefreq: 'weekly', priority: '0.8' },
     { loc: `${SITE}/blog`,        changefreq: 'weekly', priority: '0.8' },
+    { loc: `${SITE}/reviews`,     changefreq: 'weekly', priority: '0.8' },
   ]))
 }

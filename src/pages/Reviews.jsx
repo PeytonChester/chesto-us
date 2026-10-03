@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
-import { tmdbImage } from '../lib/tmdb'
+import ReviewCard from '../components/ReviewCard'
 
 const FILTERS = ['All', 'Film', 'TV']
 const SORTS = [
@@ -99,36 +98,11 @@ export default function Reviews() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {reviews.map(review => (
-              <Link key={review.id} to={`/reviews/${review.slug}`} className="group">
-                <div className="aspect-[2/3] overflow-hidden bg-chesto-charcoal/10 mb-3 relative">
-                  {review.poster ? (
-                    <img
-                      {...tmdbImage(review.poster, 'poster', '(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 240px', { maxWidth: 500 })}
-                      loading="lazy"
-                      alt={review.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-chesto-charcoal/20">
-                      <span className="text-chesto-charcoal/30 text-xs tracking-widest uppercase">{review.mediaType === 'tv' ? 'TV' : 'Film'}</span>
-                    </div>
-                  )}
-                  {review.userRating && (
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent px-3 pt-10 pb-2.5 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">
-                      <span className="text-chesto-gold font-display font-semibold text-sm">{review.userRating}</span>
-                      <span className="text-white/70 text-xs font-mono">/10</span>
-                    </div>
-                  )}
-                </div>
-                <p className="text-chesto-dark font-body font-medium text-sm leading-snug group-hover:text-chesto-gold transition-colors duration-200 line-clamp-2 mb-1">
-                  {review.title}
-                </p>
-                <p className="text-chesto-charcoal/40 text-xs font-mono">
-                  {review.year}
-                  {' · '}
-                  <span>{review.mediaType === 'tv' ? 'TV' : 'Film'}</span>
-                </p>
-              </Link>
+              <ReviewCard
+                key={review.id}
+                review={review}
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 240px"
+              />
             ))}
           </div>
         )}

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /admin
 
-Sitemap: https://chesto.us/sitemap.xml
+Sitemap: https://www.chesto.us/sitemap.xml

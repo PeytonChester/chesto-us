@@ -1,6 +1,6 @@
 import { firestoreGet, firestoreList, getString, xmlResponse, urlset } from './_firestore.js'
 
-const SITE = 'https://chesto.us'
+const SITE = 'https://www.chesto.us'
 const DEFAULT_SLUGS = ['wildlife', 'macro', 'street', 'architecture', 'sports', 'nature']
 
 export default async function handler(req, res) {

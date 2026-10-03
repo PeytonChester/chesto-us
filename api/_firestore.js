@@ -1,13 +1,13 @@
-const BASE = `https://firestore.googleapis.com/v1/projects/${process.env.VITE_FIREBASE_PROJECT_ID}/databases/(default)/documents`
-const KEY = `?key=${process.env.VITE_FIREBASE_API_KEY}`
+export const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${process.env.VITE_FIREBASE_PROJECT_ID}/databases/(default)/documents`
+export const FIRESTORE_KEY = `?key=${process.env.VITE_FIREBASE_API_KEY}`
 
 export async function firestoreGet(path) {
-  const res = await fetch(`${BASE}/${path}${KEY}`)
+  const res = await fetch(`${FIRESTORE_BASE}/${path}${FIRESTORE_KEY}`)
   return res.ok ? res.json() : null
 }
 
 export async function firestoreList(collection) {
-  const res = await fetch(`${BASE}/${collection}${KEY}&pageSize=500`)
+  const res = await fetch(`${FIRESTORE_BASE}/${collection}${FIRESTORE_KEY}&pageSize=500`)
   if (!res.ok) return []
   const data = await res.json()
   return data.documents ?? []

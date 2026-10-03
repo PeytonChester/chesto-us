@@ -47,7 +47,7 @@ export default function PhotoCategory() {
   const albumIds = new Set(albums.map(a => a.id))
 
   const album = albumId ? albums.find(a => a.id === albumId) : null
-  if (albumId && !settingsLoading && !album) return <NotFound />
+  if (!settingsLoading && (!cat || (albumId && !album))) return <NotFound />
 
   // Album page, or a category page: album covers first, then any photos not in an album
   const photos = album

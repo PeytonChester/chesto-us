@@ -1,6 +1,6 @@
 import { xmlResponse } from './_firestore.js'
 
-const SITE = 'https://chesto.us'
+const SITE = 'https://www.chesto.us'
 
 export default function handler(req, res) {
   const sitemaps = ['sitemap-pages', 'sitemap-photography', 'sitemap-recipes', 'sitemap-posts', 'sitemap-reviews']

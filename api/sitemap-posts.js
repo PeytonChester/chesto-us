@@ -1,6 +1,6 @@
 import { firestoreList, getString, getDate, getBoolean, xmlResponse, urlset } from './_firestore.js'
 
-const SITE = 'https://chesto.us'
+const SITE = 'https://www.chesto.us'
 
 export default async function handler(req, res) {
   const docs = await firestoreList('posts')
