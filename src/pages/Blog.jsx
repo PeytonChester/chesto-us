@@ -3,6 +3,10 @@ import { useCollection } from '../hooks/useCollection'
 import PageMeta from '../components/PageMeta'
 import { responsiveImage } from '../lib/images'
 
+function formatDate(ts) {
+  return ts?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 export default function Blog() {
   const { docs: allPosts, loading } = useCollection('posts', 'publishedAt', 'desc')
   const posts = allPosts.filter(p => p.published !== false)
@@ -15,15 +19,15 @@ export default function Blog() {
         <h1 className="display-heading text-5xl md:text-7xl mb-16">Blog</h1>
 
         {loading ? (
-          <div className="space-y-12">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="animate-pulse flex gap-8">
-                <div className="w-48 h-32 bg-chesto-charcoal/10 flex-shrink-0 hidden md:block" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-3 bg-chesto-charcoal/10 w-20" />
-                  <div className="h-6 bg-chesto-charcoal/10 w-2/3" />
-                  <div className="h-3 bg-chesto-charcoal/10 w-full" />
-                  <div className="h-3 bg-chesto-charcoal/10 w-3/4" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse bg-white border border-chesto-charcoal/10">
+                <div className="aspect-photo bg-chesto-charcoal/10" />
+                <div className="p-6">
+                  <div className="h-3 bg-chesto-charcoal/10 w-20 mb-3" />
+                  <div className="h-6 bg-chesto-charcoal/10 w-3/4 mb-3" />
+                  <div className="h-3 bg-chesto-charcoal/10 w-full mb-2" />
+                  <div className="h-3 bg-chesto-charcoal/10 w-2/3" />
                 </div>
               </div>
             ))}
@@ -33,23 +37,29 @@ export default function Blog() {
             No posts yet — write something in the admin panel
           </div>
         ) : (
-          <div className="divide-y divide-chesto-charcoal/10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map(post => (
-              <Link key={post.id} to={`/blog/${post.slug}`} className="group flex flex-col md:flex-row gap-6 md:gap-10 py-10">
-                {post.imageUrl && (
-                  <div className="w-full md:w-52 h-36 overflow-hidden flex-shrink-0">
-                    <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 208px')} loading="lazy" alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  </div>
-                )}
-                <div className="flex flex-col justify-center">
+              <Link key={post.id} to={`/blog/${post.slug}`} className="group content-card">
+                <div className="content-card-media">
+                  {post.imageUrl ? (
+                    <img {...responsiveImage(post.imageUrl, '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw')} loading="lazy" alt={post.title} />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-chesto-dark">
+                      <span className="font-display italic text-3xl text-chesto-gold/60">{post.category || 'Blog'}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="content-card-body">
                   <p className="section-label mb-2">{post.category || 'Blog'}</p>
-                  <h2 className="font-display font-semibold text-2xl md:text-3xl text-chesto-dark group-hover:text-chesto-gold transition-colors duration-200 mb-3 leading-snug">
+                  <h2 className="font-display font-semibold text-2xl text-chesto-dark group-hover:text-chesto-gold transition-colors duration-200 mb-2 leading-snug">
                     {post.title}
                   </h2>
-                  <p className="text-chesto-charcoal/60 font-body text-sm leading-relaxed line-clamp-2 mb-4">{post.excerpt}</p>
-                  <span className="text-xs font-mono text-chesto-charcoal/40">
-                    {(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </span>
+                  {post.excerpt && (
+                    <p className="text-chesto-charcoal/60 font-body text-sm leading-relaxed line-clamp-3 mb-5">{post.excerpt}</p>
+                  )}
+                  <div className="content-card-meta">
+                    <span>{formatDate(post.publishedAt ?? post.createdAt)}</span>
+                  </div>
                 </div>
               </Link>
             ))}

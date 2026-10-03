@@ -38,13 +38,16 @@ export default function Recipes() {
         </div>
 
         {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-photo bg-chesto-charcoal/10 mb-4" />
-                <div className="h-3 bg-chesto-charcoal/10 w-16 mb-3" />
-                <div className="h-5 bg-chesto-charcoal/10 w-3/4 mb-2" />
-                <div className="h-3 bg-chesto-charcoal/10 w-full" />
+              <div key={i} className="animate-pulse bg-white border border-chesto-charcoal/10">
+                <div className="aspect-photo bg-chesto-charcoal/10" />
+                <div className="p-6">
+                  <div className="h-3 bg-chesto-charcoal/10 w-16 mb-3" />
+                  <div className="h-5 bg-chesto-charcoal/10 w-3/4 mb-3" />
+                  <div className="h-3 bg-chesto-charcoal/10 w-full mb-2" />
+                  <div className="h-3 bg-chesto-charcoal/10 w-2/3" />
+                </div>
               </div>
             ))}
           </div>
@@ -53,29 +56,33 @@ export default function Recipes() {
             No recipes yet — add some in the admin panel
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {filtered.map(recipe => (
-              <Link key={recipe.id} to={`/recipes/${recipe.slug}`} className="group">
-                <div className="aspect-photo overflow-hidden mb-5">
+              <Link key={recipe.id} to={`/recipes/${recipe.slug}`} className="group content-card">
+                <div className="content-card-media">
                   {recipe.imageUrl ? (
-                    <img {...responsiveImage(recipe.imageUrl, '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw')} loading="lazy" alt={recipe.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img {...responsiveImage(recipe.imageUrl, '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw')} loading="lazy" alt={recipe.title} />
                   ) : (
-                    <div className="w-full h-full bg-chesto-charcoal/10 flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center">
                       <span className="text-chesto-charcoal/20 text-xs tracking-widest uppercase">No Image</span>
                     </div>
                   )}
                 </div>
-                <p className="section-label mb-1.5">{recipe.category || 'Recipe'}</p>
-                <h2 className="font-display font-semibold text-2xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">
-                  {recipe.title}
-                </h2>
-                <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-2">{recipe.excerpt}</p>
-                {(recipe.prepTime || recipe.cookTime) && (
-                  <div className="flex gap-4 mt-3 text-xs text-chesto-charcoal/40 font-mono">
-                    {recipe.prepTime && <span>Prep {recipe.prepTime}</span>}
-                    {recipe.cookTime && <span>Cook {recipe.cookTime}</span>}
-                  </div>
-                )}
+                <div className="content-card-body">
+                  <p className="section-label mb-2">{recipe.category || 'Recipe'}</p>
+                  <h2 className="font-display font-semibold text-2xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">
+                    {recipe.title}
+                  </h2>
+                  {recipe.excerpt && (
+                    <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-3 mb-5">{recipe.excerpt}</p>
+                  )}
+                  {(recipe.prepTime || recipe.cookTime) && (
+                    <div className="content-card-meta">
+                      {recipe.prepTime && <span>Prep {recipe.prepTime}</span>}
+                      {recipe.cookTime && <span>Cook {recipe.cookTime}</span>}
+                    </div>
+                  )}
+                </div>
               </Link>
             ))}
           </div>
