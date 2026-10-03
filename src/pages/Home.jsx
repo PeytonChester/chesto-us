@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import { usePhotographySettings } from '../hooks/usePhotographySettings'
+import { usePhotoCounts } from '../hooks/usePhotoCounts'
 import { useEffect, useRef, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -9,11 +10,11 @@ import ReviewCard from '../components/ReviewCard'
 import { responsiveImage, hideUntilLoaded, HERO_SRCSET, HERO_SIZES, heroImageAvailable } from '../lib/images'
 
 export default function Home() {
-  const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc')
-  const { docs: recentPhotos } = useCollection('photos', 'createdAt', 'desc')
-  const { docs: allRecentPosts } = useCollection('posts', 'publishedAt', 'desc')
+  // Home shows only the newest few of each; a little headroom covers drafts
+  const { docs: recentRecipes } = useCollection('recipes', 'createdAt', 'desc', 10)
+  const { docs: allRecentPosts } = useCollection('posts', 'publishedAt', 'desc', 10)
   const recentPosts = allRecentPosts.filter(p => p.published !== false)
-  const { docs: allRecentReviews } = useCollection('reviews', 'publishedAt', 'desc')
+  const { docs: allRecentReviews } = useCollection('reviews', 'publishedAt', 'desc', 12)
   const featuredReviews = allRecentReviews.filter(r => r.published !== false).slice(0, 6)
   const [heroSettings, setHeroSettings] = useState({ heroTagline: 'Welcome to the party', heroHeading: 'Photography.\nFood. Life.', heroImageUrl: null })
   const [heroFailed, setHeroFailed] = useState(false)
@@ -65,12 +66,13 @@ export default function Home() {
   }, [useStaticHero])
 
   const { categories, covers } = usePhotographySettings()
+  const photoCounts = usePhotoCounts(categories.map(c => c.slug))
 
   const featuredRecipes = recentRecipes.filter(r => r.published !== false).slice(0, 3)
   const featuredPosts = recentPosts.slice(0, 3)
 
   const topCategories = categories
-    .map(cat => ({ ...cat, count: recentPhotos.filter(p => p.category === cat.slug).length }))
+    .map(cat => ({ ...cat, count: photoCounts[cat.slug] ?? 0 }))
     .filter(cat => cat.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 3)
