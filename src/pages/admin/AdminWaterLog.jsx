@@ -15,7 +15,11 @@ const toForm = r => ({
   ...Object.fromEntries(PARAMS.map(p => [p.key, typeof r[p.key] === 'number' ? String(r[p.key]) : ''])),
 })
 
-const INPUT = 'field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream'
+const INPUT = 'field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream placeholder-chesto-cream/20'
+
+// Field border and target hint take the reading's color as you type
+const RING = { ok: 'border-green-400/40', warn: 'border-amber-400/60', bad: 'border-red-400/60' }
+const HINT = { ok: 'text-green-300/70', warn: 'text-amber-300/80', bad: 'text-red-300/80' }
 
 export default function AdminWaterLog() {
   const { readings, loading } = useWaterLog()
@@ -93,32 +97,43 @@ export default function AdminWaterLog() {
         Not linked anywhere on the site. Click a reading below to edit it.
       </p>
 
-      <form onSubmit={save} className="bg-chesto-charcoal/40 border border-chesto-cream/10 p-5 md:p-6 space-y-5 mb-10">
+      <form onSubmit={save} className="bg-chesto-charcoal/40 border border-chesto-cream/10 p-5 md:p-6 space-y-6 mb-10">
         <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase">
           {editing ? `Editing ${formatTestDate(editing)}` : 'Add a test'}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div>
-            <label htmlFor="wl-date" className="field-label text-chesto-cream/50">Date</label>
-            <input id="wl-date" type="date" required className={`${INPUT} font-mono`} value={form.date} onChange={e => set('date', e.target.value)} />
-          </div>
-          {PARAMS.map(p => (
-            <div key={p.key}>
-              <label htmlFor={`wl-${p.key}`} className="field-label text-chesto-cream/50">
-                {p.label} <span className="normal-case tracking-normal text-chesto-cream/30">{p.unit} · {p.target}</span>
-              </label>
-              <input
-                id={`wl-${p.key}`}
-                type="number"
-                inputMode="decimal"
-                step={p.step}
-                min="0"
-                className={`${INPUT} font-mono`}
-                value={form[p.key]}
-                onChange={e => set(p.key, e.target.value)}
-              />
-            </div>
-          ))}
+        <div className="sm:max-w-[16rem]">
+          <label htmlFor="wl-date" className="field-label text-chesto-cream/50">Test date</label>
+          <input id="wl-date" type="date" required className={`${INPUT} wl-date font-mono py-2.5`} value={form.date} onChange={e => set('date', e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5">
+          {PARAMS.map(p => {
+            const raw = form[p.key].trim()
+            const rating = raw !== '' && Number.isFinite(Number(raw)) ? p.rate(Number(raw)) : null
+            return (
+              <div key={p.key}>
+                <label htmlFor={`wl-${p.key}`} className={`field-label text-chesto-cream/50 ${p.key === 'ph' ? 'normal-case' : ''}`}>{p.label}</label>
+                <div className="relative">
+                  <input
+                    id={`wl-${p.key}`}
+                    type="number"
+                    inputMode="decimal"
+                    step={p.step}
+                    min="0"
+                    placeholder="—"
+                    className={`${INPUT} wl-num font-mono py-2.5 ${p.unit ? 'pr-14' : ''} ${rating ? RING[rating] : ''}`}
+                    value={form[p.key]}
+                    onChange={e => set(p.key, e.target.value)}
+                  />
+                  {p.unit && (
+                    <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-mono text-xs text-chesto-cream/30">{p.unit}</span>
+                  )}
+                </div>
+                <p className={`mt-1.5 font-mono text-[11px] ${rating ? HINT[rating] : 'text-chesto-cream/30'}`}>
+                  target {p.target}
+                </p>
+              </div>
+            )
+          })}
         </div>
         <div>
           <label htmlFor="wl-notes" className="field-label text-chesto-cream/50">Notes</label>
