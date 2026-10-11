@@ -31,7 +31,7 @@ export default function WaterLogTable({ readings, dark = false, onSelect, select
           <tr>
             <th className={`px-3 py-3 text-left text-xs font-medium tracking-wider uppercase border-b ${line} ${muted}`}>Date</th>
             {PARAMS.map(p => (
-              <th key={p.key} className={`px-3 py-3 text-left text-xs font-medium tracking-wider uppercase whitespace-nowrap border-b ${line} ${muted}`}>
+              <th key={p.key} className={`px-3 py-3 text-left text-xs font-medium tracking-wider whitespace-nowrap ${p.key === 'ph' ? '' : 'uppercase'} border-b ${line} ${muted}`}>
                 {p.label}
                 <small className="block normal-case tracking-normal font-mono font-normal text-[11px]">
                   target {p.target}{p.unit && ` ${p.unit}`}
