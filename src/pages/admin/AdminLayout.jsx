@@ -4,7 +4,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '../../firebaseAuth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faGauge, faHouse, faImages, faUtensils, faPenNib, faFilm,
+  faGauge, faHouse, faImages, faUtensils, faPenNib, faFilm, faFish,
   faRightFromBracket, faBars, faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -15,6 +15,7 @@ const NAV = [
   { to: '/admin/recipes', label: 'Recipes', icon: faUtensils },
   { to: '/admin/blog', label: 'Blog', icon: faPenNib },
   { to: '/admin/reviews', label: 'Reviews', icon: faFilm },
+  { to: '/admin/water-log', label: 'Water Log', icon: faFish },
 ]
 
 export default function AdminLayout() {

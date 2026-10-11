@@ -16,6 +16,7 @@ const Blog = lazy(() => import('./pages/Blog'))
 const BlogPost = lazy(() => import('./pages/BlogPost'))
 const Reviews = lazy(() => import('./pages/Reviews'))
 const ReviewDetail = lazy(() => import('./pages/ReviewDetail'))
+const WaterLog = lazy(() => import('./pages/WaterLog'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Admin
@@ -33,6 +34,7 @@ const AdminAlbums = lazy(() => import('./pages/admin/AdminAlbums'))
 const AdminBlogCategories = lazy(() => import('./pages/admin/AdminBlogCategories'))
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'))
 const AdminReviewEditor = lazy(() => import('./pages/admin/AdminReviewEditor'))
+const AdminWaterLog = lazy(() => import('./pages/admin/AdminWaterLog'))
 
 export default function App() {
   return (
@@ -51,6 +53,7 @@ export default function App() {
           <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="reviews/:slug" element={<ReviewDetail />} />
+          <Route path="queso-water-log" element={<WaterLog />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -72,6 +75,7 @@ export default function App() {
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="reviews/new" element={<AdminReviewEditor />} />
           <Route path="reviews/:id/edit" element={<AdminReviewEditor />} />
+          <Route path="water-log" element={<AdminWaterLog />} />
         </Route>
       </Routes>
       </Suspense>

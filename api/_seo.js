@@ -27,6 +27,8 @@ const LIST_PAGES = {
   '/recipes': { title: 'Recipes', description: 'Recipes from the kitchen — breakfasts, dinners, desserts, and more.' },
   '/blog': { title: 'Blog', description: 'Writing on photography, food, and life.' },
   '/reviews': { title: 'Movie & TV Reviews', description: "Peyton's reviews of movies and TV shows — with ratings, cast, and honest takes." },
+  // Unlisted: not in the nav or sitemap
+  '/queso-water-log': { title: "Queso's Water Log", description: "Water test results for Queso the betta's planted 10-gallon tank.", noindex: true },
 }
 
 const NOT_FOUND = {
