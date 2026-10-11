@@ -31,7 +31,8 @@ export function readingsFrom(data) {
     .sort((a, b) => b.date.localeCompare(a.date))
 }
 
+/** "2026-10-11" -> "10/11/26" */
 export function formatTestDate(iso) {
-  const d = new Date(`${iso}T12:00:00`)
-  return isNaN(d) ? iso : d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? '')
+  return m ? `${m[2]}/${m[3]}/${m[1].slice(2)}` : iso
 }
