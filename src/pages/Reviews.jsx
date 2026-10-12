@@ -84,10 +84,12 @@ export default function Reviews() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-[2/3] bg-chesto-charcoal/10 mb-3" />
-                <div className="h-3 bg-chesto-charcoal/10 w-3/4 mb-1.5" />
-                <div className="h-3 bg-chesto-charcoal/10 w-1/2" />
+              <div key={i} className="animate-pulse bg-white border border-chesto-charcoal/10">
+                <div className="aspect-[2/3] bg-chesto-charcoal/10" />
+                <div className="p-3 md:p-4">
+                  <div className="h-3 bg-chesto-charcoal/10 w-3/4 mb-1.5" />
+                  <div className="h-3 bg-chesto-charcoal/10 w-1/2" />
+                </div>
               </div>
             ))}
           </div>
