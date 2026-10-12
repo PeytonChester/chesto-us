@@ -223,7 +223,7 @@ export default function Home() {
 
       {/* Reviews preview (hidden until there are reviews) */}
       {featuredReviews.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 md:px-10 pt-24">
+        <section className="max-w-7xl mx-auto px-6 md:px-10 py-24">
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="section-label mb-2">Watching</p>
@@ -241,48 +241,54 @@ export default function Home() {
       )}
 
       {/* Blog preview */}
-      <section className="max-w-7xl mx-auto px-6 md:px-10 py-24">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="section-label mb-2">Latest writing</p>
-            <h2 className="display-heading text-4xl">From the Blog</h2>
+      <section className="bg-chesto-dark py-24">
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="section-label text-chesto-gold/80 mb-2">Latest writing</p>
+              <h2 className="font-display font-semibold text-4xl text-chesto-cream">From the Blog</h2>
+            </div>
+            <Link to="/blog" className="inline-flex items-center gap-2 px-6 py-3 border border-chesto-cream/30 text-chesto-cream font-body font-medium text-sm tracking-wider uppercase hover:border-chesto-cream transition-all duration-200 hidden md:inline-flex">
+              View All
+            </Link>
           </div>
-          <Link to="/blog" className="btn-ghost hidden md:inline-flex">View All</Link>
-        </div>
 
-        {featuredPosts.length > 0 ? (
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {featuredPosts.map(post => (
-              <Link key={post.id} to={`/blog/${post.slug}`} className="group content-card">
-                <div className="content-card-media">
-                  {post.imageUrl ? (
-                    <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={post.title} />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-chesto-dark">
-                      <span className="font-display italic text-3xl text-chesto-gold/60">{post.category || 'Blog'}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="content-card-body">
-                  <p className="section-label mb-2">{post.category || 'Blog'}</p>
-                  <h3 className="font-display font-semibold text-xl text-chesto-dark mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{post.title}</h3>
-                  {post.excerpt && (
-                    <p className="text-chesto-charcoal/60 text-sm font-body leading-relaxed line-clamp-2 mb-5">{post.excerpt}</p>
-                  )}
-                  <div className="content-card-meta">
-                    <span>{(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          {featuredPosts.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+              {featuredPosts.map(post => (
+                <Link key={post.id} to={`/blog/${post.slug}`} className="group content-card content-card-dark">
+                  <div className="content-card-media">
+                    {post.imageUrl ? (
+                      <img {...responsiveImage(post.imageUrl, '(max-width: 768px) 100vw, 33vw')} loading="lazy" alt={post.title} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-chesto-charcoal">
+                        <span className="font-display italic text-3xl text-chesto-gold/60">{post.category || 'Blog'}</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="h-48 flex items-center justify-center border border-chesto-charcoal/10 text-chesto-charcoal/30 text-sm tracking-wider">
-            New posts are on the way — check back soon
-          </div>
-        )}
+                  <div className="content-card-body">
+                    <p className="section-label text-chesto-gold/70 mb-2">{post.category || 'Blog'}</p>
+                    <h3 className="font-display font-semibold text-xl text-chesto-cream mb-2 group-hover:text-chesto-gold transition-colors duration-200 leading-snug">{post.title}</h3>
+                    {post.excerpt && (
+                      <p className="text-chesto-cream/50 text-sm font-body leading-relaxed line-clamp-2 mb-5">{post.excerpt}</p>
+                    )}
+                    <div className="content-card-meta">
+                      <span>{(post.publishedAt ?? post.createdAt)?.toDate?.()?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="h-48 flex items-center justify-center border border-chesto-cream/10 text-chesto-cream/20 text-sm tracking-wider">
+              New posts are on the way — check back soon
+            </div>
+          )}
 
-        <Link to="/blog" className="btn-ghost mt-8 md:hidden">View All Posts</Link>
+          <Link to="/blog" className="inline-flex items-center gap-2 px-6 py-3 border border-chesto-cream/30 text-chesto-cream font-body font-medium text-sm tracking-wider uppercase hover:border-chesto-cream transition-all duration-200 mt-8 md:hidden">
+            View All Posts
+          </Link>
+        </div>
       </section>
     </div>
   )
