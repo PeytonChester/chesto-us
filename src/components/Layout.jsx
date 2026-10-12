@@ -121,7 +121,7 @@ export default function Layout() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-20">
+      <footer className="mt-10">
         <nav aria-label="Footer" className="max-w-7xl mx-auto px-6 md:px-10 pb-10">
           <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
             {NAV_LINKS.map(({ to, label }) => (
