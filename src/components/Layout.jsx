@@ -5,6 +5,14 @@ import PageLoading from './PageLoading'
 
 const GTM_ID = 'GTM-T589WSP4'
 
+const NAV_LINKS = [
+  { to: '/', label: 'Home' },
+  { to: '/photography', label: 'Photography' },
+  { to: '/recipes', label: 'Recipes' },
+  { to: '/reviews', label: 'Reviews' },
+  { to: '/blog', label: 'Blog' },
+]
+
 export default function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -60,13 +68,7 @@ export default function Layout() {
 
           {/* Desktop nav */}
           <ul className="hidden md:flex items-center gap-8">
-            {[
-              { to: '/', label: 'Home' },
-              { to: '/photography', label: 'Photography' },
-              { to: '/recipes', label: 'Recipes' },
-              { to: '/reviews', label: 'Reviews' },
-              { to: '/blog', label: 'Blog' },
-            ].map(({ to, label }) => (
+            {NAV_LINKS.map(({ to, label }) => (
               <li key={to}>
                 <NavLink
                   to={to}
@@ -98,13 +100,7 @@ export default function Layout() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden bg-chesto-cream border-t border-chesto-charcoal/10 px-6 py-6 flex flex-col gap-5">
-            {[
-              { to: '/', label: 'Home' },
-              { to: '/photography', label: 'Photography' },
-              { to: '/recipes', label: 'Recipes' },
-              { to: '/reviews', label: 'Reviews' },
-              { to: '/blog', label: 'Blog' },
-            ].map(({ to, label }) => (
+            {NAV_LINKS.map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -125,16 +121,33 @@ export default function Layout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-chesto-charcoal/10 py-10 mt-20">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-center gap-6">
-          <span className="font-display text-lg text-chesto-dark">
-            Chesto<span className="text-chesto-gold">.</span>us
-          </span>
-          <p className="text-xs text-chesto-charcoal/40 tracking-wider">
-            © {new Date().getFullYear()} Chesto.us · Photography &amp; Food
-            {' · '}
-            <a href="/sitemap.xml" className="hover:text-chesto-charcoal/70 transition-colors">Sitemap</a>
-          </p>
+      <footer className="mt-20">
+        <nav aria-label="Footer" className="max-w-7xl mx-auto px-6 md:px-10 pb-10">
+          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+            {NAV_LINKS.map(({ to, label }) => (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  end={to === '/'}
+                  className={({ isActive }) => `nav-link text-chesto-charcoal/70 hover:text-chesto-dark ${isActive ? 'active text-chesto-dark' : ''}`}
+                >
+                  {label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="border-t border-chesto-charcoal/10 py-10">
+          <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-center gap-6">
+            <span className="font-display text-lg text-chesto-dark">
+              Chesto<span className="text-chesto-gold">.</span>us
+            </span>
+            <p className="text-xs text-chesto-charcoal/40 tracking-wider">
+              © {new Date().getFullYear()} Chesto.us · Photography &amp; Food
+              {' · '}
+              <a href="/sitemap.xml" className="hover:text-chesto-charcoal/70 transition-colors">Sitemap</a>
+            </p>
+          </div>
         </div>
       </footer>
     </div>
