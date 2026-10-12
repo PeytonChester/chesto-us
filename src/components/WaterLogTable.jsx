@@ -1,4 +1,5 @@
-import { Fragment, useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { PARAMS, formatTestDate } from '../lib/waterLog'
 
 const CHIP = {
@@ -22,14 +23,9 @@ export function Chip({ rating, dark, children }) {
 
 // The readings table, used on the public page (light) and in the admin (dark).
 // Scrolls sideways on narrow screens. onSelect makes rows clickable.
-// Notes stay folded away (so rows stay short) until their button opens them.
+// Notes stay out of the table (so rows stay short); their button opens them in a lightbox.
 export default function WaterLogTable({ readings, dark = false, onSelect, selectedDate }) {
-  const [openNotes, setOpenNotes] = useState(() => new Set())
-  const toggleNotes = date => setOpenNotes(prev => {
-    const next = new Set(prev)
-    next.has(date) ? next.delete(date) : next.add(date)
-    return next
-  })
+  const [notesFor, setNotesFor] = useState(null) // the reading whose notes are open
   const line = dark ? 'border-chesto-cream/10' : 'border-chesto-charcoal/10'
   const muted = dark ? 'text-chesto-cream/40' : 'text-chesto-charcoal/50'
   return (
@@ -50,56 +46,88 @@ export default function WaterLogTable({ readings, dark = false, onSelect, select
           </tr>
         </thead>
         <tbody>
-          {readings.map(r => {
-            const open = openNotes.has(r.date)
-            const rowBg = selectedDate === r.date ? 'bg-chesto-gold/10' : ''
-            return (
-              <Fragment key={r.date}>
-                <tr
-                  onClick={onSelect ? () => onSelect(r) : undefined}
-                  className={`align-middle ${open ? '' : `border-b last:border-b-0 ${line}`} ${onSelect ? 'cursor-pointer hover:bg-chesto-gold/10' : ''} ${rowBg}`}
-                >
-                  <td className={`px-3 py-3 font-mono text-xs whitespace-nowrap ${dark ? 'text-chesto-cream' : ''}`}>{formatTestDate(r.date)}</td>
-                  {PARAMS.map(p => {
-                    const v = r[p.key]
-                    return (
-                      <td key={p.key} className="px-3 py-3">
-                        {typeof v === 'number'
-                          ? <Chip rating={p.rate(v)} dark={dark}>{v}</Chip>
-                          : <span className={muted}>—</span>}
-                      </td>
-                    )
-                  })}
-                  <td className="px-3 py-3">
-                    {r.notes ? (
-                      <button
-                        type="button"
-                        aria-expanded={open}
-                        onClick={e => { e.stopPropagation(); toggleNotes(r.date) }}
-                        className={`whitespace-nowrap text-xs font-medium tracking-wider uppercase transition-colors ${dark ? 'text-chesto-gold hover:text-chesto-gold-light' : 'text-chesto-charcoal/60 hover:text-chesto-dark'}`}
-                      >
-                        {open ? 'Hide' : 'Show'} <span aria-hidden="true">{open ? '▴' : '▾'}</span>
-                      </button>
-                    ) : (
-                      <span className={muted}>—</span>
-                    )}
+          {readings.map(r => (
+            <tr
+              key={r.date}
+              onClick={onSelect ? () => onSelect(r) : undefined}
+              className={`align-middle border-b last:border-b-0 ${line} ${onSelect ? 'cursor-pointer hover:bg-chesto-gold/10' : ''} ${selectedDate === r.date ? 'bg-chesto-gold/10' : ''}`}
+            >
+              <td className={`px-3 py-3 font-mono text-xs whitespace-nowrap ${dark ? 'text-chesto-cream' : ''}`}>{formatTestDate(r.date)}</td>
+              {PARAMS.map(p => {
+                const v = r[p.key]
+                return (
+                  <td key={p.key} className="px-3 py-3">
+                    {typeof v === 'number'
+                      ? <Chip rating={p.rate(v)} dark={dark}>{v}</Chip>
+                      : <span className={muted}>—</span>}
                   </td>
-                </tr>
-                {open && (
-                  <tr className={`border-b last:border-b-0 ${line} ${rowBg}`}>
-                    <td colSpan={PARAMS.length + 2} className="px-3 pb-4 pt-0">
-                      {/* Sticky so the text stays in view while the table scrolls sideways on phones */}
-                      <p className={`sticky left-3 max-w-[min(48rem,calc(100vw-5rem))] text-sm leading-relaxed whitespace-pre-line ${dark ? 'text-chesto-cream/70' : 'text-chesto-charcoal/70'}`}>
-                        {r.notes}
-                      </p>
-                    </td>
-                  </tr>
+                )
+              })}
+              <td className="px-3 py-3">
+                {r.notes ? (
+                  <button
+                    type="button"
+                    aria-haspopup="dialog"
+                    onClick={e => { e.stopPropagation(); setNotesFor(r) }}
+                    className={`whitespace-nowrap text-xs font-medium tracking-wider uppercase transition-colors ${dark ? 'text-chesto-gold hover:text-chesto-gold-light' : 'text-chesto-charcoal/60 hover:text-chesto-dark'}`}
+                  >
+                    View
+                  </button>
+                ) : (
+                  <span className={muted}>—</span>
                 )}
-              </Fragment>
-            )
-          })}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
+      {notesFor && <NotesLightbox reading={notesFor} onClose={() => setNotesFor(null)} />}
     </div>
+  )
+}
+
+function NotesLightbox({ reading, onClose }) {
+  const closeRef = useRef(null)
+
+  // Esc closes; the page behind doesn't scroll while it's open
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose() }
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', onKey)
+    closeRef.current?.focus()
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-chesto-dark/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="wl-notes-title"
+        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-chesto-cream text-chesto-dark p-6 md:p-8 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          ref={closeRef}
+          type="button"
+          onClick={onClose}
+          aria-label="Close notes"
+          className="absolute top-3 right-3 h-9 w-9 flex items-center justify-center text-2xl leading-none text-chesto-charcoal/50 hover:text-chesto-dark"
+        >
+          ×
+        </button>
+        <p className="section-label mb-2">Notes</p>
+        <h2 id="wl-notes-title" className="font-display font-semibold text-2xl mb-4">{formatTestDate(reading.date)}</h2>
+        <p className="font-body text-sm leading-relaxed text-chesto-charcoal/80 whitespace-pre-line">{reading.notes}</p>
+      </div>
+    </div>,
+    document.body
   )
 }
