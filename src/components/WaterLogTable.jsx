@@ -42,7 +42,7 @@ export default function WaterLogTable({ readings, dark = false, onSelect, select
               <th key={p.key} className={`px-3 py-3 text-left text-xs font-medium tracking-wider whitespace-nowrap ${p.key === 'ph' ? '' : 'uppercase'} border-b ${line} ${muted}`}>
                 {p.label}
                 <small className="block normal-case tracking-normal font-mono font-normal text-[11px]">
-                  target {p.target}{p.unit && ` ${p.unit}`}
+                  {p.target}{p.unit && ` ${p.unit}`}
                 </small>
               </th>
             ))}
