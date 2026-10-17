@@ -4,6 +4,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { warmImages, HERO_WIDTHS } from '../../lib/images'
+import { isAnalyticsOff, setAnalyticsOff } from '../../lib/analytics'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faBolt } from '@fortawesome/free-solid-svg-icons'
 
@@ -52,6 +53,34 @@ function PrepareImages({ photos, recipes, posts }) {
   )
 }
 
+// Keeps this device's visits out of Google Analytics
+function AnalyticsSwitch() {
+  const [off, setOff] = useState(isAnalyticsOff)
+
+  const toggle = () => {
+    setAnalyticsOff(!off)
+    setOff(!off)
+  }
+
+  return (
+    <div className="mt-12 bg-chesto-charcoal/40 border border-chesto-cream/10 p-6">
+      <h2 className="text-chesto-cream/50 text-xs tracking-widest uppercase mb-2">Analytics on this device</h2>
+      <p className="text-chesto-cream/60 text-sm font-body mb-4 max-w-xl">
+        Turn this off on each of your own phones and computers so your visits don't show up in Google Analytics.
+        It's saved in this browser only, and stays off as long as you visit the site at least once a year.
+      </p>
+      <div className="flex flex-wrap items-center gap-4">
+        <button type="button" onClick={toggle} className={off ? 'btn-gold text-xs' : 'btn-ghost text-xs border-chesto-cream/20 text-chesto-cream hover:bg-chesto-cream hover:text-chesto-dark'}>
+          {off ? 'Count My Visits Again' : 'Stop Counting My Visits'}
+        </button>
+        <span className={`text-xs ${off ? 'text-chesto-gold' : 'text-chesto-cream/50'}`}>
+          {off ? 'Off: this device is not tracked.' : 'On: this device is tracked like any visitor.'}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
   const { docs: photos }  = useCollection('photos', 'createdAt', 'desc')
   const { docs: recipes } = useCollection('recipes', 'createdAt', 'desc')
@@ -94,6 +123,7 @@ export default function AdminDashboard() {
       </div>
 
       <PrepareImages photos={photos} recipes={recipes} posts={posts} />
+      <AnalyticsSwitch />
 
       {/* Recent */}
       {recipes.length > 0 && (
