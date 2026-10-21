@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { pageMeta, headTags, injectHead } from './_seo.js'
+import { pageMeta, headTags, injectHead, injectContent } from './_seo.js'
 
 // Every page except the home page is served through here (see the rewrite
 // in vercel.json): the built index.html with that page's title,
@@ -40,5 +40,5 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', meta.status === 200
     ? 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400'
     : 'public, max-age=0, s-maxage=60')
-  res.status(meta.status).send(injectHead(html, headTags(meta, path)))
+  res.status(meta.status).send(injectContent(injectHead(html, headTags(meta, path)), meta.content))
 }
