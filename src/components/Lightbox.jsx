@@ -250,7 +250,7 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
           ref={imgRef}
           key={photo.id}
           {...imageProps}
-          alt={photo.title || label}
+          alt={photo.alt || photo.title || label}
           draggable={false}
           className="max-w-full max-h-full object-contain"
           style={{

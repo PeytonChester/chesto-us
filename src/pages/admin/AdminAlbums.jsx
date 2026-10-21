@@ -22,9 +22,10 @@ async function updatePhotos(photos, data) {
 export default function AdminAlbums() {
   const { docs: photos } = useCollection('photos', 'createdAt', 'desc')
   const { categories, albums } = usePhotographySettings()
-  const [addForm, setAddForm] = useState({ title: '', category: categories[0]?.slug ?? '', moveLoose: true })
+  const [addForm, setAddForm] = useState({ title: '', description: '', category: categories[0]?.slug ?? '', moveLoose: true })
   const [editingKey, setEditingKey] = useState(null)
   const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
   const [saving, setSaving] = useState(false)
 
   const albumKey = a => `${a.category}/${a.id}`
@@ -47,9 +48,9 @@ export default function AdminAlbums() {
 
     setSaving(true)
     try {
-      await saveAlbums([...albums, { id, title, category: addCategory, cover: '' }])
+      await saveAlbums([...albums, { id, title, description: addForm.description.trim(), category: addCategory, cover: '' }])
       if (addForm.moveLoose) await updatePhotos(loosePhotos(addCategory), { album: id })
-      setAddForm(f => ({ ...f, title: '' }))
+      setAddForm(f => ({ ...f, title: '', description: '' }))
     } catch (err) {
       alert('Save failed: ' + err.message)
     } finally {
@@ -57,10 +58,11 @@ export default function AdminAlbums() {
     }
   }
 
-  const saveTitle = async (album) => {
+  const saveEdit = async (album) => {
     const title = editTitle.trim()
     if (!title) return
-    await saveAlbums(albums.map(a => albumKey(a) === albumKey(album) ? { ...a, title } : a))
+    const description = editDescription.trim()
+    await saveAlbums(albums.map(a => albumKey(a) === albumKey(album) ? { ...a, title, description } : a))
     setEditingKey(null)
   }
 
@@ -114,19 +116,35 @@ export default function AdminAlbums() {
                       : <div className="w-16 h-11 bg-chesto-charcoal flex-shrink-0" />}
                     <div className="min-w-0 flex-1">
                       {editing ? (
-                        <div className="flex gap-2">
+                        <div className="space-y-2">
                           <input
                             autoFocus
                             className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full"
+                            aria-label="Album title"
                             value={editTitle}
                             onChange={e => setEditTitle(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') saveTitle(album); if (e.key === 'Escape') setEditingKey(null) }}
+                            onKeyDown={e => { if (e.key === 'Enter') saveEdit(album); if (e.key === 'Escape') setEditingKey(null) }}
                           />
-                          <button onClick={() => saveTitle(album)} className="btn-gold text-xs">Save</button>
+                          <textarea
+                            rows={3}
+                            className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full"
+                            aria-label="Album description"
+                            placeholder="A sentence or two about this album. Shown on the album page and in search results."
+                            value={editDescription}
+                            onChange={e => setEditDescription(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Escape') setEditingKey(null) }}
+                          />
+                          <div className="flex gap-2">
+                            <button onClick={() => saveEdit(album)} className="btn-gold text-xs">Save</button>
+                            <button onClick={() => setEditingKey(null)} className="text-xs text-chesto-cream/50 hover:text-chesto-cream px-3">Cancel</button>
+                          </div>
                         </div>
                       ) : (
                         <>
                           <p className="text-chesto-cream font-body font-medium truncate">{album.title}</p>
+                          {album.description
+                            ? <p className="text-chesto-cream/50 text-sm line-clamp-2">{album.description}</p>
+                            : <p className="text-chesto-cream/30 text-sm italic">No description</p>}
                           <p className="text-chesto-cream/30 text-xs">
                             {albumPhotos.length} photo{albumPhotos.length !== 1 ? 's' : ''}
                             <span className="font-mono ml-3 text-chesto-cream/20">/photography/{cat.slug}/{album.id}</span>
@@ -146,10 +164,10 @@ export default function AdminAlbums() {
                           View
                         </Link>
                         <button
-                          onClick={() => { setEditingKey(albumKey(album)); setEditTitle(album.title) }}
+                          onClick={() => { setEditingKey(albumKey(album)); setEditTitle(album.title); setEditDescription(album.description ?? '') }}
                           className="text-xs text-chesto-gold hover:text-chesto-gold-light px-3 py-1.5 border border-chesto-gold/30 hover:border-chesto-gold transition-colors"
                         >
-                          Rename
+                          Edit
                         </button>
                         <button
                           onClick={() => deleteAlbum(album)}
@@ -193,6 +211,16 @@ export default function AdminAlbums() {
               {categories.map(c => <option key={c.slug} value={c.slug}>{c.label}</option>)}
             </select>
           </div>
+        </div>
+        <div>
+          <label className="field-label text-chesto-cream/50">Description (optional)</label>
+          <textarea
+            rows={3}
+            className="field-input bg-chesto-charcoal border-chesto-cream/10 text-chesto-cream w-full"
+            placeholder="e.g. Street scenes from a weekend in Savannah's historic squares."
+            value={addForm.description}
+            onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))}
+          />
         </div>
         {looseCount > 0 && (
           <label className="flex items-center gap-2 text-sm text-chesto-cream/60 cursor-pointer">

@@ -141,6 +141,9 @@ function recipeContent(r) {
 const imgTag = (url, alt) => url
   ? `<img src="${escapeHtml(shareImage(url))}" alt="${escapeHtml(alt)}" loading="lazy" width="1080" />`
   : ''
+// A photo with its alt text (falling back to its title, then `fallback`) and title as caption
+const photoFigure = (p, fallback) =>
+  `<figure>${imgTag(p.url, p.alt || p.title || fallback)}${p.title ? `<figcaption>${escapeHtml(p.title)}</figcaption>` : ''}</figure>`
 const link = (href, text) => `<a href="${escapeHtml(href)}">${escapeHtml(text)}</a>`
 const byNewest = (a, b) => String(b.publishedAt ?? b.createdAt ?? '').localeCompare(String(a.publishedAt ?? a.createdAt ?? ''))
 
@@ -190,16 +193,16 @@ async function photoContent(cat, album, settings) {
     .filter(p => p.category === cat.slug && p.url).sort(byNewest)
   if (album) {
     const label = `${album.title} · ${cat.label} photography`
-    return `<h1>${escapeHtml(album.title)}</h1><p>${escapeHtml(`${album.title} — ${cat.label.toLowerCase()} photography by Peyton Chester.`)}</p>` +
+    return `<h1>${escapeHtml(album.title)}</h1><p>${escapeHtml(album.description || `${album.title} — ${cat.label.toLowerCase()} photography by Peyton Chester.`)}</p>` +
       `<p>${link(`/photography/${cat.slug}`, `More ${cat.label} photography`)}</p>` +
-      photos.filter(p => p.album === album.id).map(p => imgTag(p.url, p.title || label)).join('')
+      photos.filter(p => p.album === album.id).map(p => photoFigure(p, label)).join('')
   }
   const albums = (settings.albums ?? []).filter(a => a.category === cat.slug)
   const albumIds = new Set(albums.map(a => a.id))
   return `<h1>${escapeHtml(`${cat.label} Photography`)}</h1>` +
     (cat.description ? `<p>${escapeHtml(cat.description)}</p>` : '') +
-    (albums.length ? `<h2>Albums</h2><ul>${albums.map(a => `<li>${link(`/photography/${cat.slug}/${a.id}`, a.title)}${imgTag(a.cover, a.title)}</li>`).join('')}</ul>` : '') +
-    photos.filter(p => !albumIds.has(p.album)).map(p => imgTag(p.url, p.title || `${cat.label} photography`)).join('')
+    (albums.length ? `<h2>Albums</h2><ul>${albums.map(a => `<li>${link(`/photography/${cat.slug}/${a.id}`, a.title)}${a.description ? `<p>${escapeHtml(a.description)}</p>` : ''}${imgTag(a.cover, a.title)}</li>`).join('')}</ul>` : '') +
+    photos.filter(p => !albumIds.has(p.album)).map(p => photoFigure(p, `${cat.label} photography`)).join('')
 }
 
 function postContent(p) {
@@ -336,7 +339,7 @@ export async function pageMeta(pathname) {
       if (!album) return NOT_FOUND
       return {
         status: 200, title: `${album.title} · ${cat.label} Photography`,
-        description: `${album.title} — ${cat.label.toLowerCase()} photography on Chesto.us.`, image: shareImage(album.cover),
+        description: album.description || `${album.title} — ${cat.label.toLowerCase()} photography on Chesto.us.`, image: shareImage(album.cover),
         content: await photoContent(cat, album, settings),
       }
     }

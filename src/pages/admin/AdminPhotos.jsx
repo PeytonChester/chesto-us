@@ -22,6 +22,7 @@ export default function AdminPhotos() {
   const [bulkCategory, setBulkCategory] = useState('')
   const [bulkSaving, setBulkSaving] = useState(false)
   const [toast, setToast] = useState(null)
+  const [editing, setEditing] = useState(null) // { photo, title, alt }
   const fileRef = useRef()
 
   const showToast = (message, type = 'success') => {
@@ -100,6 +101,17 @@ export default function AdminPhotos() {
       showToast('Album cover updated.')
     } catch (err) {
       showToast('Failed to set album cover: ' + err.message, 'error')
+    }
+  }
+
+  const saveDetails = async (e) => {
+    e.preventDefault()
+    try {
+      await updateDoc(doc(db, 'photos', editing.photo.id), { title: editing.title.trim(), alt: editing.alt.trim() })
+      setEditing(null)
+      showToast('Photo details saved.')
+    } catch (err) {
+      showToast('Failed to save: ' + err.message, 'error')
     }
   }
 
@@ -326,6 +338,9 @@ export default function AdminPhotos() {
                     {photo.album && catAlbums.find(a => a.id === photo.album)?.cover === photo.url && (
                       <div className="bg-chesto-cream text-chesto-dark text-xs font-medium px-2 py-0.5">Album Cover</div>
                     )}
+                    {!photo.alt && (
+                      <div className="bg-chesto-dark/80 text-chesto-cream/70 text-xs px-2 py-0.5">No alt text</div>
+                    )}
                   </div>
                   {!selecting && <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
                     {cat.slug !== UNCATEGORIZED && (
@@ -344,6 +359,12 @@ export default function AdminPhotos() {
                         Set Album Cover
                       </button>
                     )}
+                    <button
+                      onClick={() => setEditing({ photo, title: photo.title ?? '', alt: photo.alt ?? '' })}
+                      className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-dark text-chesto-cream border border-chesto-cream/30 text-xs px-3 py-1.5 font-body"
+                    >
+                      Edit Details
+                    </button>
                     <button
                       onClick={() => deletePhoto(photo)}
                       className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-600 text-white text-xs px-3 py-1.5 font-body"
@@ -433,6 +454,51 @@ export default function AdminPhotos() {
           <button type="button" onClick={() => setSelected(new Set())} className="text-sm text-chesto-cream/40 hover:text-chesto-cream px-3 py-2 ml-auto">
             Clear
           </button>
+        </div>
+      )}
+
+      {/* Photo details editor */}
+      {editing && (
+        <div className="fixed inset-0 z-50 bg-chesto-dark/80 flex items-center justify-center p-4" onClick={() => setEditing(null)}>
+          <form
+            onSubmit={saveDetails}
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => { if (e.key === 'Escape') setEditing(null) }}
+            className="bg-chesto-charcoal w-full max-w-lg p-6 space-y-4 max-h-full overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Edit photo details"
+          >
+            <img {...fixedImage(editing.photo.url, 640)} alt="" className="w-full max-h-64 object-contain bg-chesto-dark" />
+            <div>
+              <label className="field-label text-chesto-cream/50">Title (optional)</label>
+              <input
+                autoFocus
+                className="field-input bg-chesto-dark border-chesto-cream/10 text-chesto-cream w-full"
+                placeholder="e.g. Painter in Chippewa Square"
+                value={editing.title}
+                onChange={e => setEditing(ed => ({ ...ed, title: e.target.value }))}
+              />
+              <p className="text-chesto-cream/30 text-xs mt-1">Shown as a caption on the photo and in the lightbox.</p>
+            </div>
+            <div>
+              <label className="field-label text-chesto-cream/50">Alt text</label>
+              <textarea
+                rows={3}
+                className="field-input bg-chesto-dark border-chesto-cream/10 text-chesto-cream w-full"
+                placeholder="e.g. An older man painting at an easel under live oaks in a Savannah square"
+                value={editing.alt}
+                onChange={e => setEditing(ed => ({ ...ed, alt: e.target.value }))}
+              />
+              <p className="text-chesto-cream/30 text-xs mt-1">
+                Describe what's in the photo, in a sentence, for screen readers and Google Images. If you leave it empty, the title (or album name) is used.
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button type="button" onClick={() => setEditing(null)} className="text-sm text-chesto-cream/50 hover:text-chesto-cream px-3 py-2">Cancel</button>
+              <button type="submit" className="btn-gold text-sm">Save</button>
+            </div>
+          </form>
         </div>
       )}
     </div>
