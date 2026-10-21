@@ -1,4 +1,4 @@
-import { FIRESTORE_BASE, FIRESTORE_KEY } from './_firestore.js'
+import { FIRESTORE_BASE, FIRESTORE_KEY, firestoreList } from './_firestore.js'
 
 // Server-side page tags for link previews and search engines. The app sets
 // the same tags with react-helmet-async (src/components/PageMeta.jsx), but
@@ -138,6 +138,70 @@ function recipeContent(r) {
   ].join('')
 }
 
+const imgTag = (url, alt) => url
+  ? `<img src="${escapeHtml(shareImage(url))}" alt="${escapeHtml(alt)}" loading="lazy" width="1080" />`
+  : ''
+const link = (href, text) => `<a href="${escapeHtml(href)}">${escapeHtml(text)}</a>`
+const byNewest = (a, b) => String(b.publishedAt ?? b.createdAt ?? '').localeCompare(String(a.publishedAt ?? a.createdAt ?? ''))
+
+/** Published docs of a collection, newest first. [] if Firestore can't be read. */
+async function listPublished(collection) {
+  const docs = await firestoreList(collection)
+  return docs.map(d => fromFields(d.fields)).filter(d => d.slug && d.published !== false).sort(byNewest)
+}
+
+const listPage = (meta, items) =>
+  `<h1>${escapeHtml(meta.title)}</h1><p>${escapeHtml(meta.description)}</p><ul>${items.join('')}</ul>`
+
+/** Pre-JS content for the list pages: links to every item, so crawlers can reach them */
+async function listContent(path, meta) {
+  if (path === '/recipes') {
+    const recipes = await listPublished('recipes')
+    return listPage(meta, recipes.map(r =>
+      `<li>${link(`/recipes/${r.slug}`, r.title)}${r.category ? ` (${escapeHtml(r.category)})` : ''}${r.excerpt ? `<p>${escapeHtml(r.excerpt)}</p>` : ''}</li>`))
+  }
+  if (path === '/blog') {
+    const posts = await listPublished('posts')
+    return listPage(meta, posts.map(p => `<li>${link(`/blog/${p.slug}`, p.title)}${p.excerpt ? `<p>${escapeHtml(p.excerpt)}</p>` : ''}</li>`))
+  }
+  if (path === '/reviews') {
+    const reviews = await listPublished('reviews')
+    return listPage(meta, reviews.map(r => `<li>${link(`/reviews/${r.slug}`, `${r.title}${r.year ? ` (${r.year})` : ''}`)}</li>`))
+  }
+  if (path === '/photography') {
+    const settings = fromFields((await firestoreGetSafe('settings/photography'))?.fields)
+    const used = new Set((await firestoreList('photos')).map(d => d.fields?.category?.stringValue))
+    // Empty categories are hidden on the site
+    const categories = (settings.categories?.length ? settings.categories : DEFAULT_PHOTO_CATEGORIES).filter(c => used.has(c.slug))
+    return listPage(meta, categories.map(c =>
+      `<li>${link(`/photography/${c.slug}`, `${c.label} Photography`)}${c.description ? `<p>${escapeHtml(c.description)}</p>` : ''}</li>`))
+  }
+  return undefined
+}
+
+// For optional content only: null instead of throwing
+async function firestoreGetSafe(path) {
+  try { return await getDoc(path) } catch { return null }
+}
+
+/** Pre-JS content for a photo category or album: albums and photos, with alt text */
+async function photoContent(cat, album, settings) {
+  const photos = (await firestoreList('photos')).map(d => fromFields(d.fields))
+    .filter(p => p.category === cat.slug && p.url).sort(byNewest)
+  if (album) {
+    const label = `${album.title} · ${cat.label} photography`
+    return `<h1>${escapeHtml(album.title)}</h1><p>${escapeHtml(`${album.title} — ${cat.label.toLowerCase()} photography by Peyton Chester.`)}</p>` +
+      `<p>${link(`/photography/${cat.slug}`, `More ${cat.label} photography`)}</p>` +
+      photos.filter(p => p.album === album.id).map(p => imgTag(p.url, p.title || label)).join('')
+  }
+  const albums = (settings.albums ?? []).filter(a => a.category === cat.slug)
+  const albumIds = new Set(albums.map(a => a.id))
+  return `<h1>${escapeHtml(`${cat.label} Photography`)}</h1>` +
+    (cat.description ? `<p>${escapeHtml(cat.description)}</p>` : '') +
+    (albums.length ? `<h2>Albums</h2><ul>${albums.map(a => `<li>${link(`/photography/${cat.slug}/${a.id}`, a.title)}${imgTag(a.cover, a.title)}</li>`).join('')}</ul>` : '') +
+    photos.filter(p => !albumIds.has(p.album)).map(p => imgTag(p.url, p.title || `${cat.label} photography`)).join('')
+}
+
 function postContent(p) {
   return `<h1>${escapeHtml(p.title)}</h1>${htmlParagraphs(p.body)}`
 }
@@ -220,7 +284,12 @@ export function reviewJsonLd(r, url) {
  */
 export async function pageMeta(pathname) {
   const path = pathname.replace(/\/+$/, '') || '/'
-  if (LIST_PAGES[path]) return { status: 200, ...LIST_PAGES[path] }
+  if (LIST_PAGES[path]) {
+    const meta = { status: 200, ...LIST_PAGES[path] }
+    // Content is a bonus: a Firestore error leaves the page as it was
+    const content = await listContent(path, meta).catch(err => console.error('listContent', path, err))
+    return content ? { ...meta, content } : meta
+  }
   if (path === '/admin' || path.startsWith('/admin/')) return { status: 200, noindex: true }
 
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent)
@@ -258,13 +327,17 @@ export async function pageMeta(pathname) {
       const cat = categories.find(c => c.slug === parts[1])
       if (!cat) return NOT_FOUND
       if (parts.length === 2) {
-        return { status: 200, title: `${cat.label} Photography`, description: `Browse ${cat.label.toLowerCase()} photography on Chesto.us.`, image: shareImage(settings.covers?.[cat.slug]) }
+        return {
+          status: 200, title: `${cat.label} Photography`, description: `Browse ${cat.label.toLowerCase()} photography on Chesto.us.`,
+          image: shareImage(settings.covers?.[cat.slug]), content: await photoContent(cat, null, settings),
+        }
       }
       const album = (settings.albums ?? []).find(a => a.category === cat.slug && a.id === parts[2])
       if (!album) return NOT_FOUND
       return {
         status: 200, title: `${album.title} · ${cat.label} Photography`,
         description: `${album.title} — ${cat.label.toLowerCase()} photography on Chesto.us.`, image: shareImage(album.cover),
+        content: await photoContent(cat, album, settings),
       }
     }
   } catch (err) {
