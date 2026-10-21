@@ -1,4 +1,4 @@
-import { firestoreGet, FIRESTORE_BASE, FIRESTORE_KEY } from './_firestore.js'
+import { FIRESTORE_BASE, FIRESTORE_KEY } from './_firestore.js'
 
 // Server-side page tags for link previews and search engines. The app sets
 // the same tags with react-helmet-async (src/components/PageMeta.jsx), but
@@ -54,6 +54,15 @@ export function fromValue(v) {
 
 export function fromFields(fields = {}) {
   return Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, fromValue(v)]))
+}
+
+// Unlike firestoreGet, a failed read throws instead of returning null, so a
+// Firestore hiccup can't make pageMeta() call a real page a 404 (noindex).
+async function getDoc(path) {
+  const res = await fetch(`${FIRESTORE_BASE}/${path}${FIRESTORE_KEY}`)
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`Firestore get ${path} failed: ${res.status}`)
+  return res.json()
 }
 
 async function findBySlug(collection, slug) {
@@ -204,7 +213,7 @@ export async function pageMeta(pathname) {
       }
     }
     if ((parts.length === 2 || parts.length === 3) && parts[0] === 'photography') {
-      const doc = await firestoreGet('settings/photography')
+      const doc = await getDoc('settings/photography')
       const settings = fromFields(doc?.fields)
       const categories = settings.categories?.length ? settings.categories : DEFAULT_PHOTO_CATEGORIES
       const cat = categories.find(c => c.slug === parts[1])
