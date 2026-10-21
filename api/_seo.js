@@ -107,6 +107,41 @@ function stripHtml(html) {
   return (html ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
+// Rich-text HTML -> escaped <p> per block, for the pre-JS copy of a page
+function htmlParagraphs(html) {
+  return (html ?? '')
+    .replace(/<\/(p|h[1-6]|li|blockquote|div)>|<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .split('\n').map(line => line.trim()).filter(Boolean)
+    .map(line => `<p>${escapeHtml(line)}</p>`).join('')
+}
+
+const ingredientText = i => typeof i === 'string' ? i : [i.amount, i.unit, i.name].filter(Boolean).join(' ')
+const stepText = step => typeof step === 'string' ? step : [step.text, ...(step.substeps ?? [])].filter(Boolean).join(' ')
+
+/**
+ * Plain HTML copy of a recipe or post for #root, so crawlers that don't run
+ * JS (and Google before it renders) see the page's text. React replaces it.
+ */
+function recipeContent(r) {
+  const groups = r.ingredientGroups ?? (r.ingredients?.length ? [{ items: r.ingredients }] : [])
+  const notes = (Array.isArray(r.notes) ? r.notes : [r.notes]).filter(Boolean)
+  return [
+    `<h1>${escapeHtml(r.title)}</h1>`,
+    r.excerpt ? `<p>${escapeHtml(r.excerpt)}</p>` : '',
+    groups.length ? '<h2>Ingredients</h2>' : '',
+    ...groups.map(g => (g.label ? `<h3>${escapeHtml(g.label)}</h3>` : '') +
+      `<ul>${(g.items ?? []).map(i => `<li>${escapeHtml(ingredientText(i))}</li>`).join('')}</ul>`),
+    r.instructions?.length ? `<h2>Instructions</h2><ol>${r.instructions.map(s => `<li>${escapeHtml(stepText(s))}</li>`).join('')}</ol>` : '',
+    notes.length ? `<h2>Notes</h2>${notes.map(n => `<p>${escapeHtml(typeof n === 'string' ? n : n.text ?? '')}</p>`).join('')}` : '',
+  ].join('')
+}
+
+function postContent(p) {
+  return `<h1>${escapeHtml(p.title)}</h1>${htmlParagraphs(p.body)}`
+}
+
 export function recipeJsonLd(r, url) {
   const groups = r.ingredientGroups ?? (r.ingredients?.length ? [{ items: r.ingredients }] : [])
   const ingredients = groups.flatMap(g => g.items ?? [])
@@ -194,7 +229,7 @@ export async function pageMeta(pathname) {
     if (parts.length === 2 && parts[0] === 'recipes') {
       const r = await findBySlug('recipes', parts[1])
       if (!r) return NOT_FOUND
-      return { status: 200, title: r.title, description: r.excerpt, image: shareImage(r.imageUrl), jsonLd: recipeJsonLd(r, url) }
+      return { status: 200, title: r.title, description: r.excerpt, image: shareImage(r.imageUrl), jsonLd: recipeJsonLd(r, url), content: recipeContent(r) }
     }
     if (parts.length === 2 && parts[0] === 'blog') {
       const p = await findBySlug('posts', parts[1])
@@ -205,7 +240,7 @@ export async function pageMeta(pathname) {
       }
       return {
         status: 200, title: p.title, description: p.excerpt, image: shareImage(p.imageUrl), type: 'article',
-        publishedTime: p.publishedAt ?? p.createdAt, jsonLd: postJsonLd(p, url),
+        publishedTime: p.publishedAt ?? p.createdAt, jsonLd: postJsonLd(p, url), content: postContent(p),
       }
     }
     if (parts.length === 2 && parts[0] === 'reviews') {
@@ -284,4 +319,12 @@ export function injectHead(html, tags) {
   const block = /<!-- page-meta:[\s\S]*?<!-- \/page-meta -->/
   if (!block.test(html)) throw new Error('index.html has no page-meta block')
   return html.replace(block, () => tags)
+}
+
+/** Put a page's pre-JS content inside #root (createRoot replaces it on start) */
+export function injectContent(html, content) {
+  if (!content) return html
+  const root = '<div id="root">'
+  if (!html.includes(root)) throw new Error('index.html has no #root')
+  return html.replace(root, () => `${root}\n      <article class="max-w-3xl mx-auto px-6 pt-32 pb-16">${content}</article>`)
 }
