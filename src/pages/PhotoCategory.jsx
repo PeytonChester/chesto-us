@@ -63,7 +63,7 @@ export default function PhotoCategory() {
     <div className="pt-16">
       <PageMeta
         title={album ? `${album.title} · ${label} Photography` : `${label} Photography`}
-        description={album ? `${album.title} — ${label.toLowerCase()} photography on Chesto.us.` : `Browse ${label.toLowerCase()} photography on Chesto.us.`}
+        description={album ? (album.description || `${album.title} — ${label.toLowerCase()} photography on Chesto.us.`) : `Browse ${label.toLowerCase()} photography on Chesto.us.`}
         image={album?.cover}
       />
       {/* Header */}
@@ -72,6 +72,9 @@ export default function PhotoCategory() {
           ← {backLabel}
         </Link>
         <h1 className="display-heading text-5xl md:text-6xl">{title}</h1>
+        {album?.description && (
+          <p className="text-chesto-charcoal/70 mt-4 font-body text-lg max-w-2xl leading-relaxed">{album.description}</p>
+        )}
         {!loading && (
           <p className="text-chesto-charcoal/50 mt-2 font-body">
             {showAlbums

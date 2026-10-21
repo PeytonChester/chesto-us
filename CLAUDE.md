@@ -17,7 +17,7 @@ Peyton's standing rule: everything we do on the site should be done with Google 
 - **One URL per page:** use canonical, non-trailing-slash, `www` URLs everywhere (`trailingSlash: false` is set). When you move or rename a URL, 301 the old one to the new one (as with `/blog/<recipe>` → `/recipes/<recipe>`), and don't let it 404.
 - **noindex** only on admin, the 404 page and deliberately unlisted pages (for example the water log).
 - **Links:** use real `<a href>`/`<Link>` elements for navigation, not click handlers, so crawlers can follow them.
-- **Images:** add meaningful `alt` text, and keep using the optimized `/_vercel/image` / `responsiveImage` helpers.
+- **Images:** add meaningful `alt` text. Photos have their own `alt` and `title` fields, edited under Admin → Photos → Edit Details; use `photo.alt || photo.title || fallback`. Keep using the optimized `/_vercel/image` / `responsiveImage` helpers.
 - **Speed:** keep Core Web Vitals in mind. Don't block the first paint, keep the home hero preload, and lazy-load heavy, below-the-fold components.
 - **Verify live** after merging: `curl` the page and check the status, `<title>`, description, canonical, JSON-LD and body text, then load it in a browser.
 

@@ -26,7 +26,7 @@ export default function PhotoGallery({ photos, label, breakpoints = BREAKPOINTS,
           >
             <img
               {...responsiveImage(photo.url, sizes)}
-              alt={photo.title || label}
+              alt={photo.alt || photo.title || label}
               className="w-full block transition-transform duration-700 hover:scale-105"
               loading="lazy"
             />
