@@ -198,7 +198,11 @@ export async function pageMeta(pathname) {
     }
     if (parts.length === 2 && parts[0] === 'blog') {
       const p = await findBySlug('posts', parts[1])
-      if (!p) return NOT_FOUND
+      if (!p) {
+        // Recipes used to live under /blog; send old links to the recipe
+        const r = await findBySlug('recipes', parts[1])
+        return r ? { status: 301, location: `/recipes/${encodeURIComponent(parts[1])}` } : NOT_FOUND
+      }
       return {
         status: 200, title: p.title, description: p.excerpt, image: shareImage(p.imageUrl), type: 'article',
         publishedTime: p.publishedAt ?? p.createdAt, jsonLd: postJsonLd(p, url),
