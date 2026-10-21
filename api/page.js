@@ -29,6 +29,11 @@ export default async function handler(req, res) {
   const html = await loadTemplate(req)
   const meta = await pageMeta(path)
 
+  if (meta.location) {
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600')
+    return res.redirect(meta.status, meta.location)
+  }
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   // Cached at the edge (cleared on every deploy); edits in the admin panel
   // show up in link previews within ~10 minutes.

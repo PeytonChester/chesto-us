@@ -1,4 +1,5 @@
 {
+  "trailingSlash": false,
   "images": {
     "sizes": [128, 384, 640, 1080, 1920, 2560, 3840],
     "formats": ["image/webp"],
