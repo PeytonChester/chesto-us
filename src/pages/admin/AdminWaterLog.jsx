@@ -117,7 +117,7 @@ export default function AdminWaterLog() {
                     id={`wl-${p.key}`}
                     type="number"
                     inputMode="decimal"
-                    step={p.step}
+                    step="any"
                     min="0"
                     placeholder="—"
                     className={`${INPUT} wl-num font-mono py-2.5 ${p.unit ? 'pr-14' : ''} ${rating ? RING[rating] : ''}`}

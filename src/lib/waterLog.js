@@ -12,16 +12,17 @@ export const TANK = [
   ['Set up', 'Oct 10, 2026'],
 ]
 
+// band: the target range as numbers, shaded on the charts
 // rate(value) -> 'ok' | 'warn' | 'bad'
 export const PARAMS = [
-  { key: 'ammonia', label: 'Ammonia', unit: 'ppm', target: '0', step: '0.25', rate: v => v === 0 ? 'ok' : v <= 0.25 ? 'warn' : 'bad' },
-  { key: 'nitrite', label: 'Nitrite', unit: 'ppm', target: '0', step: '0.25', rate: v => v === 0 ? 'ok' : v <= 0.25 ? 'warn' : 'bad' },
-  { key: 'nitrate', label: 'Nitrate', unit: 'ppm', target: '0–20', step: '5', rate: v => v <= 20 ? 'ok' : v <= 40 ? 'warn' : 'bad' },
-  { key: 'ph', label: 'pH', unit: '', target: '6.5–7.5', step: '0.1', rate: v => v >= 6.5 && v <= 7.5 ? 'ok' : v >= 6 && v <= 8 ? 'warn' : 'bad' },
-  { key: 'kh', label: 'KH', unit: 'dKH', target: '3–8', step: '1', rate: v => v >= 3 && v <= 8 ? 'ok' : v >= 2 && v <= 10 ? 'warn' : 'bad' },
-  { key: 'gh', label: 'GH', unit: 'dGH', target: '4–12', step: '1', rate: v => v >= 4 && v <= 12 ? 'ok' : v >= 3 && v <= 15 ? 'warn' : 'bad' },
-  { key: 'fe', label: 'Iron', unit: 'ppm', target: '0.1–0.5', step: '0.05', rate: v => v >= 0.1 && v <= 0.5 ? 'ok' : v < 0.1 ? 'warn' : 'bad' },
-  { key: 'po4', label: 'Phosphate', unit: 'ppm', target: '0.5–2', step: '0.25', rate: v => v >= 0.5 && v <= 2 ? 'ok' : v <= 5 ? 'warn' : 'bad' },
+  { key: 'ammonia', label: 'Ammonia', unit: 'ppm', target: '0', band: [0, 0], rate: v => v === 0 ? 'ok' : v <= 0.25 ? 'warn' : 'bad' },
+  { key: 'nitrite', label: 'Nitrite', unit: 'ppm', target: '0', band: [0, 0], rate: v => v === 0 ? 'ok' : v <= 0.25 ? 'warn' : 'bad' },
+  { key: 'nitrate', label: 'Nitrate', unit: 'ppm', target: '0–20', band: [0, 20], rate: v => v <= 20 ? 'ok' : v <= 40 ? 'warn' : 'bad' },
+  { key: 'ph', label: 'pH', unit: '', target: '6.5–7.5', band: [6.5, 7.5], rate: v => v >= 6.5 && v <= 7.5 ? 'ok' : v >= 6 && v <= 8 ? 'warn' : 'bad' },
+  { key: 'kh', label: 'KH', unit: 'dKH', target: '3–8', band: [3, 8], rate: v => v >= 3 && v <= 8 ? 'ok' : v >= 2 && v <= 10 ? 'warn' : 'bad' },
+  { key: 'gh', label: 'GH', unit: 'dGH', target: '4–12', band: [4, 12], rate: v => v >= 4 && v <= 12 ? 'ok' : v >= 3 && v <= 15 ? 'warn' : 'bad' },
+  { key: 'fe', label: 'Iron', unit: 'ppm', target: '0.1–0.5', band: [0.1, 0.5], rate: v => v >= 0.1 && v <= 0.5 ? 'ok' : v < 0.1 ? 'warn' : 'bad' },
+  { key: 'po4', label: 'Phosphate', unit: 'ppm', target: '0.5–2', band: [0.5, 2], rate: v => v >= 0.5 && v <= 2 ? 'ok' : v <= 5 ? 'warn' : 'bad' },
 ]
 
 /** settings/waterLog data -> readings array, newest first */

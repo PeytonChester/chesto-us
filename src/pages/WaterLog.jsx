@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import PageMeta from '../components/PageMeta'
 import WaterLogTable, { Chip } from '../components/WaterLogTable'
+import WaterLogCharts from '../components/WaterLogCharts'
 import { useWaterLog } from '../hooks/useWaterLog'
 import { TANK } from '../lib/waterLog'
 
@@ -34,7 +35,11 @@ export default function WaterLog() {
         ) : error ? (
           <p className="text-chesto-charcoal/50 text-sm">The log couldn't load. Reload the page to try again.</p>
         ) : readings.length ? (
-          <WaterLogTable readings={readings} />
+          <>
+            <WaterLogTable readings={readings} />
+            <h2 className="display-heading text-2xl md:text-3xl mt-16 mb-6">Trends</h2>
+            <WaterLogCharts readings={readings} />
+          </>
         ) : (
           <p className="text-chesto-charcoal/50 text-sm border border-chesto-charcoal/10 bg-white p-8 text-center">No readings yet.</p>
         )}
