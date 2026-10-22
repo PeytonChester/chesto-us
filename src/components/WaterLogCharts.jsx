@@ -66,8 +66,8 @@ function ParamChart({ param, readings }) {
   const zeroBased = bandLo === 0 || Math.min(...vals) <= 0
   let lo = zeroBased ? 0 : Math.min(...vals, bandLo)
   let hi = Math.max(...vals, bandHi)
-  if (!zeroBased) lo -= (hi - lo) * 0.15
-  hi += (hi - lo) * 0.1
+  if (!zeroBased) lo = Math.max(lo - (hi - lo) * 0.15, 0) // readings are never negative
+  hi = hi > lo ? hi + (hi - lo) * 0.1 : lo + 1 // all-zero series still get an axis
   const yTicks = niceTicks(lo, hi)
   const y0 = yTicks[0]
   const y1 = yTicks[yTicks.length - 1]
