@@ -23,6 +23,7 @@ export default function AdminPhotos() {
   const [bulkSaving, setBulkSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const [editing, setEditing] = useState(null) // { photo, title, alt }
+  const [optionsOpen, setOptionsOpen] = useState(null) // id of the photo showing its options
   const fileRef = useRef()
 
   const showToast = (message, type = 'success') => {
@@ -122,6 +123,9 @@ export default function AdminPhotos() {
       showToast('Failed to move photo: ' + err.message, 'error')
     }
   }
+
+  // Close the options overlay, then run the chosen action
+  const runOption = (action) => { setOptionsOpen(null); action() }
 
   const toggleSelected = (ids, on) => setSelected(prev => {
     const next = new Set(prev)
@@ -342,53 +346,66 @@ export default function AdminPhotos() {
                       <div className="bg-chesto-dark/80 text-chesto-cream/70 text-xs px-2 py-0.5">No alt text</div>
                     )}
                   </div>
-                  {!selecting && <div className="absolute inset-0 bg-chesto-dark/40 md:bg-chesto-dark/0 md:group-hover:bg-chesto-dark/60 transition-all duration-200 flex flex-col items-center justify-center gap-2">
-                    {cat.slug !== UNCATEGORIZED && (
-                      <button
-                        onClick={() => setCover(photo)}
-                        className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-gold text-chesto-dark text-xs px-3 py-1.5 font-body"
-                      >
-                        Set Cover
-                      </button>
-                    )}
-                    {catAlbums.some(a => a.id === photo.album) && (
-                      <button
-                        onClick={() => setAlbumCover(photo)}
-                        className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-cream text-chesto-dark text-xs px-3 py-1.5 font-body"
-                      >
-                        Set Album Cover
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setEditing({ photo, title: photo.title ?? '', alt: photo.alt ?? '' })}
-                      className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-chesto-dark text-chesto-cream border border-chesto-cream/30 text-xs px-3 py-1.5 font-body"
+                  {!selecting && optionsOpen === photo.id && (
+                    <div
+                      className="absolute inset-0 bg-chesto-dark/75 backdrop-blur-[2px] flex items-center justify-center px-3 pt-2 pb-10"
+                      onClick={() => setOptionsOpen(null)}
                     >
-                      Edit Details
-                    </button>
-                    <button
-                      onClick={() => deletePhoto(photo)}
-                      className="md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-600 text-white text-xs px-3 py-1.5 font-body"
-                    >
-                      Delete
-                    </button>
-                  </div>}
-                  {!selecting && catAlbums.length > 0 && (() => {
-                    const current = catAlbums.find(a => a.id === photo.album)
-                    return (
-                      <label className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] cursor-pointer">
-                        <select
-                          value={current ? current.id : ''}
-                          onChange={e => movePhotoToAlbum(photo, e.target.value)}
-                          className={`album-tag appearance-none max-w-full truncate pl-2.5 pr-6 py-1 ${current ? 'text-chesto-cream' : 'text-chesto-cream/50'}`}
-                          aria-label="Album"
+                      <div className="w-full max-w-[11rem] flex flex-col gap-1 sm:gap-1.5" onClick={e => e.stopPropagation()}>
+                        {cat.slug !== UNCATEGORIZED && (
+                          <button type="button" onClick={() => runOption(() => setCover(photo))} className="photo-option bg-chesto-gold text-chesto-dark hover:bg-chesto-gold-light">
+                            Set Cover
+                          </button>
+                        )}
+                        {catAlbums.some(a => a.id === photo.album) && (
+                          <button type="button" onClick={() => runOption(() => setAlbumCover(photo))} className="photo-option bg-chesto-cream text-chesto-dark hover:bg-white">
+                            Set Album Cover
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => runOption(() => setEditing({ photo, title: photo.title ?? '', alt: photo.alt ?? '' }))}
+                          className="photo-option bg-chesto-dark/90 text-chesto-cream border border-chesto-cream/30 hover:border-chesto-cream/60"
                         >
-                          <option value="">No album</option>
-                          {catAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
-                        </select>
-                        <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-chesto-cream/60" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                          <path d="M2 3.5 5 6.5 8 3.5" />
-                        </svg>
-                      </label>
+                          Edit Details
+                        </button>
+                        <button type="button" onClick={() => runOption(() => deletePhoto(photo))} className="photo-option bg-red-600/90 text-white hover:bg-red-600">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {!selecting && (() => {
+                    const current = catAlbums.find(a => a.id === photo.album)
+                    const open = optionsOpen === photo.id
+                    return (
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setOptionsOpen(open ? null : photo.id)}
+                          aria-expanded={open}
+                          aria-label={open ? 'Close options' : 'Photo options'}
+                          className={`album-tag shrink-0 px-2.5 py-1 ${open ? 'text-chesto-gold border-chesto-gold/60' : 'text-chesto-cream'}`}
+                        >
+                          {open ? 'Close' : 'Options'}
+                        </button>
+                        {catAlbums.length > 0 && (
+                          <label className="relative min-w-0 cursor-pointer">
+                            <select
+                              value={current ? current.id : ''}
+                              onChange={e => movePhotoToAlbum(photo, e.target.value)}
+                              className={`album-tag appearance-none max-w-full truncate pl-2.5 pr-6 py-1 ${current ? 'text-chesto-cream' : 'text-chesto-cream/50'}`}
+                              aria-label="Album"
+                            >
+                              <option value="">No album</option>
+                              {catAlbums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
+                            </select>
+                            <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-chesto-cream/60" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                              <path d="M2 3.5 5 6.5 8 3.5" />
+                            </svg>
+                          </label>
+                        )}
+                      </div>
                     )
                   })()}
                   {selecting && catAlbums.find(a => a.id === photo.album) && (
