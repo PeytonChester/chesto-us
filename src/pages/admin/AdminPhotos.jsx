@@ -7,6 +7,7 @@ import { storage } from '../../firebaseStorage'
 import { useCollection } from '../../hooks/useCollection'
 import { usePhotographySettings } from '../../hooks/usePhotographySettings'
 import { fixedImage, warmImages } from '../../lib/images'
+import PhotoDetailSuggestions from './PhotoDetailSuggestions'
 
 const UNCATEGORIZED = '__uncategorized'
 
@@ -233,6 +234,8 @@ export default function AdminPhotos() {
           </Link>
         </div>
       </div>
+
+      <PhotoDetailSuggestions photos={photos} showToast={showToast} />
 
       {/* Upload area */}
       <div className="mb-10">
