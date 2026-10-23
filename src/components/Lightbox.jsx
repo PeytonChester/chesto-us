@@ -293,7 +293,7 @@ export default function Lightbox({ photos, index, label, onIndexChange, onClose 
               }`}
               aria-label={`Photo ${i + 1}`}
             >
-              <img {...fixedImage(p.url, 128)} loading="lazy" alt="" className="w-full h-full object-cover" />
+              <img {...fixedImage(p.thumb || p.url, 128)} loading="lazy" alt="" className="w-full h-full object-cover" />
             </button>
           ))}
         </div>

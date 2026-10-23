@@ -24,8 +24,6 @@ export default function WaterLog() {
           {TANK.map(([k, v]) => <span key={k}><b className="font-medium text-chesto-dark">{k}</b> {v}</span>)}
         </div>
 
-        <TankPhotos />
-
         <div className="flex flex-wrap items-center gap-2 text-xs text-chesto-charcoal/50 mb-4">
           <Chip rating="ok">in range</Chip>
           <Chip rating="warn">keep an eye on</Chip>
@@ -46,6 +44,8 @@ export default function WaterLog() {
         ) : (
           <p className="text-chesto-charcoal/50 text-sm border border-chesto-charcoal/10 bg-white p-8 text-center">No readings yet.</p>
         )}
+
+        <TankPhotos />
       </div>
     </div>
   )
