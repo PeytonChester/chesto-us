@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import PageMeta from '../components/PageMeta'
 import WaterLogTable, { Chip } from '../components/WaterLogTable'
 import WaterLogCharts from '../components/WaterLogCharts'
+import TankPhotos from '../components/TankPhotos'
 import { useWaterLog } from '../hooks/useWaterLog'
 import { TANK } from '../lib/waterLog'
 
@@ -22,6 +23,8 @@ export default function WaterLog() {
         <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-chesto-charcoal/50 mb-12">
           {TANK.map(([k, v]) => <span key={k}><b className="font-medium text-chesto-dark">{k}</b> {v}</span>)}
         </div>
+
+        <TankPhotos />
 
         <div className="flex flex-wrap items-center gap-2 text-xs text-chesto-charcoal/50 mb-4">
           <Chip rating="ok">in range</Chip>
