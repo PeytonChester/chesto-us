@@ -8,7 +8,7 @@ import { TANK } from '../lib/waterLog'
 
 // Unlisted page (no nav links, noindex): readings are added in /admin/water-log
 export default function WaterLog() {
-  const { readings, loading, error } = useWaterLog()
+  const { readings, photos, loading, error } = useWaterLog()
 
   return (
     <div className="pt-16">
@@ -45,7 +45,7 @@ export default function WaterLog() {
           <p className="text-chesto-charcoal/50 text-sm border border-chesto-charcoal/10 bg-white p-8 text-center">No readings yet.</p>
         )}
 
-        <TankPhotos />
+        <TankPhotos uploaded={photos} />
       </div>
     </div>
   )

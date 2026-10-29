@@ -3,6 +3,7 @@ import { doc, setDoc, updateDoc, deleteField, FieldPath } from 'firebase/firesto
 import { db } from '../../firebase'
 import { useWaterLog } from '../../hooks/useWaterLog'
 import WaterLogTable from '../../components/WaterLogTable'
+import AdminTankPhotos from './AdminTankPhotos'
 import { PARAMS, WATER_LOG_DOC, WATER_LOG_PATH, formatTestDate } from '../../lib/waterLog'
 
 const today = () => new Date().toLocaleDateString('en-CA') // YYYY-MM-DD, local time
@@ -22,7 +23,7 @@ const RING = { ok: 'border-green-400/40', warn: 'border-amber-400/60', bad: 'bor
 const HINT = { ok: 'text-green-300/70', warn: 'text-amber-300/80', bad: 'text-red-300/80' }
 
 export default function AdminWaterLog() {
-  const { readings, loading } = useWaterLog()
+  const { readings, photos, loading } = useWaterLog()
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState(null) // date of the reading loaded into the form
   const [saving, setSaving] = useState(false)
@@ -169,6 +170,8 @@ export default function AdminWaterLog() {
       ) : (
         <p className="text-chesto-cream/40 text-sm">No readings yet. Add the first one above.</p>
       )}
+
+      <AdminTankPhotos photos={photos} />
     </div>
   )
 }
