@@ -2,9 +2,12 @@
 // reading in a `readings` map keyed by test date ("2026-10-11"). It lives
 // under settings/ so the existing Firestore rules already cover it (public
 // read, signed-in write). Shared by the public page and the admin editor.
+// Tank photos uploaded in admin sit in the same doc's `photos` map, keyed by
+// id, with the files under settings/water-log/ in Storage.
 
 export const WATER_LOG_PATH = '/queso-water-log'
 export const WATER_LOG_DOC = ['settings', 'waterLog']
+export const WATER_LOG_STORAGE_DIR = 'settings/water-log'
 
 export const TANK = [
   ['Tank', '12×12×16 in, about 10 gal'],
@@ -30,6 +33,14 @@ export function readingsFrom(data) {
   return Object.entries(data?.readings ?? {})
     .map(([date, r]) => ({ ...r, date }))
     .sort((a, b) => b.date.localeCompare(a.date))
+}
+
+/** settings/waterLog data -> uploaded tank photos, newest first */
+export function photosFrom(data) {
+  return Object.entries(data?.photos ?? {})
+    .map(([id, p]) => ({ ...p, id }))
+    .filter(p => p.url && p.date)
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.uploadedAt ?? 0) - (a.uploadedAt ?? 0))
 }
 
 /** "2026-10-11" -> "10/11/26" */
