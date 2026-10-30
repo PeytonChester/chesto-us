@@ -58,7 +58,7 @@ export function fromFields(fields = {}) {
 
 // Unlike firestoreGet, a failed read throws instead of returning null, so a
 // Firestore hiccup can't make pageMeta() call a real page a 404 (noindex).
-async function getDoc(path) {
+export async function getDoc(path) {
   const res = await fetch(`${FIRESTORE_BASE}/${path}${FIRESTORE_KEY}`)
   if (res.status === 404) return null
   if (!res.ok) throw new Error(`Firestore get ${path} failed: ${res.status}`)
@@ -178,6 +178,11 @@ async function listContent(path, meta) {
     const categories = (settings.categories?.length ? settings.categories : DEFAULT_PHOTO_CATEGORIES).filter(c => used.has(c.slug))
     return listPage(meta, categories.map(c =>
       `<li>${link(`/photography/${c.slug}`, `${c.label} Photography`)}${c.description ? `<p>${escapeHtml(c.description)}</p>` : ''}</li>`))
+  }
+  if (path === '/queso-water-log') {
+    // Loaded here because _waterLog.js imports this file
+    const { loadWaterLog, waterLogHtml } = await import('./_waterLog.js')
+    return waterLogHtml(await loadWaterLog())
   }
   return undefined
 }
@@ -350,7 +355,7 @@ export async function pageMeta(pathname) {
   return NOT_FOUND
 }
 
-const escapeHtml = s => String(s)
+export const escapeHtml = s => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 // JSON-LD sits in a <script>; escape "<" so text like "</script>" can't end it
