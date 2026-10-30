@@ -4,7 +4,7 @@ import { db } from '../../firebase'
 import { useWaterLog } from '../../hooks/useWaterLog'
 import WaterLogTable from '../../components/WaterLogTable'
 import AdminTankPhotos from './AdminTankPhotos'
-import { PARAMS, WATER_LOG_DOC, WATER_LOG_PATH, formatTestDate } from '../../lib/waterLog'
+import { PARAMS, WATER_LOG_DOC, WATER_LOG_PATH, formatTestDate, previousTest, rateReading } from '../../lib/waterLog'
 
 const today = () => new Date().toLocaleDateString('en-CA') // YYYY-MM-DD, local time
 
@@ -108,8 +108,9 @@ export default function AdminWaterLog() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5">
           {PARAMS.map(p => {
+            const prev = previousTest(readings, form.date)
             const raw = form[p.key].trim()
-            const rating = raw !== '' && Number.isFinite(Number(raw)) ? p.rate(Number(raw)) : null
+            const rating = raw !== '' && Number.isFinite(Number(raw)) ? rateReading(p, Number(raw), prev) : null
             return (
               <div key={p.key}>
                 <label htmlFor={`wl-${p.key}`} className={`field-label text-chesto-cream/50 ${p.key === 'ph' ? 'normal-case' : ''}`}>{p.label}</label>

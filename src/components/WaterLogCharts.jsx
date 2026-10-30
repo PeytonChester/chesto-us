@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { PARAMS, formatTestDate } from '../lib/waterLog'
+import { PARAMS, formatTestDate, previousTest, rateReading } from '../lib/waterLog'
 import { Chip } from './WaterLogTable'
 
 // One small line chart per parameter (value over test date), shown under the
@@ -56,7 +56,7 @@ function ParamChart({ param, readings }) {
 
   const points = readings
     .filter(r => typeof r[param.key] === 'number')
-    .map(r => ({ date: r.date, t: toTime(r.date), v: r[param.key] }))
+    .map(r => ({ date: r.date, t: toTime(r.date), v: r[param.key], rating: rateReading(param, r[param.key], previousTest(readings, r.date)) }))
     .sort((a, b) => a.t - b.t)
   const latest = points[points.length - 1]
   const unit = param.unit ? ` ${param.unit}` : ''
@@ -96,7 +96,7 @@ function ParamChart({ param, readings }) {
           <span className="font-display font-semibold text-lg text-chesto-dark">{param.label}</span>
           <span className="ml-2 font-mono text-[11px] text-chesto-charcoal/50">target {param.target}{unit}</span>
         </span>
-        {latest && <Chip rating={param.rate(latest.v)}>{latest.v}{unit}</Chip>}
+        {latest && <Chip rating={latest.rating}>{latest.v}{unit}</Chip>}
       </figcaption>
       <div ref={ref} className="relative" style={{ height: H }}>
         {!points.length ? (
@@ -151,7 +151,7 @@ function ParamChart({ param, readings }) {
                   cx={x(p.t)}
                   cy={y(p.v)}
                   r={hover?.date === p.date ? 6 : 4.5}
-                  fill={DOT[param.rate(p.v)]}
+                  fill={DOT[p.rating]}
                   stroke="#fff"
                   strokeWidth="2"
                 />
@@ -168,7 +168,7 @@ function ParamChart({ param, readings }) {
               >
                 <span className="block font-mono text-[10px] text-chesto-cream/60">{formatTestDate(hover.date)}</span>
                 <span className="font-mono">{hover.v}{unit}</span>
-                <span className="ml-1.5 text-chesto-cream/60">{STATUS[param.rate(hover.v)]}</span>
+                <span className="ml-1.5 text-chesto-cream/60">{STATUS[hover.rating]}</span>
               </div>
             )}
           </>
