@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { PARAMS, formatTestDate, previousTest, rateReading } from '../lib/waterLog'
+import { PARAMS, RATING_LABELS, formatTestDate, previousTest, rateReading } from '../lib/waterLog'
 import { Chip } from './WaterLogTable'
 
 // One small line chart per parameter (value over test date), shown under the
@@ -8,7 +8,6 @@ import { Chip } from './WaterLogTable'
 const H = 200
 const PAD = { top: 14, right: 16, bottom: 28, left: 40 }
 const DOT = { ok: '#4C7A5A', warn: '#D97706', bad: '#DC2626' }
-const STATUS = { ok: 'in range', warn: 'keep an eye on', bad: 'act now' }
 const DAY = 86400000
 
 const toTime = iso => Date.parse(`${iso}T00:00:00Z`)
@@ -168,7 +167,7 @@ function ParamChart({ param, readings }) {
               >
                 <span className="block font-mono text-[10px] text-chesto-cream/60">{formatTestDate(hover.date)}</span>
                 <span className="font-mono">{hover.v}{unit}</span>
-                <span className="ml-1.5 text-chesto-cream/60">{STATUS[hover.rating]}</span>
+                <span className="ml-1.5 text-chesto-cream/60">{RATING_LABELS[hover.rating]}</span>
               </div>
             )}
           </>

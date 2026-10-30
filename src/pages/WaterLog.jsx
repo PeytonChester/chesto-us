@@ -4,7 +4,7 @@ import WaterLogTable, { Chip } from '../components/WaterLogTable'
 import WaterLogCharts from '../components/WaterLogCharts'
 import TankPhotos from '../components/TankPhotos'
 import { useWaterLog } from '../hooks/useWaterLog'
-import { TANK } from '../lib/waterLog'
+import { TANK, WATER_LOG_INTRO, WATER_LOG_PATH } from '../lib/waterLog'
 
 // Unlisted page (no nav links, noindex): readings are added in /admin/water-log
 export default function WaterLog() {
@@ -18,7 +18,7 @@ export default function WaterLog() {
         <p className="section-label mb-3">Water test log</p>
         <h1 className="display-heading text-4xl md:text-6xl mb-4">Queso's Water Log</h1>
         <p className="text-chesto-charcoal/60 max-w-2xl mb-4">
-          API liquid test results for Queso's planted 10-gallon. Readings turn amber or red when they drift outside the target range, or when pH swings more than 0.3 from the last test.
+          {WATER_LOG_INTRO}
         </p>
         <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-chesto-charcoal/50 mb-12">
           {TANK.map(([k, v]) => <span key={k}><b className="font-medium text-chesto-dark">{k}</b> {v}</span>)}
@@ -46,6 +46,10 @@ export default function WaterLog() {
         )}
 
         <TankPhotos uploaded={photos} />
+
+        <p className="mt-12 text-xs text-chesto-charcoal/50">
+          The full log is also available as <a href={`${WATER_LOG_PATH}.json`} className="underline hover:text-chesto-dark">JSON</a> and <a href={`${WATER_LOG_PATH}.md`} className="underline hover:text-chesto-dark">Markdown</a>.
+        </p>
       </div>
     </div>
   )

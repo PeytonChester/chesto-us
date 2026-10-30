@@ -16,6 +16,8 @@
     { "source": "/sitemap-recipes.xml",     "destination": "/api/sitemap-recipes" },
     { "source": "/sitemap-posts.xml",       "destination": "/api/sitemap-posts" },
     { "source": "/sitemap-reviews.xml",     "destination": "/api/sitemap-reviews" },
+    { "source": "/queso-water-log.json",    "destination": "/api/water-log?format=json" },
+    { "source": "/queso-water-log.md",      "destination": "/api/water-log?format=md" },
     { "source": "/(.*)",                    "destination": "/api/page?path=/$1" }
   ],
   "functions": {
