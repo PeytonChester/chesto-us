@@ -18,7 +18,7 @@ export default function WaterLog() {
         <p className="section-label mb-3">Water test log</p>
         <h1 className="display-heading text-4xl md:text-6xl mb-4">Queso's Water Log</h1>
         <p className="text-chesto-charcoal/60 max-w-2xl mb-4">
-          API liquid test results for Queso's planted 10-gallon. Readings turn amber or red when they drift outside the target range.
+          API liquid test results for Queso's planted 10-gallon. Readings turn amber or red when they drift outside the target range, or when pH swings more than 0.3 from the last test.
         </p>
         <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-chesto-charcoal/50 mb-12">
           {TANK.map(([k, v]) => <span key={k}><b className="font-medium text-chesto-dark">{k}</b> {v}</span>)}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { PARAMS, formatTestDate } from '../lib/waterLog'
+import { PARAMS, formatTestDate, rateReading } from '../lib/waterLog'
 
 const CHIP = {
   ok: 'bg-chesto-sage/15 text-chesto-sage',
@@ -46,7 +46,7 @@ export default function WaterLogTable({ readings, dark = false, onSelect, select
           </tr>
         </thead>
         <tbody>
-          {readings.map(r => (
+          {readings.map((r, i) => (
             <tr
               key={r.date}
               onClick={onSelect ? () => onSelect(r) : undefined}
@@ -58,7 +58,7 @@ export default function WaterLogTable({ readings, dark = false, onSelect, select
                 return (
                   <td key={p.key} className="px-3 py-3">
                     {typeof v === 'number'
-                      ? <Chip rating={p.rate(v)} dark={dark}>{v}</Chip>
+                      ? <Chip rating={rateReading(p, v, readings[i + 1])} dark={dark}>{v}</Chip>
                       : <span className={muted}>—</span>}
                   </td>
                 )
